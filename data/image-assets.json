@@ -1,0 +1,322 @@
+[
+  {
+    "poetryId": "ts300-0311",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0121",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0361",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0321",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0152",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0148",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0327",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0280",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0272",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0147",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0143",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0144",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0157",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0002",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0362",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0169",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0172",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0171",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0208",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0207",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0218",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0222",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0241",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0231",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0204",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0183",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0122",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0118",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0134",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0135",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0054",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0322",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0124",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0123",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0217",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0074",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0013",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0012",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0010",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  },
+  {
+    "poetryId": "ts300-0180",
+    "style": "storybook-watercolor",
+    "status": "placeholder",
+    "imagePath": "/images/placeholders/default-poetry-card.jpg",
+    "thumbPath": "/images/placeholders/default-poetry-card.jpg",
+    "promptVersion": "v1"
+  }
+]

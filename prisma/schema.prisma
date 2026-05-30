@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Poetry {
+  id             String             @id
+  sourceId       Int?
+  title          String
+  titleOriginal  String?
+  author         String
+  authorOriginal String?
+  dynasty        String
+  lines          Json
+  tags           Json
+  themes         Json
+  difficulty     Int                @default(1)
+  imageKey       String?
+  imageStatus    String             @default("placeholder")
+  translation    String?
+  pinyin         Json?
+  aiExplanation  Json?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  imageAssets    ImageAsset[]
+  dailyEntries   DailyPoetry[]
+  learningEvents LearningRecord[]
+  attempts       ChallengeAttempt[]
+  reviewStates   ReviewState[]
+  favorites      Favorite[]
+
+  @@index([author])
+  @@index([imageStatus])
+}
+
+model ImageAsset {
+  id            String   @id @default(cuid())
+  poetryId      String
+  style         String
+  status        String   @default("placeholder")
+  promptVersion String
+  imagePath     String
+  thumbPath     String?
+  width         Int?
+  height        Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  poetry        Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@unique([poetryId, style, promptVersion])
+  @@index([status])
+}
+
+model DailyPoetry {
+  date      String   @id
+  poetryId   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  poetry     Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@index([poetryId])
+}
+
+model LearningRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  poetryId  String
+  eventType String
+  createdAt DateTime @default(now())
+  poetry    Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([poetryId, createdAt])
+  @@index([userId, poetryId])
+}
+
+model ChallengeAttempt {
+  id              String   @id @default(cuid())
+  userId          String
+  poetryId        String
+  questionType    String
+  promptLineIndex Int?
+  userAnswer      String
+  isCorrect       Boolean
+  createdAt       DateTime @default(now())
+  poetry          Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([poetryId, createdAt])
+  @@index([userId, poetryId, questionType])
+}
+
+model ReviewState {
+  id                    String   @id @default(cuid())
+  userId                String
+  poetryId              String
+  mastery               Int      @default(0)
+  reviewStage           Int      @default(0)
+  currentIntervalDays   Int      @default(1)
+  lastReviewedAt        DateTime?
+  nextReviewAt          DateTime?
+  wrongCount            Int      @default(0)
+  consecutiveWrongCount Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  poetry                Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, poetryId])
+  @@index([userId, nextReviewAt])
+  @@index([poetryId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  poetryId  String
+  createdAt DateTime @default(now())
+  poetry    Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, poetryId])
+  @@index([userId, createdAt])
+}

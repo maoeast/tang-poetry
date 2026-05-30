@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tang-poetry-postgres
+    environment:
+      POSTGRES_DB: tang_poetry
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
