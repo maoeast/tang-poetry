@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
+import { toUtcDayKey } from "@/lib/poetry/view-record";
 
 type DailyPoetryRepository = {
   dailyPoetry: {
@@ -32,10 +33,26 @@ type DailyPoetryRepository = {
       };
     } | null>;
   };
+  learningRecord?: {
+    findMany?: (args: {
+      where: {
+        userId: string;
+        poetryId: string;
+        eventType: string;
+      };
+      select: {
+        createdAt: true;
+      };
+      orderBy: {
+        createdAt: "asc" | "desc";
+      };
+    }) => Promise<Array<{ createdAt: Date }>>;
+  };
 };
 
 export type DailyPoetryResult = {
   date: string;
+  isReadToday: boolean;
   poetry: {
     id: string;
     title: string;
@@ -56,10 +73,43 @@ export function getTodayDateString(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }
 
+async function getIsReadToday(
+  poetryId: string,
+  repository: DailyPoetryRepository,
+  now: Date,
+) {
+  const userId = process.env.SYSTEM_USER_ID;
+
+  if (!userId || !repository.learningRecord?.findMany) {
+    return false;
+  }
+
+  const records = await repository.learningRecord.findMany({
+    where: {
+      userId,
+      poetryId,
+      eventType: "view_poetry",
+    },
+    select: {
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const todayKey = toUtcDayKey(now);
+
+  return records.some((record) => toUtcDayKey(record.createdAt) === todayKey);
+}
+
 export async function getDailyPoetry(
   date: string,
   repository: DailyPoetryRepository = db,
   dependencies: DailyPoetryDependencies = { getPoetryImage },
+  options?: {
+    now?: Date;
+  },
 ): Promise<DailyPoetryResult | null> {
   const entry = await repository.dailyPoetry.findUnique({
     where: { date },
@@ -83,10 +133,13 @@ export async function getDailyPoetry(
     return null;
   }
 
+  const now = options?.now ?? new Date();
   const image = await dependencies.getPoetryImage(entry.poetry.id);
+  const isReadToday = await getIsReadToday(entry.poetry.id, repository, now);
 
   return {
     date: entry.date,
+    isReadToday,
     poetry: {
       ...entry.poetry,
       lines: Array.isArray(entry.poetry.lines)
