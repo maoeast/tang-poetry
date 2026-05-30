@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -18,40 +19,57 @@ function ReviewCard({
 }) {
   return (
     <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/80 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-xl font-medium">{item.title}</h3>
-          <p className="mt-1 text-sm text-[var(--color-muted)]">{item.author}</p>
+      <div className="flex flex-col gap-5 sm:flex-row">
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.25rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)] sm:max-w-[10.5rem]">
+          <Image
+            src={item.image.thumbPath ?? item.image.imagePath}
+            alt={`${item.title} 配图`}
+            fill
+            className="object-cover"
+            sizes="(min-width: 640px) 10.5rem, 100vw"
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(63,47,35,0.7)] via-[rgba(63,47,35,0.16)] to-transparent px-3 py-2 text-[0.7rem] tracking-[0.12em] text-white uppercase">
+            {item.image.isPlaceholder ? "placeholder" : "imageasset"}
+          </div>
         </div>
-        {badge ? (
-          <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
-            {badge}
-          </span>
-        ) : null}
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-xl font-medium">{item.title}</h3>
+              <p className="mt-1 text-sm text-[var(--color-muted)]">{item.author}</p>
+            </div>
+            {badge ? (
+              <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
+                {badge}
+              </span>
+            ) : null}
+          </div>
+
+          <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
+            {item.previewLine}
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-2 text-sm text-[var(--color-muted)]">
+            <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
+              熟练度 {item.mastery}
+            </span>
+            <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
+              错题 {item.wrongCount}
+            </span>
+            <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
+              间隔 {item.currentIntervalDays} 天
+            </span>
+          </div>
+
+          <Link
+            href={`/poetry/${item.poetryId}` as Route}
+            className="mt-5 inline-flex rounded-full border border-[var(--color-line)] bg-[var(--color-card)] px-4 py-2 text-sm transition hover:bg-white"
+          >
+            查看诗文
+          </Link>
+        </div>
       </div>
-
-      <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-        {item.previewLine}
-      </p>
-
-      <div className="mt-5 flex flex-wrap gap-2 text-sm text-[var(--color-muted)]">
-        <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
-          熟练度 {item.mastery}
-        </span>
-        <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
-          错题 {item.wrongCount}
-        </span>
-        <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
-          间隔 {item.currentIntervalDays} 天
-        </span>
-      </div>
-
-      <Link
-        href={`/poetry/${item.poetryId}` as Route}
-        className="mt-5 inline-flex rounded-full border border-[var(--color-line)] bg-[var(--color-card)] px-4 py-2 text-sm transition hover:bg-white"
-      >
-        查看诗文
-      </Link>
     </article>
   );
 }

@@ -1,7 +1,11 @@
 import { db } from "@/lib/db";
+import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 
 const REVIEW_INTERVAL_SEQUENCE = [1, 2, 4, 7, 15, 30] as const;
 const UPCOMING_WINDOW_DAYS = 7;
+const DEFAULT_POETRY_IMAGE_PATH = "/images/placeholders/default-poetry-card.jpg";
+const DEFAULT_IMAGE_STYLE = "storybook-watercolor";
+const DEFAULT_PROMPT_VERSION = "v1";
 
 export type ReviewStateSnapshot = {
   userId: string;
@@ -16,6 +20,7 @@ export type ReviewStateSnapshot = {
   title: string;
   author: string;
   previewLine: string;
+  image: PoetryImage;
 };
 
 type ReviewStateRecord = {
@@ -117,6 +122,10 @@ type GetReviewBucketsOptions = {
   now?: Date;
 };
 
+type ReviewSchedulerDependencies = {
+  getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
+};
+
 export type ReviewBuckets = {
   todayDue: ReviewStateSnapshot[];
   upcoming: ReviewStateSnapshot[];
@@ -133,7 +142,26 @@ function toStringArray(value: unknown) {
     : [];
 }
 
-function toSnapshot(record: ReviewStateRecord): ReviewStateSnapshot {
+function buildPlaceholderImage(poetryId: string): PoetryImage {
+  return {
+    poetryId,
+    imagePath: DEFAULT_POETRY_IMAGE_PATH,
+    thumbPath: DEFAULT_POETRY_IMAGE_PATH,
+    status: "placeholder",
+    style: DEFAULT_IMAGE_STYLE,
+    promptVersion: DEFAULT_PROMPT_VERSION,
+    width: null,
+    height: null,
+    isPlaceholder: true,
+  };
+}
+
+async function toSnapshot(
+  record: ReviewStateRecord,
+  dependencies: ReviewSchedulerDependencies,
+): Promise<ReviewStateSnapshot> {
+  const image = await dependencies.getPoetryImage(record.poetryId);
+
   return {
     userId: record.userId,
     poetryId: record.poetryId,
@@ -147,6 +175,7 @@ function toSnapshot(record: ReviewStateRecord): ReviewStateSnapshot {
     title: record.poetry.title,
     author: record.poetry.author,
     previewLine: toStringArray(record.poetry.lines)[0] ?? "",
+    image,
   };
 }
 
@@ -156,7 +185,7 @@ function clampStage(stage: number) {
 
 export function createInitialReviewState(
   input: CreateInitialReviewStateInput,
-): Omit<ReviewStateSnapshot, "title" | "author" | "previewLine"> {
+): Omit<ReviewStateSnapshot, "title" | "author" | "previewLine" | "image"> {
   const studiedAt = input.studiedAt ?? new Date();
 
   return {
@@ -211,6 +240,7 @@ export function updateReviewStateAfterAnswer(
 export async function getReviewBuckets(
   repositoryOrOptions?: ReviewRepository | GetReviewBucketsOptions,
   maybeOptions?: GetReviewBucketsOptions,
+  dependencies: ReviewSchedulerDependencies = { getPoetryImage },
 ): Promise<ReviewBuckets> {
   const repository =
     maybeOptions === undefined
@@ -244,7 +274,9 @@ export async function getReviewBuckets(
     orderBy: [{ wrongCount: "desc" }, { nextReviewAt: "asc" }],
   });
 
-  const snapshots = records.map(toSnapshot);
+  const snapshots = await Promise.all(
+    records.map((record) => toSnapshot(record, dependencies)),
+  );
   const upcomingLimit = addDays(now, UPCOMING_WINDOW_DAYS);
 
   return {
@@ -345,7 +377,9 @@ export async function syncReviewStateFromLearningEvent(
   });
 
   const baseState = existing
-    ? toSnapshot(existing)
+    ? await toSnapshot(existing, {
+        getPoetryImage: async (poetryId) => buildPlaceholderImage(poetryId),
+      })
     : {
         ...createInitialReviewState({
           userId,
@@ -355,6 +389,7 @@ export async function syncReviewStateFromLearningEvent(
         title: "",
         author: "",
         previewLine: "",
+        image: buildPlaceholderImage(input.poetryId),
       };
   const nextState = updateReviewStateAfterAnswer({
     state: baseState,

@@ -18,6 +18,7 @@
 - 诗歌详情页已接入基础相关推荐和 `view_poetry` 学习记录写入
 - 挑战页已接入四类题型、即时反馈、挑战记录和学习记录联动
 - 复习页已接入固定调度规则、待复习列表和最近错题
+- 复习页复习卡片已接入 `ImageAsset` 运行时缩略图
 - AI 讲解接口与详情页懒加载卡片已接通
 - 我的页面已接入学习统计与诗人缘分榜
 
@@ -39,9 +40,9 @@
 
 当前还没有完成的阶段包括：
 
-- 运行时图片在更多页面卡片中的统一接入
+- 非关键卡片位的运行时图片统一接入
 - 精选图片资产的持续替换与质量验收
-- 全量端到端联调清单与缺口记录
+- 任务 13 的全量端到端联调执行与结果记录
 - 生产部署文档与部署流程
 
 ## 环境要求
@@ -134,6 +135,7 @@ node -e 'const {PrismaClient}=require("@prisma/client"); const db=new PrismaClie
 ## 相关文档
 
 - 交接文档：[HANDOFF.md](./HANDOFF.md)
+- 任务 13 缺口清单：[docs/task-13-gap-list.md](./docs/task-13-gap-list.md)
 - 设计规格：[docs/superpowers/specs/2026-05-29-tang-poetry-app-design.md](./docs/superpowers/specs/2026-05-29-tang-poetry-app-design.md)
 - 实现计划：[docs/superpowers/plans/2026-05-29-tang-poetry-app-phase-1.md](./docs/superpowers/plans/2026-05-29-tang-poetry-app-phase-1.md)
 - 修订意见：[docs/codex-revision-prompt-final.md](./docs/codex-revision-prompt-final.md)

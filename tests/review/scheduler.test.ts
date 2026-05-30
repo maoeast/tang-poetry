@@ -25,6 +25,17 @@ function createState(overrides: Partial<ReviewStateSnapshot> = {}): ReviewStateS
     title: "静夜思",
     author: "李白",
     previewLine: "床前明月光，",
+    image: {
+      poetryId: "ts300-0001",
+      imagePath: "/images/placeholders/default-poetry-card.jpg",
+      thumbPath: "/images/placeholders/default-poetry-card.jpg",
+      status: "placeholder",
+      style: "storybook-watercolor",
+      promptVersion: "v1",
+      width: null,
+      height: null,
+      isPlaceholder: true,
+    },
     ...overrides,
   };
 }
@@ -174,6 +185,90 @@ test("getReviewBuckets returns due, upcoming and wrong-priority review items", a
     buckets.recentWrong.map((item) => item.poetryId),
     ["ts300-0002", "ts300-0003"],
   );
+});
+
+test("getReviewBuckets attaches runtime images from ImageAsset and keeps placeholder fallback", async () => {
+  const imageCalls: string[] = [];
+
+  const buckets = await getReviewBuckets(
+    {
+      reviewState: {
+        findMany: async () => [
+          {
+            ...createState({
+              poetryId: "ts300-0001",
+              title: "静夜思",
+              nextReviewAt: new Date("2026-05-29T06:00:00.000Z"),
+            }),
+            poetry: {
+              title: "静夜思",
+              author: "李白",
+              lines: ["床前明月光，"],
+            },
+          },
+          {
+            ...createState({
+              poetryId: "ts300-0002",
+              title: "春晓",
+              wrongCount: 1,
+              nextReviewAt: new Date("2026-05-30T08:00:00.000Z"),
+            }),
+            poetry: {
+              title: "春晓",
+              author: "孟浩然",
+              lines: ["春眠不觉晓，"],
+            },
+          },
+        ],
+      },
+    },
+    {
+      userId: "family-001",
+      now: baseNow,
+    },
+    {
+      getPoetryImage: async (poetryId: string) => {
+        imageCalls.push(poetryId);
+
+        if (poetryId === "ts300-0001") {
+          return {
+            poetryId,
+            imagePath: "/images/generated/ts300-0001.jpg",
+            thumbPath: "/images/generated/ts300-0001-thumb.jpg",
+            status: "ready",
+            style: "storybook-watercolor",
+            promptVersion: "v1",
+            width: 1200,
+            height: 675,
+            isPlaceholder: false,
+          };
+        }
+
+        return {
+          poetryId,
+          imagePath: "/images/placeholders/default-poetry-card.jpg",
+          thumbPath: "/images/placeholders/default-poetry-card.jpg",
+          status: "placeholder",
+          style: "storybook-watercolor",
+          promptVersion: "v1",
+          width: null,
+          height: null,
+          isPlaceholder: true,
+        };
+      },
+    },
+  );
+
+  assert.deepEqual(imageCalls, ["ts300-0001", "ts300-0002"]);
+  assert.equal(
+    buckets.todayDue[0]?.image.thumbPath,
+    "/images/generated/ts300-0001-thumb.jpg",
+  );
+  assert.equal(
+    buckets.upcoming[0]?.image.imagePath,
+    "/images/placeholders/default-poetry-card.jpg",
+  );
+  assert.equal(buckets.upcoming[0]?.image.isPlaceholder, true);
 });
 
 test("buildReviewSummary exposes suggested count and recent wrong items", () => {
