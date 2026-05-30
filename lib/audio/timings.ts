@@ -17,8 +17,7 @@ function getAverageLineStartMs(
     return 0;
   }
 
-  const boundedIndex = Math.max(0, Math.min(lineIndex, lineCount - 1));
-  return Math.floor((durationMs / lineCount) * boundedIndex);
+  return Math.floor((durationMs / lineCount) * lineIndex);
 }
 
 export function getLineStartMs({

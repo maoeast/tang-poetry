@@ -193,11 +193,16 @@ export async function getRelatedPoetries(
 export async function recordPoetryView(
   poetryId: string,
   repository?: PoetryRepository,
-  options?: { now?: Date },
+  options?: {
+    now?: Date;
+    syncReviewState?: typeof syncReviewStateFromLearningEvent;
+  },
 ) {
   const userId = process.env.SYSTEM_USER_ID;
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
   const now = options?.now ?? new Date();
+  const syncReviewState =
+    options?.syncReviewState ?? syncReviewStateFromLearningEvent;
 
   if (!userId || !targetRepository.learningRecord) {
     return;
@@ -236,10 +241,8 @@ export async function recordPoetryView(
     },
   });
 
-  if (!repository) {
-    await syncReviewStateFromLearningEvent({
-      poetryId,
-      eventType: "view_poetry",
-    });
-  }
+  await syncReviewState({
+    poetryId,
+    eventType: "view_poetry",
+  });
 }

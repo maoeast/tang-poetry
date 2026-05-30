@@ -301,6 +301,7 @@ test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () =
   process.env.SYSTEM_USER_ID = "family-001";
 
   const calls: unknown[] = [];
+  const syncCalls: unknown[] = [];
 
   await recordPoetryView("ts300-0001", {
     poetry: {
@@ -314,6 +315,10 @@ test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () =
         return {};
       },
     },
+  }, {
+    syncReviewState: async (args) => {
+      syncCalls.push(args);
+    },
   });
 
   assert.deepEqual(calls, [
@@ -323,6 +328,12 @@ test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () =
         poetryId: "ts300-0001",
         eventType: "view_poetry",
       },
+    },
+  ]);
+  assert.deepEqual(syncCalls, [
+    {
+      poetryId: "ts300-0001",
+      eventType: "view_poetry",
     },
   ]);
 
@@ -407,6 +418,7 @@ test("recordPoetryView creates a view record when the latest one is from a previ
   process.env.SYSTEM_USER_ID = "family-001";
 
   const calls: unknown[] = [];
+  const syncCalls: unknown[] = [];
 
   await recordPoetryView("ts300-0001", {
     poetry: {
@@ -422,6 +434,9 @@ test("recordPoetryView creates a view record when the latest one is from a previ
     },
   }, {
     now: new Date("2026-05-30T08:00:00.000Z"),
+    syncReviewState: async (args) => {
+      syncCalls.push(args);
+    },
   });
 
   assert.deepEqual(calls, [
@@ -431,6 +446,12 @@ test("recordPoetryView creates a view record when the latest one is from a previ
         poetryId: "ts300-0001",
         eventType: "view_poetry",
       },
+    },
+  ]);
+  assert.deepEqual(syncCalls, [
+    {
+      poetryId: "ts300-0001",
+      eventType: "view_poetry",
     },
   ]);
 

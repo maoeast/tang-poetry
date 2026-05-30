@@ -30,3 +30,15 @@ test("getLineStartMs uses object timings matched by lineIndex", () => {
     6_800,
   );
 });
+
+test("getLineStartMs fallback does not clamp out-of-range lineIndex values", () => {
+  assert.equal(
+    getLineStartMs({
+      durationMs: 12_000,
+      lineCount: 4,
+      lineIndex: 5,
+      lineTimings: null,
+    }),
+    15_000,
+  );
+});
