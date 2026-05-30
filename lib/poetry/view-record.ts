@@ -2,6 +2,10 @@ function startOfUtcDay(date: Date) {
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
+export function toUtcDayKey(date: Date) {
+  return `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`;
+}
+
 type ShouldCreateViewRecordArgs = {
   existingCreatedAts: Date[];
   targetDate?: Date;

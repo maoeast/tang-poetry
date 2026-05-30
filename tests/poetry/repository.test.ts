@@ -299,6 +299,7 @@ test("getRelatedPoetries returns author and theme based recommendations excludin
 test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () => {
   const previousUserId = process.env.SYSTEM_USER_ID;
   process.env.SYSTEM_USER_ID = "family-001";
+  const now = new Date("2026-05-30T08:00:00.000Z");
 
   const calls: unknown[] = [];
   const syncCalls: unknown[] = [];
@@ -316,6 +317,7 @@ test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () =
       },
     },
   }, {
+    now,
     syncReviewState: async (args) => {
       syncCalls.push(args);
     },
@@ -327,6 +329,7 @@ test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () =
         userId: "family-001",
         poetryId: "ts300-0001",
         eventType: "view_poetry",
+        dayKey: "2026-4-30",
       },
     },
   ]);
@@ -416,6 +419,7 @@ test("recordPoetryView does not create a duplicate view record on the same UTC d
 test("recordPoetryView creates a view record when the latest one is from a previous UTC day", async () => {
   const previousUserId = process.env.SYSTEM_USER_ID;
   process.env.SYSTEM_USER_ID = "family-001";
+  const now = new Date("2026-05-30T08:00:00.000Z");
 
   const calls: unknown[] = [];
   const syncCalls: unknown[] = [];
@@ -433,7 +437,7 @@ test("recordPoetryView creates a view record when the latest one is from a previ
       },
     },
   }, {
-    now: new Date("2026-05-30T08:00:00.000Z"),
+    now,
     syncReviewState: async (args) => {
       syncCalls.push(args);
     },
@@ -445,6 +449,7 @@ test("recordPoetryView creates a view record when the latest one is from a previ
         userId: "family-001",
         poetryId: "ts300-0001",
         eventType: "view_poetry",
+        dayKey: "2026-4-30",
       },
     },
   ]);
@@ -454,6 +459,37 @@ test("recordPoetryView creates a view record when the latest one is from a previ
       eventType: "view_poetry",
     },
   ]);
+
+  process.env.SYSTEM_USER_ID = previousUserId;
+});
+
+test("recordPoetryView skips sync when create hits the same-day unique constraint", async () => {
+  const previousUserId = process.env.SYSTEM_USER_ID;
+  process.env.SYSTEM_USER_ID = "family-001";
+
+  const syncCalls: unknown[] = [];
+
+  await recordPoetryView("ts300-0001", {
+    poetry: {
+      findUnique: async () => null,
+      findMany: async () => [],
+    },
+    learningRecord: {
+      findMany: async () => [],
+      create: async () => {
+        const error = new Error("unique constraint");
+        Object.assign(error, { code: "P2002" });
+        throw error;
+      },
+    },
+  }, {
+    now: new Date("2026-05-30T08:00:00.000Z"),
+    syncReviewState: async (args) => {
+      syncCalls.push(args);
+    },
+  });
+
+  assert.deepEqual(syncCalls, []);
 
   process.env.SYSTEM_USER_ID = previousUserId;
 });

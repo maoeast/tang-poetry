@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { shouldCreateViewRecord } from "@/lib/poetry/view-record";
+import { shouldCreateViewRecord, toUtcDayKey } from "@/lib/poetry/view-record";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
 
@@ -70,6 +70,7 @@ type PoetryRepository = {
         userId: string;
         poetryId: string;
         eventType: string;
+        dayKey?: string;
       };
     }) => Promise<unknown>;
   };
@@ -92,6 +93,17 @@ export type PoetryDetail = {
 type PoetryRepositoryDependencies = {
   getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
 };
+
+type SyncReviewState = typeof syncReviewStateFromLearningEvent;
+
+function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "P2002"
+  );
+}
 
 export type RelatedPoetry = {
   id: string;
@@ -195,14 +207,14 @@ export async function recordPoetryView(
   repository?: PoetryRepository,
   options?: {
     now?: Date;
-    syncReviewState?: typeof syncReviewStateFromLearningEvent;
+    syncReviewState?: SyncReviewState;
+    reviewRepository?: Parameters<SyncReviewState>[1];
   },
 ) {
   const userId = process.env.SYSTEM_USER_ID;
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
   const now = options?.now ?? new Date();
-  const syncReviewState =
-    options?.syncReviewState ?? syncReviewStateFromLearningEvent;
+  const syncReviewState = options?.syncReviewState;
 
   if (!userId || !targetRepository.learningRecord) {
     return;
@@ -233,16 +245,41 @@ export async function recordPoetryView(
     return;
   }
 
-  await targetRepository.learningRecord.create({
-    data: {
-      userId,
+  const dayKey = toUtcDayKey(now);
+
+  try {
+    await targetRepository.learningRecord.create({
+      data: {
+        userId,
+        poetryId,
+        eventType: "view_poetry",
+        dayKey,
+      },
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return;
+    }
+
+    throw error;
+  }
+
+  if (syncReviewState) {
+    await syncReviewState(
+      {
+        poetryId,
+        eventType: "view_poetry",
+      },
+      options?.reviewRepository,
+    );
+
+    return;
+  }
+
+  if (!repository) {
+    await syncReviewStateFromLearningEvent({
       poetryId,
       eventType: "view_poetry",
-    },
-  });
-
-  await syncReviewState({
-    poetryId,
-    eventType: "view_poetry",
-  });
+    });
+  }
 }

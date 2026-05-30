@@ -84,12 +84,14 @@ model LearningRecord {
   userId    String
   poetryId  String
   eventType String
+  dayKey    String?
   createdAt DateTime @default(now())
   poetry    Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([poetryId, createdAt])
   @@index([userId, poetryId])
+  @@unique([userId, poetryId, eventType, dayKey])
 }
 
 model ChallengeAttempt {

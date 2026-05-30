@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { shouldCreateViewRecord } from "@/lib/poetry/view-record";
+import { shouldCreateViewRecord, toUtcDayKey } from "@/lib/poetry/view-record";
 
 test("shouldCreateViewRecord returns false when the latest view was created on the same UTC day", () => {
   assert.equal(
@@ -24,4 +24,8 @@ test("shouldCreateViewRecord returns true when existing records are all from oth
     }),
     true,
   );
+});
+
+test("toUtcDayKey returns a stable UTC day string", () => {
+  assert.equal(toUtcDayKey(new Date("2026-05-30T23:59:59.000Z")), "2026-4-30");
 });
