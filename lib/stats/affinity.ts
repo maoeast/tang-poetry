@@ -13,6 +13,11 @@ export type MyPageSummary = {
   challengeAttemptCount: number;
 };
 
+type ChallengeAccuracyAttempt = {
+  questionType: string;
+  isCorrect: boolean;
+};
+
 type LearningRecordGroup = {
   poetryId: string;
   _count: {
@@ -77,9 +82,15 @@ type AffinityRepository = {
     count: (args: {
       where: {
         userId: string;
+        questionType?: {
+          not: string;
+        };
       } | {
         userId: string;
         isCorrect: true;
+        questionType?: {
+          not: string;
+        };
       };
     }) => Promise<number>;
   };
@@ -132,6 +143,35 @@ function calculateStreakDays(
   }
 
   return streak;
+}
+
+export function calculateChallengeAccuracy(
+  attempts: ChallengeAccuracyAttempt[],
+) {
+  const includedAttempts = attempts.filter(
+    (attempt) => attempt.questionType !== "review_self_report",
+  );
+
+  if (includedAttempts.length === 0) {
+    return 0;
+  }
+
+  const correctAttemptCount = includedAttempts.filter(
+    (attempt) => attempt.isCorrect,
+  ).length;
+
+  return Math.round((correctAttemptCount / includedAttempts.length) * 100);
+}
+
+function calculateChallengeAccuracyFromCounts(
+  challengeAttemptCount: number,
+  correctAttemptCount: number,
+) {
+  if (challengeAttemptCount <= 0) {
+    return 0;
+  }
+
+  return Math.round((correctAttemptCount / challengeAttemptCount) * 100);
 }
 
 export async function getPoetAffinity(
@@ -241,6 +281,9 @@ export async function getMyPageStats(
         ? targetRepository.challengeAttempt.count({
             where: {
               userId,
+              questionType: {
+                not: "review_self_report",
+              },
             },
           })
         : Promise.resolve(0),
@@ -249,6 +292,9 @@ export async function getMyPageStats(
             where: {
               userId,
               isCorrect: true,
+              questionType: {
+                not: "review_self_report",
+              },
             },
           })
         : Promise.resolve(0),
@@ -259,10 +305,10 @@ export async function getMyPageStats(
       .map((record) => record.poetryId)
       .filter((value): value is string => typeof value === "string" && value.length > 0),
   ).size;
-  const challengeAccuracy =
-    challengeAttemptCount > 0
-      ? Math.round((correctAttemptCount / challengeAttemptCount) * 100)
-      : 0;
+  const challengeAccuracy = calculateChallengeAccuracyFromCounts(
+    challengeAttemptCount,
+    correctAttemptCount,
+  );
 
   return {
     streakDays: calculateStreakDays(activityRecords, now),

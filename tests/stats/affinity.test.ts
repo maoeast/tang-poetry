@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  calculateChallengeAccuracy,
   getMyPageStats,
   getPoetAffinity,
   type MyPageSummary,
@@ -153,6 +154,9 @@ test("getMyPageStats builds the profile summary with streak, unique views, favor
           JSON.stringify({
             where: {
               userId: "family-001",
+              questionType: {
+                not: "review_self_report",
+              },
             },
           })
         ) {
@@ -163,6 +167,9 @@ test("getMyPageStats builds the profile summary with streak, unique views, favor
           where: {
             userId: "family-001",
             isCorrect: true,
+            questionType: {
+              not: "review_self_report",
+            },
           },
         });
 
@@ -197,12 +204,18 @@ test("getMyPageStats builds the profile summary with streak, unique views, favor
     {
       where: {
         userId: "family-001",
+        questionType: {
+          not: "review_self_report",
+        },
       },
     },
     {
       where: {
         userId: "family-001",
         isCorrect: true,
+        questionType: {
+          not: "review_self_report",
+        },
       },
     },
   ]);
@@ -236,4 +249,83 @@ test("getMyPageStats returns zero accuracy and zero streak when there is no acti
     challengeAccuracy: 0,
     challengeAttemptCount: 0,
   } satisfies MyPageSummary);
+});
+
+test("calculateChallengeAccuracy excludes review_self_report attempts", () => {
+  assert.equal(
+    calculateChallengeAccuracy([
+      { questionType: "couplet", isCorrect: true },
+      { questionType: "ordering", isCorrect: false },
+      { questionType: "review_self_report", isCorrect: false },
+      { questionType: "review_self_report", isCorrect: true },
+    ]),
+    50,
+  );
+});
+
+test("getMyPageStats excludes review_self_report from challenge accuracy counts", async () => {
+  const challengeAttemptCalls: unknown[] = [];
+
+  const result = await getMyPageStats("family-001", {
+    learningRecord: {
+      findMany: async () => [],
+    },
+    favorite: {
+      count: async () => 0,
+    },
+    challengeAttempt: {
+      count: async (args: unknown) => {
+        challengeAttemptCalls.push(args);
+
+        if (
+          JSON.stringify(args) ===
+          JSON.stringify({
+            where: {
+              userId: "family-001",
+              questionType: {
+                not: "review_self_report",
+              },
+            },
+          })
+        ) {
+          return 8;
+        }
+
+        assert.deepEqual(args, {
+          where: {
+            userId: "family-001",
+            isCorrect: true,
+            questionType: {
+              not: "review_self_report",
+            },
+          },
+        });
+
+        return 6;
+      },
+    },
+  });
+
+  assert.deepEqual(challengeAttemptCalls, [
+    {
+      where: {
+        userId: "family-001",
+        questionType: {
+          not: "review_self_report",
+        },
+      },
+    },
+    {
+      where: {
+        userId: "family-001",
+        isCorrect: true,
+        questionType: {
+          not: "review_self_report",
+        },
+      },
+    },
+  ]);
+
+  assert.equal(result.challengeAttemptCount, 8);
+  assert.equal(result.challengeAccuracy, 75);
 });

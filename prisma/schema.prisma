@@ -26,6 +26,7 @@ model Poetry {
   aiExplanation  Json?
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
+  audioMeta      AudioMeta?
   imageAssets    ImageAsset[]
   dailyEntries   DailyPoetry[]
   learningEvents LearningRecord[]
@@ -35,6 +36,19 @@ model Poetry {
 
   @@index([author])
   @@index([imageStatus])
+}
+
+model AudioMeta {
+  id         String   @id @default(cuid())
+  poetryId   String   @unique
+  status     String   @default("ready")
+  durationMs Int
+  lineTimings Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  poetry     Poetry   @relation(fields: [poetryId], references: [id], onDelete: Cascade)
+
+  @@index([status])
 }
 
 model ImageAsset {

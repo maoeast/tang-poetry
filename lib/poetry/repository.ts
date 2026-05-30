@@ -1,10 +1,11 @@
 import { db } from "@/lib/db";
+import { shouldCreateViewRecord } from "@/lib/poetry/view-record";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
 
 type PoetryRepository = {
   poetry: {
-    findUnique: (args: {
+    findUnique?: (args: {
       where: { id: string };
       select: {
         id: true;
@@ -30,7 +31,7 @@ type PoetryRepository = {
       imageKey: string | null;
       imageStatus: string;
     } | null>;
-    findMany: (args: {
+    findMany?: (args: {
       where: unknown;
       select: {
         id: true;
@@ -51,6 +52,19 @@ type PoetryRepository = {
     >;
   };
   learningRecord?: {
+    findMany?: (args: {
+      where: {
+        userId: string;
+        poetryId: string;
+        eventType: string;
+      };
+      select: {
+        createdAt: true;
+      };
+      orderBy: {
+        createdAt: "asc" | "desc";
+      };
+    }) => Promise<Array<{ createdAt: Date }>>;
     create: (args: {
       data: {
         userId: string;
@@ -99,6 +113,10 @@ export async function getPoetryById(
   dependencies: PoetryRepositoryDependencies = { getPoetryImage },
 ): Promise<PoetryDetail | null> {
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
+  if (!targetRepository.poetry.findUnique) {
+    return null;
+  }
+
   const poetry = await targetRepository.poetry.findUnique({
     where: { id },
     select: {
@@ -135,6 +153,10 @@ export async function getRelatedPoetries(
   repository?: PoetryRepository,
 ): Promise<RelatedPoetry[]> {
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
+  if (!targetRepository.poetry.findMany) {
+    return [];
+  }
+
   const related = await targetRepository.poetry.findMany({
     where: {
       id: { not: poetry.id },
@@ -171,11 +193,38 @@ export async function getRelatedPoetries(
 export async function recordPoetryView(
   poetryId: string,
   repository?: PoetryRepository,
+  options?: { now?: Date },
 ) {
   const userId = process.env.SYSTEM_USER_ID;
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
+  const now = options?.now ?? new Date();
 
   if (!userId || !targetRepository.learningRecord) {
+    return;
+  }
+
+  const existingViewRecords = targetRepository.learningRecord.findMany
+    ? await targetRepository.learningRecord.findMany({
+        where: {
+          userId,
+          poetryId,
+          eventType: "view_poetry",
+        },
+        select: {
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      })
+    : [];
+
+  if (
+    !shouldCreateViewRecord({
+      existingCreatedAts: existingViewRecords.map((record) => record.createdAt),
+      targetDate: now,
+    })
+  ) {
     return;
   }
 

@@ -308,6 +308,7 @@ test("recordPoetryView writes a learning record with SYSTEM_USER_ID", async () =
       findMany: async () => [],
     },
     learningRecord: {
+      findMany: async () => [],
       create: async (args: unknown) => {
         calls.push(args);
         return {};
@@ -340,6 +341,7 @@ test("recordPoetryView is a no-op when SYSTEM_USER_ID is missing", async () => {
       findMany: async () => [],
     },
     learningRecord: {
+      findMany: async () => [],
       create: async (args: unknown) => {
         calls.push(args);
         return {};
@@ -348,6 +350,89 @@ test("recordPoetryView is a no-op when SYSTEM_USER_ID is missing", async () => {
   });
 
   assert.deepEqual(calls, []);
+
+  process.env.SYSTEM_USER_ID = previousUserId;
+});
+
+test("recordPoetryView does not create a duplicate view record on the same UTC day", async () => {
+  const previousUserId = process.env.SYSTEM_USER_ID;
+  process.env.SYSTEM_USER_ID = "family-001";
+
+  const calls: unknown[] = [];
+
+  await recordPoetryView("ts300-0001", {
+    poetry: {
+      findUnique: async () => null,
+      findMany: async () => [],
+    },
+    learningRecord: {
+      findMany: async (args: unknown) => {
+        calls.push({ type: "findMany", args });
+
+        return [{ createdAt: new Date("2026-05-30T00:00:01.000Z") }];
+      },
+      create: async (args: unknown) => {
+        calls.push({ type: "create", args });
+        return {};
+      },
+    },
+  }, {
+    now: new Date("2026-05-30T08:00:00.000Z"),
+  });
+
+  assert.deepEqual(calls, [
+    {
+      type: "findMany",
+      args: {
+        where: {
+          userId: "family-001",
+          poetryId: "ts300-0001",
+          eventType: "view_poetry",
+        },
+        select: {
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  ]);
+
+  process.env.SYSTEM_USER_ID = previousUserId;
+});
+
+test("recordPoetryView creates a view record when the latest one is from a previous UTC day", async () => {
+  const previousUserId = process.env.SYSTEM_USER_ID;
+  process.env.SYSTEM_USER_ID = "family-001";
+
+  const calls: unknown[] = [];
+
+  await recordPoetryView("ts300-0001", {
+    poetry: {
+      findUnique: async () => null,
+      findMany: async () => [],
+    },
+    learningRecord: {
+      findMany: async () => [{ createdAt: new Date("2026-05-29T23:59:59.000Z") }],
+      create: async (args: unknown) => {
+        calls.push(args);
+        return {};
+      },
+    },
+  }, {
+    now: new Date("2026-05-30T08:00:00.000Z"),
+  });
+
+  assert.deepEqual(calls, [
+    {
+      data: {
+        userId: "family-001",
+        poetryId: "ts300-0001",
+        eventType: "view_poetry",
+      },
+    },
+  ]);
 
   process.env.SYSTEM_USER_ID = previousUserId;
 });
