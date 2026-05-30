@@ -1,123 +1,67 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
-import type { PoetryDetail, RelatedPoetry } from "@/lib/poetry/repository";
 import { AiExplanationCard } from "@/components/poetry/ai-explanation-card";
+import { ImmersivePoetryStage } from "@/components/poetry/immersive-poetry-stage";
+import type { PoetryDetail as PoetryDetailModel, RelatedPoetry } from "@/lib/poetry/repository";
 
 type PoetryDetailProps = {
-  poetry: PoetryDetail;
+  poetry: PoetryDetailModel;
   relatedPoetries: RelatedPoetry[];
 };
 
 export function PoetryDetail({ poetry, relatedPoetries }: PoetryDetailProps) {
   return (
-    <main className="min-h-screen bg-[var(--color-page)] px-6 py-10 text-[var(--color-ink)] sm:px-10">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-        <Link
-          href={"/" as Route}
-          className="inline-flex w-fit items-center rounded-full border border-[var(--color-line)] bg-white/70 px-4 py-2 text-sm text-[var(--color-muted)] transition hover:bg-white"
-        >
-          返回首页
-        </Link>
+    <main className="min-h-screen bg-[var(--color-page)] px-5 py-8 text-[var(--color-ink)] sm:px-8 lg:px-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href={"/" as Route}
+            className="inline-flex w-fit items-center rounded-full border border-[var(--color-line)] bg-white/72 px-4 py-2 text-sm text-[var(--color-muted)] transition hover:bg-white"
+          >
+            返回首页
+          </Link>
 
-        <section className="relative overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-soft)]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.3),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.25),transparent_30%)]" />
+          <Link
+            href={"/challenge" as Route}
+            className="rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-4 py-2 text-sm text-[var(--color-ink)]"
+          >
+            进入挑战
+          </Link>
+        </div>
 
-          <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(17rem,0.92fr)] lg:items-center">
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <p className="text-sm tracking-[0.28em] text-[var(--color-muted)] uppercase">
-                  Poetry Detail
-                </p>
-                <h1 className="text-4xl font-semibold sm:text-5xl">{poetry.title}</h1>
-                <p className="text-base text-[var(--color-muted)]">
-                  {poetry.dynasty} · {poetry.author}
-                </p>
-              </div>
+        <ImmersivePoetryStage poetry={poetry} />
 
-              <div className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/60 p-5">
-                <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
-                    {poetry.image.isPlaceholder ? "插画占位中" : "已接入配图"}
-                  </span>
-                  {poetry.themes.map((theme) => (
-                    <span
-                      key={theme}
-                      className="rounded-full border border-[var(--color-line)] bg-white/70 px-3 py-1 text-sm"
-                    >
-                      {theme}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]">
-              <Image
-                src={poetry.image.thumbPath ?? poetry.image.imagePath}
-                alt={`${poetry.title} 配图`}
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 24rem, 100vw"
-              />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(63,47,35,0.76)] via-[rgba(63,47,35,0.2)] to-transparent p-4 text-white">
-                <p className="text-sm leading-6">
-                  {poetry.image.isPlaceholder
-                    ? "当前展示系统占位图，后续会继续替换为精选诗境配图。"
-                    : "本图已从数据库 ImageAsset 实时读取。"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.9fr)]">
-          <article className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <h2 className="text-2xl font-semibold">全文</h2>
-              <span className="rounded-full border border-dashed border-[var(--color-line)] px-3 py-1 text-sm text-[var(--color-muted)]">
-                拼音开关待接入
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)]">
+          <article className="rounded-[2rem] border border-[var(--color-line)] bg-white/80 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-2xl font-semibold">译文与读法</h2>
+              <span className="rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.16em] text-[var(--color-muted)] uppercase">
+                阅读辅助
               </span>
             </div>
 
-            <div className="space-y-4 text-lg leading-10">
-              {poetry.lines.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </div>
+            <p className="mt-5 text-sm leading-8 text-[var(--color-muted)]">
+              {poetry.translation ?? "当前还没有录入译文，可先结合原文与 AI 讲解理解诗意。"}
+            </p>
 
-            {poetry.pinyin.length > 0 ? (
-              <div className="mt-8 rounded-[1.5rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)] p-5">
-                <h3 className="text-lg font-medium">拼音预留</h3>
-                <div className="mt-3 space-y-2 text-sm leading-7 text-[var(--color-muted)]">
-                  {poetry.pinyin.map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+            <div className="mt-6 rounded-[1.5rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]/55 p-5">
+              <h3 className="text-lg font-medium">阅读提示</h3>
+              <p className="mt-3 text-sm leading-8 text-[var(--color-muted)]">
+                {poetry.audio.audioStatus === "none"
+                  ? "当前详情页没有音频，已自动退化为手动逐句模式。你可以按句推进，再按需展开拼音。"
+                  : "音频播放时会自动滚动并高亮当前诗句；拼音默认隐藏，建议先听原句，再按需展开。"}
+              </p>
+            </div>
           </article>
 
           <aside className="space-y-6">
-            <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-              <h2 className="text-xl font-semibold">译文</h2>
-              <p className="mt-4 text-sm leading-8 text-[var(--color-muted)]">
-                {poetry.translation ?? "一期先展示诗文原文，译文内容稍后补录。"}
-              </p>
-            </section>
-
             <AiExplanationCard poetryId={poetry.id} />
 
-            <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
+            <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/80 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="text-xl font-semibold">相关推荐</h2>
-                <Link
-                  href={"/challenge" as Route}
-                  className="rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-4 py-2 text-sm"
-                >
-                  进入挑战
-                </Link>
+                <span className="text-sm text-[var(--color-muted)]">同作者 / 同主题</span>
               </div>
 
               {relatedPoetries.length > 0 ? (
@@ -126,7 +70,7 @@ export function PoetryDetail({ poetry, relatedPoetries }: PoetryDetailProps) {
                     <Link
                       key={item.id}
                       href={`/poetry/${item.id}` as Route}
-                      className="block rounded-[1.25rem] border border-[var(--color-line)] bg-white/70 p-4 transition hover:bg-white"
+                      className="block rounded-[1.25rem] border border-[var(--color-line)] bg-white/72 p-4 transition hover:bg-white"
                     >
                       <p className="text-lg font-medium">{item.title}</p>
                       <p className="mt-1 text-sm text-[var(--color-muted)]">
@@ -140,7 +84,7 @@ export function PoetryDetail({ poetry, relatedPoetries }: PoetryDetailProps) {
                 </div>
               ) : (
                 <p className="mt-4 text-sm leading-8 text-[var(--color-muted)]">
-                  暂无推荐作品，后续会补充同作者与同主题扩展阅读。
+                  暂无相关推荐，后续会继续补充同作者与同题材作品。
                 </p>
               )}
             </section>

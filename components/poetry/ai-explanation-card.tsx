@@ -25,6 +25,9 @@ export function AiExplanationCard({ poetryId }: AiExplanationCardProps) {
   >({});
 
   const explanation = explanations[audience];
+  const helperMessage = explanation
+    ? "讲解已缓存，下次切换同版本受众会直接命中。"
+    : "点击按钮按需加载 AI 讲解，不会打断当前阅读。";
 
   function loadExplanation(nextAudience: ExplanationAudience) {
     startTransition(async () => {
@@ -112,8 +115,10 @@ export function AiExplanationCard({ poetryId }: AiExplanationCardProps) {
         </div>
       )}
 
+      <p className="mt-4 text-xs leading-6 text-[var(--color-muted)]/80">{helperMessage}</p>
+
       {loadState === "error" ? (
-        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
+        <p className="mt-3 rounded-[1rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]/45 px-3 py-2 text-sm leading-7 text-[var(--color-muted)]">
           {errorMessage}
         </p>
       ) : null}

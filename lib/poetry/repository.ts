@@ -1,7 +1,20 @@
 import { db } from "@/lib/db";
+import { getAudioStatus, getAudioUrl } from "@/lib/audio";
 import { shouldCreateViewRecord, toUtcDayKey } from "@/lib/poetry/view-record";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
+
+type AudioLineTiming = {
+  lineIndex: number;
+  startMs: number;
+};
+
+type PoetryAudio = {
+  audioStatus: "ready" | "tts" | "none";
+  url: string | null;
+  durationMs: number;
+  lineTimings?: AudioLineTiming[];
+};
 
 type PoetryRepository = {
   poetry: {
@@ -18,6 +31,7 @@ type PoetryRepository = {
         translation: true;
         imageKey: true;
         imageStatus: true;
+        audioMeta: true;
       };
     }) => Promise<{
       id: string;
@@ -30,6 +44,11 @@ type PoetryRepository = {
       translation: string | null;
       imageKey: string | null;
       imageStatus: string;
+      audioMeta: {
+        status: string;
+        durationMs: number;
+        lineTimings: unknown;
+      } | null;
     } | null>;
     findMany?: (args: {
       where: unknown;
@@ -88,6 +107,7 @@ export type PoetryDetail = {
   imageKey: string | null;
   imageStatus: string;
   image: PoetryImage;
+  audio: PoetryAudio;
 };
 
 type PoetryRepositoryDependencies = {
@@ -119,6 +139,58 @@ function toStringArray(value: unknown) {
     : [];
 }
 
+function toAudioLineTimings(value: unknown): AudioLineTiming[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const lineTimings = value.filter((item): item is AudioLineTiming => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return false;
+    }
+
+    return (
+      "lineIndex" in item &&
+      typeof item.lineIndex === "number" &&
+      Number.isFinite(item.lineIndex) &&
+      "startMs" in item &&
+      typeof item.startMs === "number" &&
+      Number.isFinite(item.startMs)
+    );
+  });
+
+  return lineTimings.length > 0 ? lineTimings : undefined;
+}
+
+function toPoetryAudio(
+  poetryId: string,
+  audioMeta: {
+    status: string;
+    durationMs: number;
+    lineTimings: unknown;
+  } | null,
+): PoetryAudio {
+  const audioStatus = getAudioStatus(audioMeta);
+
+  if (audioStatus === "none") {
+    return {
+      audioStatus: "none",
+      url: null,
+      durationMs: 0,
+    };
+  }
+
+  return {
+    audioStatus: audioStatus === "tts" ? "tts" : "ready",
+    url: getAudioUrl(poetryId),
+    durationMs:
+      typeof audioMeta?.durationMs === "number" && Number.isFinite(audioMeta.durationMs)
+        ? Math.max(audioMeta.durationMs, 0)
+        : 0,
+    lineTimings: toAudioLineTimings(audioMeta?.lineTimings),
+  };
+}
+
 export async function getPoetryById(
   id: string,
   repository?: PoetryRepository,
@@ -142,6 +214,7 @@ export async function getPoetryById(
       translation: true,
       imageKey: true,
       imageStatus: true,
+      audioMeta: true,
     },
   });
 
@@ -157,6 +230,7 @@ export async function getPoetryById(
     themes: toStringArray(poetry.themes),
     pinyin: toStringArray(poetry.pinyin),
     image,
+    audio: toPoetryAudio(poetry.id, poetry.audioMeta),
   };
 }
 

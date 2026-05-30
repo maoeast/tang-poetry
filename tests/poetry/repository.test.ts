@@ -26,6 +26,7 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
           translation: "秋天里蝉声不断，囚徒的愁思也更浓。",
           imageKey: "ts300-0001",
           imageStatus: "placeholder",
+          audioMeta: null,
         }),
       },
     },
@@ -55,6 +56,11 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
     translation: "秋天里蝉声不断，囚徒的愁思也更浓。",
     imageKey: "ts300-0001",
     imageStatus: "placeholder",
+    audio: {
+      audioStatus: "none",
+      url: null,
+      durationMs: 0,
+    },
     image: {
       poetryId: "ts300-0001",
       imagePath: "/images/generated/ts300-0001.jpg",
@@ -85,6 +91,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
           translation: null,
           imageKey: null,
           imageStatus: "ready",
+          audioMeta: null,
         }),
       },
     },
@@ -114,6 +121,11 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
     translation: null,
     imageKey: null,
     imageStatus: "ready",
+    audio: {
+      audioStatus: "none",
+      url: null,
+      durationMs: 0,
+    },
     image: {
       poetryId: "ts300-0002",
       imagePath: "/images/placeholders/default-poetry-card.jpg",
@@ -125,6 +137,65 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
       height: null,
       isPlaceholder: true,
     },
+  });
+});
+
+test("getPoetryById returns aggregated audio metadata for the immersive detail page", async () => {
+  const result = await getPoetryById(
+    "ts300-0003",
+    {
+      poetry: {
+        findUnique: async () => ({
+          id: "ts300-0003",
+          title: "春晓",
+          author: "孟浩然",
+          dynasty: "唐",
+          lines: ["春眠不觉晓。", "处处闻啼鸟。"],
+          themes: ["春景"],
+          pinyin: ["chun mian bu jue xiao", "chu chu wen ti niao"],
+          translation: "春夜睡得香甜，不知不觉天已亮了。",
+          imageKey: "ts300-0003",
+          imageStatus: "ready",
+          audioMeta: {
+            status: "ready",
+            durationMs: 18_000,
+            lineTimings: [
+              {
+                lineIndex: 0,
+                startMs: 0,
+              },
+              {
+                lineIndex: 1,
+                startMs: 9_000,
+              },
+            ],
+          },
+        }),
+      },
+    } as never,
+    {
+      getPoetryImage: async (poetryId: string) => ({
+        poetryId,
+        imagePath: "/images/generated/ts300-0003.jpg",
+        thumbPath: "/images/generated/ts300-0003-thumb.jpg",
+        status: "ready",
+        style: "storybook-watercolor",
+        promptVersion: "v1",
+        width: 1200,
+        height: 1800,
+        isPlaceholder: false,
+      }),
+    },
+  );
+
+  assert.deepEqual(result?.audio, {
+    audioStatus: "ready",
+    url: "/audio/poetry/ts300-0003.mp3",
+    durationMs: 18_000,
+    lineTimings: [
+      { lineIndex: 0, startMs: 0 },
+      { lineIndex: 1, startMs: 9_000 },
+    ],
   });
 });
 
@@ -167,6 +238,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
             translation: null,
             imageKey: "ts300-0001",
             imageStatus: "placeholder",
+            audioMeta: null,
           };
         },
       },
@@ -200,6 +272,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
         translation: true,
         imageKey: true,
         imageStatus: true,
+        audioMeta: true,
       },
     },
   ]);
@@ -223,6 +296,7 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
           translation: null,
           imageKey: "legacy-key",
           imageStatus: "placeholder",
+          audioMeta: null,
         }),
       },
     },
