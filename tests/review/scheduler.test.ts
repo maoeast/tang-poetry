@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  buildReviewSelfReportPayload,
   buildReviewSummary,
   createInitialReviewState,
   getReviewBuckets,
@@ -52,7 +53,34 @@ test("createInitialReviewState schedules first review for the next day", () => {
   assert.equal(state.currentIntervalDays, 1);
   assert.equal(state.wrongCount, 0);
   assert.equal(state.consecutiveWrongCount, 0);
+  assert.ok(state.nextReviewAt);
   assert.equal(state.nextReviewAt.toISOString(), "2026-05-30T08:00:00.000Z");
+});
+
+test("buildReviewSelfReportPayload builds review_self_report attempt payloads", () => {
+  const knownPayload = buildReviewSelfReportPayload({
+    poetryId: "ts300-0001",
+    isCorrect: true,
+  });
+  const unknownPayload = buildReviewSelfReportPayload({
+    poetryId: "ts300-0001",
+    isCorrect: false,
+  });
+
+  assert.deepEqual(knownPayload, {
+    poetryId: "ts300-0001",
+    questionType: "review_self_report",
+    promptLineIndex: null,
+    userAnswer: "known",
+    isCorrect: true,
+  });
+  assert.deepEqual(unknownPayload, {
+    poetryId: "ts300-0001",
+    questionType: "review_self_report",
+    promptLineIndex: null,
+    userAnswer: "unknown",
+    isCorrect: false,
+  });
 });
 
 test("updateReviewStateAfterAnswer advances intervals with the fixed sequence on correct answers", () => {

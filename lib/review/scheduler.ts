@@ -103,6 +103,27 @@ type ReviewRepository = {
       };
     }) => Promise<unknown>;
   };
+  challengeAttempt?: {
+    create: (args: {
+      data: {
+        userId: string;
+        poetryId: string;
+        questionType: string;
+        promptLineIndex: number | null;
+        userAnswer: string;
+        isCorrect: boolean;
+      };
+    }) => Promise<unknown>;
+  };
+  learningRecord?: {
+    create: (args: {
+      data: {
+        userId: string;
+        poetryId: string;
+        eventType: string;
+      };
+    }) => Promise<unknown>;
+  };
 };
 
 type CreateInitialReviewStateInput = {
@@ -117,9 +138,26 @@ type UpdateReviewStateAfterAnswerInput = {
   reviewedAt?: Date;
 };
 
+type BuildReviewSelfReportPayloadInput = {
+  poetryId: string;
+  isCorrect: boolean;
+};
+
 type GetReviewBucketsOptions = {
   userId: string;
   now?: Date;
+};
+
+type GetReviewPlayerViewModelInput = {
+  userId: string;
+  poetryId: string;
+  now?: Date;
+};
+
+type SubmitReviewSelfReportInput = {
+  poetryId: string;
+  isCorrect: boolean;
+  reviewedAt?: Date;
 };
 
 type ReviewSchedulerDependencies = {
@@ -130,6 +168,15 @@ export type ReviewBuckets = {
   todayDue: ReviewStateSnapshot[];
   upcoming: ReviewStateSnapshot[];
   recentWrong: ReviewStateSnapshot[];
+};
+
+export type ReviewPlayerViewModel = {
+  state: ReviewStateSnapshot | null;
+  queuePoetryIds: string[];
+  queuePosition: number | null;
+  dueTodayCount: number;
+  upcomingCount: number;
+  recentWrongCount: number;
 };
 
 function addDays(date: Date, days: number) {
@@ -237,6 +284,36 @@ export function updateReviewStateAfterAnswer(
   };
 }
 
+export function buildReviewSelfReportPayload(
+  input: BuildReviewSelfReportPayloadInput,
+) {
+  return {
+    poetryId: input.poetryId,
+    questionType: "review_self_report" as const,
+    promptLineIndex: null,
+    userAnswer: input.isCorrect ? "known" : "unknown",
+    isCorrect: input.isCorrect,
+  };
+}
+
+function buildFallbackSnapshot(
+  userId: string,
+  poetryId: string,
+  reviewedAt: Date,
+): ReviewStateSnapshot {
+  return {
+    ...createInitialReviewState({
+      userId,
+      poetryId,
+      studiedAt: reviewedAt,
+    }),
+    title: "",
+    author: "",
+    previewLine: "",
+    image: buildPlaceholderImage(poetryId),
+  };
+}
+
 export async function getReviewBuckets(
   repositoryOrOptions?: ReviewRepository | GetReviewBucketsOptions,
   maybeOptions?: GetReviewBucketsOptions,
@@ -305,6 +382,165 @@ export function buildReviewSummary(buckets: ReviewBuckets) {
     suggestedCount: buckets.todayDue.length,
     upcomingCount: buckets.upcoming.length,
     recentWrong: buckets.recentWrong,
+  };
+}
+
+export async function getReviewPlayerViewModel(
+  input: GetReviewPlayerViewModelInput,
+  repository?: ReviewRepository,
+  dependencies: ReviewSchedulerDependencies = { getPoetryImage },
+): Promise<ReviewPlayerViewModel> {
+  const targetRepository = repository ?? (db as unknown as ReviewRepository);
+  const buckets = await getReviewBuckets(
+    targetRepository,
+    {
+      userId: input.userId,
+      now: input.now,
+    },
+    dependencies,
+  );
+
+  const existing =
+    targetRepository.reviewState?.findUnique
+      ? await targetRepository.reviewState.findUnique({
+          where: {
+            userId_poetryId: {
+              userId: input.userId,
+              poetryId: input.poetryId,
+            },
+          },
+          include: {
+            poetry: {
+              select: {
+                title: true,
+                author: true,
+                lines: true,
+              },
+            },
+          },
+        })
+      : null;
+  const state = existing ? await toSnapshot(existing, dependencies) : null;
+  const queuePoetryIds = Array.from(
+    new Set([
+      ...buckets.todayDue.map((item) => item.poetryId),
+      input.poetryId,
+    ]),
+  );
+  const queuePosition = queuePoetryIds.indexOf(input.poetryId);
+
+  return {
+    state,
+    queuePoetryIds,
+    queuePosition: queuePosition >= 0 ? queuePosition : null,
+    dueTodayCount: buckets.todayDue.length,
+    upcomingCount: buckets.upcoming.length,
+    recentWrongCount: buckets.recentWrong.length,
+  };
+}
+
+export async function submitReviewSelfReport(
+  input: SubmitReviewSelfReportInput,
+  repository?: ReviewRepository,
+) {
+  const targetRepository = repository ?? (db as unknown as ReviewRepository);
+  const userId = process.env.SYSTEM_USER_ID;
+
+  if (
+    !userId ||
+    !targetRepository.reviewState?.upsert ||
+    !targetRepository.challengeAttempt?.create ||
+    !targetRepository.learningRecord?.create
+  ) {
+    return {
+      nextState: null,
+    };
+  }
+
+  const reviewedAt = input.reviewedAt ?? new Date();
+  const payload = buildReviewSelfReportPayload({
+    poetryId: input.poetryId,
+    isCorrect: input.isCorrect,
+  });
+  const existing =
+    targetRepository.reviewState.findUnique
+      ? await targetRepository.reviewState.findUnique({
+          where: {
+            userId_poetryId: {
+              userId,
+              poetryId: input.poetryId,
+            },
+          },
+          include: {
+            poetry: {
+              select: {
+                title: true,
+                author: true,
+                lines: true,
+              },
+            },
+          },
+        })
+      : null;
+  const baseState = existing
+    ? await toSnapshot(existing, {
+        getPoetryImage: async (poetryId) => buildPlaceholderImage(poetryId),
+      })
+    : buildFallbackSnapshot(userId, input.poetryId, reviewedAt);
+  const nextState = updateReviewStateAfterAnswer({
+    state: baseState,
+    isCorrect: input.isCorrect,
+    reviewedAt,
+  });
+
+  await targetRepository.challengeAttempt.create({
+    data: {
+      userId,
+      poetryId: payload.poetryId,
+      questionType: payload.questionType,
+      promptLineIndex: payload.promptLineIndex,
+      userAnswer: payload.userAnswer,
+      isCorrect: payload.isCorrect,
+    },
+  });
+  await targetRepository.learningRecord.create({
+    data: {
+      userId,
+      poetryId: input.poetryId,
+      eventType: input.isCorrect ? "review_correct" : "review_wrong",
+    },
+  });
+  await targetRepository.reviewState.upsert({
+    where: {
+      userId_poetryId: {
+        userId,
+        poetryId: input.poetryId,
+      },
+    },
+    create: {
+      userId: nextState.userId,
+      poetryId: nextState.poetryId,
+      mastery: nextState.mastery,
+      reviewStage: nextState.reviewStage,
+      currentIntervalDays: nextState.currentIntervalDays,
+      lastReviewedAt: nextState.lastReviewedAt,
+      nextReviewAt: nextState.nextReviewAt,
+      wrongCount: nextState.wrongCount,
+      consecutiveWrongCount: nextState.consecutiveWrongCount,
+    },
+    update: {
+      mastery: nextState.mastery,
+      reviewStage: nextState.reviewStage,
+      currentIntervalDays: nextState.currentIntervalDays,
+      lastReviewedAt: nextState.lastReviewedAt,
+      nextReviewAt: nextState.nextReviewAt,
+      wrongCount: nextState.wrongCount,
+      consecutiveWrongCount: nextState.consecutiveWrongCount,
+    },
+  });
+
+  return {
+    nextState,
   };
 }
 
