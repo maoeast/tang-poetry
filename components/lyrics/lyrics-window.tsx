@@ -125,6 +125,13 @@ export function LyricsWindow(props: LyricsWindowProps) {
     }
 
     if (isUserScrolling) {
+      if (activeLineIndex !== previousActiveLineIndexRef.current) {
+        setIsUserScrolling(false);
+        setIsAutoFollowEnabled(true);
+        previousActiveLineIndexRef.current = activeLineIndex;
+        return;
+      }
+
       setIsAutoFollowEnabled(false);
       previousActiveLineIndexRef.current = activeLineIndex;
       return;
