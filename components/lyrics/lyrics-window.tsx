@@ -7,10 +7,14 @@ type LineTiming = {
   startMs: number;
 };
 
+type LyricsLine = {
+  text: string;
+  pinyin?: string;
+};
+
 type LyricsWindowBaseProps = {
-  lines: string[];
-  pinyinLines?: string[];
-  showPinyin?: boolean;
+  lines: LyricsLine[];
+  showPinyin: boolean;
   className?: string;
 };
 
@@ -19,18 +23,20 @@ type LyricsWindowAutoProps = LyricsWindowBaseProps & {
   durationMs: number;
   audioCurrentTimeMs: number;
   lineTimings?: LineTiming[];
-  userScrolling?: boolean;
   activeLineIndex?: never;
+  onActiveLineChange?: (lineIndex: number) => void;
 };
 
 type LyricsWindowManualProps = LyricsWindowBaseProps & {
   mode: "manual";
   activeLineIndex?: number;
+  onActiveLineChange?: (lineIndex: number) => void;
 };
 
 type LyricsWindowStaticProps = LyricsWindowBaseProps & {
   mode: "static";
   activeLineIndex?: number;
+  onActiveLineChange?: (lineIndex: number) => void;
 };
 
 export type LyricsWindowProps =
@@ -44,7 +50,7 @@ function getActiveLineIndex({
   audioCurrentTimeMs,
   lineTimings,
 }: {
-  lines: string[];
+  lines: LyricsLine[];
   durationMs: number;
   audioCurrentTimeMs: number;
   lineTimings?: LineTiming[];
@@ -92,6 +98,7 @@ function getPinyinVisibility({
 }
 
 export function LyricsWindow(props: LyricsWindowProps) {
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
   const activeLineIndex = useMemo(() => {
     if (props.mode === "auto") {
       return getActiveLineIndex({
@@ -109,11 +116,15 @@ export function LyricsWindow(props: LyricsWindowProps) {
   const previousActiveLineIndexRef = useRef(activeLineIndex);
 
   useEffect(() => {
+    props.onActiveLineChange?.(activeLineIndex);
+  }, [activeLineIndex, props]);
+
+  useEffect(() => {
     if (props.mode !== "auto") {
       return;
     }
 
-    if (props.userScrolling) {
+    if (isUserScrolling) {
       setIsAutoFollowEnabled(false);
       previousActiveLineIndexRef.current = activeLineIndex;
       return;
@@ -124,7 +135,7 @@ export function LyricsWindow(props: LyricsWindowProps) {
     }
 
     previousActiveLineIndexRef.current = activeLineIndex;
-  }, [activeLineIndex, props]);
+  }, [activeLineIndex, isUserScrolling, props]);
 
   return (
     <section
@@ -132,12 +143,13 @@ export function LyricsWindow(props: LyricsWindowProps) {
       data-active-line={activeLineIndex >= 0 ? String(activeLineIndex) : undefined}
       data-auto-follow={props.mode === "auto" ? String(isAutoFollowEnabled) : undefined}
       data-mode={props.mode}
+      onScroll={props.mode === "auto" ? () => setIsUserScrolling(true) : undefined}
     >
       <div className="space-y-4 rounded-[1.75rem] border border-[var(--color-line)] bg-white/78 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
         {props.lines.map((line, lineIndex) => {
           const isActive = lineIndex === activeLineIndex;
           const shouldShowPinyin = getPinyinVisibility({
-            showPinyin: props.showPinyin ?? false,
+            showPinyin: props.showPinyin,
             lineIndex,
             activeLineIndex,
           });
@@ -152,10 +164,10 @@ export function LyricsWindow(props: LyricsWindowProps) {
               }`}
               data-line-index={lineIndex}
             >
-              <p className="text-lg leading-8">{line}</p>
-              {shouldShowPinyin && props.pinyinLines?.[lineIndex] ? (
+              <p className="text-lg leading-8">{line.text}</p>
+              {shouldShowPinyin && line.pinyin ? (
                 <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                  {props.pinyinLines[lineIndex]}
+                  {line.pinyin}
                 </p>
               ) : null}
             </article>

@@ -1,36 +1,40 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-type PoetryPosterProps = {
+export type PoetryPosterVariant = "hero" | "immersive" | "review" | "thumbnail" | "banner";
+
+export type PoetryPosterProps = {
+  variant: PoetryPosterVariant;
   imageSrc: string;
   imageAlt: string;
+  isPlaceholder: boolean;
   priority?: boolean;
   overlay?: ReactNode;
   badge?: ReactNode;
+  className?: string;
   children?: ReactNode;
-  sizes?: string;
-  isPlaceholder?: boolean;
 };
 
 export function PoetryPoster({
+  variant,
   imageSrc,
   imageAlt,
+  isPlaceholder,
   priority = false,
   overlay,
   badge,
+  className,
   children,
-  sizes = "(min-width: 1024px) 480px, 100vw",
-  isPlaceholder = false,
 }: PoetryPosterProps) {
   return (
-    <div className="w-full max-w-[480px]">
+    <div className={`w-full max-w-[480px] ${className ?? ""}`} data-variant={variant}>
       <div className="relative aspect-[2/3] overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)] shadow-[var(--shadow-soft)]">
         <Image
           src={imageSrc}
           alt={imageAlt}
           fill
           priority={priority}
-          sizes={sizes}
+          sizes="(min-width: 1024px) 480px, 100vw"
           className="object-cover"
         />
 
@@ -39,10 +43,8 @@ export function PoetryPoster({
         ) : null}
 
         {badge ? <div className="absolute left-4 top-4 z-10">{badge}</div> : null}
-        {children ? (
-          <div className="absolute inset-x-0 bottom-0 z-10">{children}</div>
-        ) : null}
         {overlay ? <div className="absolute inset-0 z-0">{overlay}</div> : null}
+        {children ? <div className="absolute inset-0 z-10">{children}</div> : null}
       </div>
     </div>
   );

@@ -4,19 +4,20 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { LyricsWindow, type LyricsWindowProps } from "@/components/lyrics/lyrics-window";
 
-const sampleLines = ["床前明月光", "疑是地上霜", "举头望明月"];
-const samplePinyin = ["chuang qian ming yue guang", "yi shi di shang shuang", "ju tou wang ming yue"];
+const sampleLines = [
+  { text: "床前明月光", pinyin: "chuang qian ming yue guang" },
+  { text: "疑是地上霜", pinyin: "yi shi di shang shuang" },
+  { text: "举头望明月", pinyin: "ju tou wang ming yue" },
+];
 
 test("LyricsWindow auto mode highlights the active line from audio time fallback", () => {
   const markup = renderToStaticMarkup(
     <LyricsWindow
       mode="auto"
       lines={sampleLines}
-      pinyinLines={samplePinyin}
-      showPinyin
+      showPinyin={true}
       durationMs={9_000}
       audioCurrentTimeMs={3_100}
-      userScrolling={false}
     />,
   );
 
@@ -30,8 +31,7 @@ test("LyricsWindow manual mode respects external activeLineIndex", () => {
     <LyricsWindow
       mode="manual"
       lines={sampleLines}
-      pinyinLines={samplePinyin}
-      showPinyin
+      showPinyin={true}
       activeLineIndex={2}
     />,
   );
@@ -46,7 +46,7 @@ void (
     lines={sampleLines}
     durationMs={9_000}
     audioCurrentTimeMs={0}
-    userScrolling={false}
+    showPinyin={false}
   />
 );
 
@@ -57,10 +57,10 @@ const invalidAutoProps: LyricsWindowProps = {
   durationMs: 9_000,
   audioCurrentTimeMs: 0,
   activeLineIndex: 1,
-  userScrolling: false,
+  showPinyin: false,
 };
 
 void <LyricsWindow {...invalidAutoProps} />;
 
 // @ts-expect-error auto mode requires audioCurrentTimeMs
-void <LyricsWindow mode="auto" lines={sampleLines} durationMs={9_000} userScrolling={false} />;
+void <LyricsWindow mode="auto" lines={sampleLines} durationMs={9_000} showPinyin={false} />;

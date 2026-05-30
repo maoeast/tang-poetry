@@ -12,6 +12,8 @@ test("AudioControlBar returns null when audio is not ready", () => {
       variant="review"
       isReady={false}
       durationMs={9_000}
+      currentTimeMs={0}
+      playbackRate={1}
       isPlaying={false}
       onPlayPause={noop}
       onReplayLine={noop}
@@ -28,6 +30,8 @@ test("AudioControlBar review variant renders replay all action", () => {
       variant="review"
       isReady
       durationMs={9_000}
+      currentTimeMs={1_000}
+      playbackRate={1}
       isPlaying={false}
       onPlayPause={noop}
       onReplayLine={noop}

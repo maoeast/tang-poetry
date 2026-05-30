@@ -1,6 +1,16 @@
+type PlaybackRate = 0.75 | 1 | 1.25 | 1.5;
+const playbackRateMap: Record<"0.75" | "1" | "1.25" | "1.5", PlaybackRate> = {
+  "0.75": 0.75,
+  "1": 1,
+  "1.25": 1.25,
+  "1.5": 1.5,
+};
+
 type AudioControlBarBaseProps = {
   isReady: boolean;
   durationMs: number;
+  currentTimeMs: number;
+  playbackRate: PlaybackRate;
   isPlaying: boolean;
   onPlayPause: () => void;
   onReplayLine: () => void;
@@ -9,10 +19,8 @@ type AudioControlBarBaseProps = {
 
 type AudioControlBarImmersiveProps = AudioControlBarBaseProps & {
   variant: "immersive";
-  currentTimeMs: number;
-  playbackRate: number;
   onSeek: (nextTimeMs: number) => void;
-  onPlaybackRateChange: (nextRate: number) => void;
+  onPlaybackRateChange: (nextRate: PlaybackRate) => void;
 };
 
 type AudioControlBarReviewProps = AudioControlBarBaseProps & {
@@ -81,7 +89,11 @@ export function AudioControlBar(props: AudioControlBarProps) {
             <select
               aria-label="播放倍速"
               value={String(props.playbackRate)}
-              onChange={(event) => props.onPlaybackRateChange(Number(event.currentTarget.value))}
+              onChange={(event) =>
+                props.onPlaybackRateChange(
+                  playbackRateMap[event.currentTarget.value as keyof typeof playbackRateMap],
+                )
+              }
               className="rounded-full border border-[var(--color-line)] bg-white px-3 py-2"
             >
               <option value="0.75">0.75x</option>
