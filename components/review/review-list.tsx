@@ -1,8 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
+import { useRouter } from "next/navigation";
+import type { MouseEvent } from "react";
 
-import type { ReviewBuckets, ReviewStateSnapshot } from "@/lib/review/scheduler";
+import {
+  buildReviewBatchQueue,
+  type ReviewBucketKey,
+  type ReviewBuckets,
+  type ReviewStateSnapshot,
+} from "@/lib/review/scheduler";
+import { writeReviewQueue } from "@/lib/review/session-queue";
 
 type ReviewListProps = {
   buckets: ReviewBuckets;
@@ -10,67 +20,162 @@ type ReviewListProps = {
   upcomingCount: number;
 };
 
-function ReviewCard({
+const REVIEW_CARD_LAYOUT = {
+  width: 80,
+  height: 120,
+} as const;
+
+export function getReviewCardLayout() {
+  return REVIEW_CARD_LAYOUT;
+}
+
+function getBucketLabel(bucket: ReviewBucketKey) {
+  if (bucket === "todayDue") {
+    return "due";
+  }
+
+  if (bucket === "recentWrong") {
+    return "wrong";
+  }
+
+  return "soon";
+}
+
+function getBucketTitle(bucket: ReviewBucketKey) {
+  if (bucket === "todayDue") {
+    return "今日待复习";
+  }
+
+  if (bucket === "recentWrong") {
+    return "最近错题";
+  }
+
+  return "即将到期";
+}
+
+function buildReviewHref(poetryId: string, from: ReviewBucketKey, index: number) {
+  return `/review/${poetryId}?from=${from}&index=${index}` as Route;
+}
+
+function ReviewPosterCard({
   item,
   badge,
+  href,
+  onOpen,
 }: {
   item: ReviewStateSnapshot;
-  badge?: string;
+  badge: string;
+  href: Route;
+  onOpen: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
+  const layout = getReviewCardLayout();
+
   return (
-    <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/80 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-      <div className="flex flex-col gap-5 sm:flex-row">
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.25rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)] sm:max-w-[10.5rem]">
-          <Image
-            src={item.image.thumbPath ?? item.image.imagePath}
-            alt={`${item.title} 配图`}
-            fill
-            className="object-cover"
-            sizes="(min-width: 640px) 10.5rem, 100vw"
-          />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(63,47,35,0.7)] via-[rgba(63,47,35,0.16)] to-transparent px-3 py-2 text-[0.7rem] tracking-[0.12em] text-white uppercase">
-            {item.image.isPlaceholder ? "placeholder" : "imageasset"}
+    <article className="flex h-[120px] min-w-0 overflow-hidden rounded-[1.25rem] border border-[var(--color-line)] bg-white/82 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
+      <div
+        className="relative shrink-0 overflow-hidden border-r border-[var(--color-line)] bg-[var(--color-accent-soft)]"
+        style={{ width: `${layout.width}px`, height: `${layout.height}px` }}
+      >
+        <Image
+          src={item.image.thumbPath ?? item.image.imagePath}
+          alt={`${item.title} 配图`}
+          fill
+          className="object-cover"
+          sizes="80px"
+        />
+      </div>
+
+      <div className="flex min-w-0 flex-1 items-stretch justify-between gap-3 px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="truncate text-base font-medium">{item.title}</h3>
+              <p className="truncate text-sm text-[var(--color-muted)]">{item.author}</p>
+            </div>
+            <span className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-1 text-[0.65rem] tracking-[0.18em] text-[var(--color-muted)] uppercase">
+              {badge}
+            </span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]">
+            <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1">
+              熟练度 {item.mastery}
+            </span>
+            <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1">
+              错题 {item.wrongCount}
+            </span>
           </div>
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-xl font-medium">{item.title}</h3>
-              <p className="mt-1 text-sm text-[var(--color-muted)]">{item.author}</p>
-            </div>
-            {badge ? (
-              <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
-                {badge}
-              </span>
-            ) : null}
-          </div>
-
-          <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-            {item.previewLine}
-          </p>
-
-          <div className="mt-5 flex flex-wrap gap-2 text-sm text-[var(--color-muted)]">
-            <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
-              熟练度 {item.mastery}
-            </span>
-            <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
-              错题 {item.wrongCount}
-            </span>
-            <span className="rounded-full border border-[var(--color-line)] px-3 py-1">
-              间隔 {item.currentIntervalDays} 天
-            </span>
-          </div>
-
+        <div className="flex shrink-0 items-end">
           <Link
-            href={`/poetry/${item.poetryId}` as Route}
-            className="mt-5 inline-flex rounded-full border border-[var(--color-line)] bg-[var(--color-card)] px-4 py-2 text-sm transition hover:bg-white"
+            href={href}
+            onClick={onOpen}
+            className="inline-flex rounded-full bg-[var(--color-card)] px-4 py-2 text-sm transition hover:bg-white"
           >
-            查看诗文
+            开始复习
           </Link>
         </div>
       </div>
     </article>
+  );
+}
+
+function ReviewBucketSection({
+  title,
+  bucketKey,
+  items,
+  emptyText,
+  buckets,
+}: {
+  title: string;
+  bucketKey: ReviewBucketKey;
+  items: ReviewStateSnapshot[];
+  emptyText: string;
+  buckets: ReviewBuckets;
+}) {
+  const router = useRouter();
+
+  function handleOpen(item: ReviewStateSnapshot, index: number) {
+    const queuePoetryIds = buildReviewBatchQueue(buckets, bucketKey);
+
+    if (queuePoetryIds.length === 0) {
+      return;
+    }
+
+    writeReviewQueue(queuePoetryIds, item.poetryId);
+    router.push(buildReviewHref(item.poetryId, bucketKey, index));
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-2xl font-semibold">{title}</h2>
+        {bucketKey === "todayDue" ? (
+          <span className="text-sm text-[var(--color-muted)]">错题优先排序</span>
+        ) : null}
+      </div>
+      {items.length > 0 ? (
+        <div className="grid gap-4">
+          {items.map((item, index) => (
+            <ReviewPosterCard
+              key={item.poetryId}
+              item={item}
+              badge={getBucketLabel(bucketKey)}
+              href={buildReviewHref(item.poetryId, bucketKey, index)}
+              onOpen={(event) => {
+                event.preventDefault();
+                handleOpen(item, index);
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/78 p-5 text-sm leading-7 text-[var(--color-muted)]">
+          {emptyText}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -79,6 +184,20 @@ export function ReviewList({
   suggestedCount,
   upcomingCount,
 }: ReviewListProps) {
+  const router = useRouter();
+  const suggestedQueue = buildReviewBatchQueue(buckets, "todayDue");
+  const firstSuggestedPoetryId = suggestedQueue[0] ?? null;
+
+  function handleStartSuggestedReview() {
+    if (!firstSuggestedPoetryId) {
+      router.push("/challenge");
+      return;
+    }
+
+    writeReviewQueue(suggestedQueue, firstSuggestedPoetryId);
+    router.push(buildReviewHref(firstSuggestedPoetryId, "todayDue", 0));
+  }
+
   return (
     <div className="space-y-8">
       <section className="grid gap-4 md:grid-cols-3">
@@ -106,67 +225,42 @@ export function ReviewList({
           <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
             开始复习
           </p>
-          <Link
-            href={buckets.todayDue[0] ? (`/poetry/${buckets.todayDue[0].poetryId}` as Route) : ("/challenge" as Route)}
+          <button
+            type="button"
+            onClick={handleStartSuggestedReview}
             className="mt-4 inline-flex rounded-full bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-white transition hover:brightness-105"
           >
-            {buckets.todayDue[0] ? "从第一首开始" : "先去挑战练习"}
-          </Link>
+            {firstSuggestedPoetryId ? "从当前批次开始" : "先去挑战练习"}
+          </button>
           <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-            一期先用详情页与挑战页串起复习入口。
+            入口页只构造本轮复习批次，不在这里写入复习结果。
           </p>
         </article>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold">今日待复习</h2>
-          <span className="text-sm text-[var(--color-muted)]">
-            错题优先排序
-          </span>
-        </div>
-        {buckets.todayDue.length > 0 ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {buckets.todayDue.map((item) => (
-              <ReviewCard key={item.poetryId} item={item} badge="due" />
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/78 p-5 text-sm leading-7 text-[var(--color-muted)]">
-            今日暂时没有到期复习内容，可以先去挑战页练习新诗。
-          </p>
-        )}
-      </section>
+      <ReviewBucketSection
+        title={getBucketTitle("todayDue")}
+        bucketKey="todayDue"
+        items={buckets.todayDue}
+        emptyText="今日暂时没有到期复习内容，可以先去挑战页练习新诗。"
+        buckets={buckets}
+      />
 
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">最近错题</h2>
-        {buckets.recentWrong.length > 0 ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {buckets.recentWrong.map((item) => (
-              <ReviewCard key={item.poetryId} item={item} badge="wrong" />
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/78 p-5 text-sm leading-7 text-[var(--color-muted)]">
-            目前还没有错题记录，继续保持。
-          </p>
-        )}
-      </section>
+      <ReviewBucketSection
+        title={getBucketTitle("recentWrong")}
+        bucketKey="recentWrong"
+        items={buckets.recentWrong}
+        emptyText="目前还没有错题记录，继续保持。"
+        buckets={buckets}
+      />
 
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">即将到期</h2>
-        {buckets.upcoming.length > 0 ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {buckets.upcoming.map((item) => (
-              <ReviewCard key={item.poetryId} item={item} badge="soon" />
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/78 p-5 text-sm leading-7 text-[var(--color-muted)]">
-            未来几天暂时没有新的到期内容。
-          </p>
-        )}
-      </section>
+      <ReviewBucketSection
+        title={getBucketTitle("upcoming")}
+        bucketKey="upcoming"
+        items={buckets.upcoming}
+        emptyText="未来几天暂时没有新的到期内容。"
+        buckets={buckets}
+      />
     </div>
   );
 }

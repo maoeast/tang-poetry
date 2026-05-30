@@ -9,6 +9,7 @@ import {
   updateReviewStateAfterAnswer,
   type ReviewStateSnapshot,
 } from "@/lib/review/scheduler";
+import { getReviewCardLayout } from "@/components/review/review-list";
 
 const baseNow = new Date("2026-05-29T08:00:00.000Z");
 
@@ -55,6 +56,13 @@ test("createInitialReviewState schedules first review for the next day", () => {
   assert.equal(state.consecutiveWrongCount, 0);
   assert.ok(state.nextReviewAt);
   assert.equal(state.nextReviewAt.toISOString(), "2026-05-30T08:00:00.000Z");
+});
+
+test("getReviewCardLayout returns thumbnail card dimensions", () => {
+  assert.deepEqual(getReviewCardLayout(), {
+    width: 80,
+    height: 120,
+  });
 });
 
 test("buildReviewSelfReportPayload builds review_self_report attempt payloads", () => {

@@ -38,9 +38,9 @@ export default async function ReviewPage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.3),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.25),transparent_30%)]" />
 
           <div className="relative space-y-4">
-            <h1 className="text-4xl font-semibold sm:text-5xl">复习池</h1>
+            <h1 className="text-4xl font-semibold sm:text-5xl">复习批次入口</h1>
             <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-              当前版本已经接入固定复习调度规则：首次学习次日进入复习池，答对按固定间隔推进，答错回到次日，连续三次答错会进入今日强制复习。
+              在这里按今日到期、最近错题、即将到期三个 bucket 组织当前批次。列表页只负责构造本轮复习队列并进入 `/review/[id]`，不会在这里写入复习结果。
             </p>
           </div>
         </section>

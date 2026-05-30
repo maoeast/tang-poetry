@@ -170,6 +170,8 @@ export type ReviewBuckets = {
   recentWrong: ReviewStateSnapshot[];
 };
 
+export type ReviewBucketKey = keyof ReviewBuckets;
+
 export type ReviewPlayerViewModel = {
   state: ReviewStateSnapshot | null;
   queuePoetryIds: string[];
@@ -383,6 +385,29 @@ export function buildReviewSummary(buckets: ReviewBuckets) {
     upcomingCount: buckets.upcoming.length,
     recentWrong: buckets.recentWrong,
   };
+}
+
+export function buildReviewBatchQueue(
+  buckets: ReviewBuckets,
+  from: ReviewBucketKey,
+) {
+  const selectedBucket = buckets[from];
+
+  if (selectedBucket.length === 0) {
+    return [];
+  }
+
+  const queue = selectedBucket.map((item) => item.poetryId);
+
+  if (from !== "todayDue") {
+    for (const item of buckets.todayDue) {
+      if (!queue.includes(item.poetryId)) {
+        queue.push(item.poetryId);
+      }
+    }
+  }
+
+  return queue;
 }
 
 export async function getReviewPlayerViewModel(
