@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 
+import { AuthorChoiceQuestionCard } from "@/components/challenge/author-choice-question-card";
+import { TitleChoiceQuestionCard } from "@/components/challenge/title-choice-question-card";
 import type { ChallengeQuestion } from "@/lib/challenge/engine";
 
 type ChallengeRunnerProps = {
@@ -192,7 +194,9 @@ export function ChallengeRunner({
 
       <div className="mt-5 space-y-3">
         <h2 className="text-2xl font-semibold">{currentQuestion.title}</h2>
-        <p className="text-lg leading-8">{currentQuestion.prompt}</p>
+        {currentQuestion.type === "author" || currentQuestion.type === "title" ? null : (
+          <p className="text-lg leading-8">{currentQuestion.prompt}</p>
+        )}
       </div>
 
       <div className="mt-8">
@@ -208,28 +212,20 @@ export function ChallengeRunner({
           </label>
         ) : null}
 
-        {(currentQuestion.type === "author" || currentQuestion.type === "title") &&
-        "options" in currentQuestion ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {currentQuestion.options.map((option) => {
-              const isActive = selectedChoice === option;
+        {currentQuestion.type === "author" ? (
+          <AuthorChoiceQuestionCard
+            question={currentQuestion}
+            selectedChoice={selectedChoice}
+            onSelectChoice={setSelectedChoice}
+          />
+        ) : null}
 
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setSelectedChoice(option)}
-                  className={`rounded-[1.25rem] border px-4 py-3 text-left transition ${
-                    isActive
-                      ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
-                      : "border-[var(--color-line)] bg-white hover:bg-[var(--color-card)]"
-                  }`}
-                >
-                  {option}
-                </button>
-              );
-            })}
-          </div>
+        {currentQuestion.type === "title" ? (
+          <TitleChoiceQuestionCard
+            question={currentQuestion}
+            selectedChoice={selectedChoice}
+            onSelectChoice={setSelectedChoice}
+          />
         ) : null}
 
         {currentQuestion.type === "ordering" ? (

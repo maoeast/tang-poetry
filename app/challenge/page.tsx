@@ -6,10 +6,18 @@ import {
   buildChallengeRound,
   getChallengePoetrySeeds,
   submitChallengeAnswer,
+  type ChallengeMode,
   type ChallengeQuestion,
 } from "@/lib/challenge/engine";
 
 export const dynamic = "force-dynamic";
+
+type ChallengePageProps = {
+  searchParams: Promise<{
+    poetryId?: string;
+    mode?: string;
+  }>;
+};
 
 async function recordChallengeAnswer(
   question: ChallengeQuestion,
@@ -23,9 +31,24 @@ async function recordChallengeAnswer(
   });
 }
 
-export default async function ChallengePage() {
-  const poetrySeeds = await getChallengePoetrySeeds();
-  const challengeRound = buildChallengeRound(poetrySeeds);
+export default async function ChallengePage({ searchParams }: ChallengePageProps) {
+  const params = await searchParams;
+  const mode: ChallengeMode =
+    params.mode === "review"
+      ? "review"
+      : "default";
+  const poetryId =
+    typeof params.poetryId === "string" && params.poetryId.length > 0
+      ? params.poetryId
+      : undefined;
+  const poetrySeeds = await getChallengePoetrySeeds(undefined, {
+    mode,
+    poetryId,
+  });
+  const challengeRound = buildChallengeRound(poetrySeeds, {
+    mode,
+    poetryId,
+  });
 
   return (
     <main className="min-h-screen bg-[var(--color-page)] px-6 py-10 text-[var(--color-ink)] sm:px-10">
@@ -48,7 +71,7 @@ export default async function ChallengePage() {
           <div className="relative space-y-4">
             <h1 className="text-4xl font-semibold sm:text-5xl">挑战闯关</h1>
             <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-              当前版本先打通四类基础题型的闭环：对句、作者、诗名和乱序排句。每次作答都会写入挑战记录，并同步更新学习事件。
+              当前轮次固定 5 题：2 道对句、1 道作者题、1 道题名题、1 道排序题。支持默认抽题、指定诗挑战和复习池优先挑战；每次作答都会写入挑战记录，并同步更新学习事件。
             </p>
           </div>
         </section>

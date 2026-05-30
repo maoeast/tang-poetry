@@ -10,6 +10,16 @@ import {
 
 type RandomSource = () => number;
 
+export const CHALLENGE_ROUND_CONFIG = {
+  total: 5,
+  couplet: 2,
+  author: 1,
+  title: 1,
+  ordering: 1,
+} as const;
+
+export type ChallengeMode = "default" | "review";
+
 export type ChallengeQuestionType = "couplet" | "author" | "title" | "ordering";
 
 export type ChallengePoetrySeed = {
@@ -105,10 +115,31 @@ type ChallengeRepository = {
       };
     }) => Promise<unknown>;
   };
+  reviewState?: {
+    findMany: (args: {
+      where: {
+        userId: string;
+      };
+      select: {
+        poetryId: true;
+      };
+      orderBy: [{ wrongCount: "desc" }, { nextReviewAt: "asc" }];
+      take: number;
+    }) => Promise<Array<{ poetryId: string }>>;
+  };
 };
 
 type BuildOptions = {
+  mode?: ChallengeMode;
+  poetryId?: string;
+  reviewPoetryIds?: string[];
   random?: RandomSource;
+};
+
+type GetChallengePoetrySeedOptions = {
+  mode?: ChallengeMode;
+  poetryId?: string;
+  userId?: string;
 };
 
 type SubmitAnswerInput = {
@@ -159,6 +190,43 @@ function sameNormalizedLineOrder(a: string[], b: string[]) {
 
 function ensurePoemHasCouplet(poem: ChallengePoetrySeed) {
   return poem.lines.length >= 2;
+}
+
+function prioritizePoems(
+  poems: ChallengePoetrySeed[],
+  options?: Pick<BuildOptions, "mode" | "poetryId" | "reviewPoetryIds">,
+) {
+  if (poems.length === 0) {
+    return [];
+  }
+
+  const byId = new Map(poems.map((poem) => [poem.id, poem]));
+  const prioritizedIds =
+    options?.mode === "review"
+      ? options.reviewPoetryIds ?? []
+      : options?.poetryId
+        ? [options.poetryId]
+        : [];
+
+  const prioritized = prioritizedIds
+    .map((poetryId) => byId.get(poetryId))
+    .filter((poem): poem is ChallengePoetrySeed => Boolean(poem));
+
+  const prioritizedSet = new Set(prioritized.map((poem) => poem.id));
+  const remainder = poems.filter((poem) => !prioritizedSet.has(poem.id));
+
+  return [...prioritized, ...remainder];
+}
+
+function pickPoemAt<T extends ChallengePoetrySeed>(
+  poems: T[],
+  index: number,
+) {
+  if (poems.length === 0) {
+    return undefined;
+  }
+
+  return poems[index % poems.length];
 }
 
 export function buildOrderingQuestion(
@@ -257,21 +325,45 @@ export function buildChallengeRound(
   options?: BuildOptions,
 ): ChallengeRound {
   const random = options?.random ?? Math.random;
-  const usablePoems = poems.filter((poem) => poem.lines.length > 0);
-  const coupletPoem =
-    usablePoems.find(ensurePoemHasCouplet) ??
-    usablePoems[0];
-  const authorPoem = usablePoems[1] ?? usablePoems[0];
-  const titlePoem = usablePoems[2] ?? usablePoems[0];
-  const orderingPoem = usablePoems[3] ?? coupletPoem ?? usablePoems[0];
+  const prioritizedUsablePoems = prioritizePoems(
+    poems.filter((poem) => poem.lines.length > 0),
+    options,
+  );
+  const usablePoems =
+    options?.mode === "review" && (options.reviewPoetryIds?.length ?? 0) > 0
+      ? prioritizedUsablePoems.filter((poem) =>
+          new Set(options.reviewPoetryIds).has(poem.id),
+        )
+      : prioritizedUsablePoems;
+  const coupletPoems = usablePoems.filter(ensurePoemHasCouplet);
 
-  if (!coupletPoem || !authorPoem || !titlePoem || !orderingPoem) {
+  if (
+    coupletPoems.length === 0 ||
+    usablePoems.length === 0
+  ) {
+    return { questions: [] };
+  }
+
+  const firstCoupletPoem = pickPoemAt(coupletPoems, 0);
+  const secondCoupletPoem = pickPoemAt(coupletPoems, 1) ?? firstCoupletPoem;
+  const authorPoem = pickPoemAt(usablePoems, 2) ?? pickPoemAt(usablePoems, 0);
+  const titlePoem = pickPoemAt(usablePoems, 3) ?? pickPoemAt(usablePoems, 0);
+  const orderingPoem = pickPoemAt(coupletPoems, 4) ?? firstCoupletPoem;
+
+  if (
+    !firstCoupletPoem ||
+    !secondCoupletPoem ||
+    !authorPoem ||
+    !titlePoem ||
+    !orderingPoem
+  ) {
     return { questions: [] };
   }
 
   return {
     questions: [
-      buildCoupletQuestion(coupletPoem, { random }),
+      buildCoupletQuestion(firstCoupletPoem, { random }),
+      buildCoupletQuestion(secondCoupletPoem, { random }),
       buildAuthorQuestion(authorPoem, poems, { random }),
       buildTitleQuestion(titlePoem, poems, { random }),
       buildOrderingQuestion(orderingPoem, { random }),
@@ -281,6 +373,7 @@ export function buildChallengeRound(
 
 export async function getChallengePoetrySeeds(
   repository?: ChallengeRepository,
+  options?: GetChallengePoetrySeedOptions,
 ): Promise<ChallengePoetrySeed[]> {
   const targetRepository = repository ?? (db as unknown as ChallengeRepository);
 
@@ -300,13 +393,37 @@ export async function getChallengePoetrySeeds(
     },
   });
 
-  return poetries.map((poetry) => ({
+  const seeds = poetries.map((poetry) => ({
     id: poetry.id,
     title: poetry.title,
     author: poetry.author,
     dynasty: poetry.dynasty,
     lines: toStringArray(poetry.lines),
   }));
+
+  if (options?.mode !== "review" || !targetRepository.reviewState) {
+    return options?.poetryId
+      ? prioritizePoems(seeds, {
+          poetryId: options.poetryId,
+        })
+      : seeds;
+  }
+
+  const reviewRecords = await targetRepository.reviewState.findMany({
+    where: {
+      userId: options.userId ?? process.env.SYSTEM_USER_ID ?? "",
+    },
+    select: {
+      poetryId: true,
+    },
+    orderBy: [{ wrongCount: "desc" }, { nextReviewAt: "asc" }],
+    take: 12,
+  });
+
+  return prioritizePoems(seeds, {
+    mode: "review",
+    reviewPoetryIds: reviewRecords.map((record) => record.poetryId),
+  });
 }
 
 function judgeQuestion(question: ChallengeQuestion, userAnswer: string | string[]) {

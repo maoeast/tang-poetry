@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CHALLENGE_ROUND_CONFIG,
   buildChallengeRound,
   buildOrderingQuestion,
   submitChallengeAnswer,
@@ -75,7 +76,17 @@ test("buildOrderingQuestion retries when shuffled lines match the original order
   assert.notDeepEqual(question.options, samplePoems[0].lines);
 });
 
-test("buildChallengeRound returns the four planned question types in sequence", () => {
+test("CHALLENGE_ROUND_CONFIG exports the fixed five-question allocation", () => {
+  assert.deepEqual(CHALLENGE_ROUND_CONFIG, {
+    total: 5,
+    couplet: 2,
+    author: 1,
+    title: 1,
+    ordering: 1,
+  });
+});
+
+test("buildChallengeRound returns the five planned question types in sequence", () => {
   const round = buildChallengeRound(samplePoems, {
     random: createSequenceRandom([
       0.1,
@@ -95,9 +106,9 @@ test("buildChallengeRound returns the four planned question types in sequence", 
 
   assert.deepEqual(
     round.questions.map((question) => question.type),
-    ["couplet", "author", "title", "ordering"],
+    ["couplet", "couplet", "author", "title", "ordering"],
   );
-  assert.equal(round.questions.length, 4);
+  assert.equal(round.questions.length, 5);
 });
 
 test("submitChallengeAnswer writes ChallengeAttempt and LearningRecord for correct answers", async () => {
