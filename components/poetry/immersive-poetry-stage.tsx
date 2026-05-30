@@ -56,16 +56,6 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
   const [currentLineStartMs, setCurrentLineStartMs] = useState(0);
 
   useEffect(() => {
-    setShowPinyin(false);
-    setIsPlaying(false);
-    setCurrentTimeMs(0);
-    setDurationMs(poetry.audio.durationMs);
-    setPlaybackRate(1);
-    setCurrentLineIndex(0);
-    setCurrentLineStartMs(0);
-  }, [poetry.audio.durationMs, poetry.id]);
-
-  useEffect(() => {
     const currentAudio = audioRef.current;
 
     if (currentAudio) {
@@ -96,7 +86,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => {
       setIsPlaying(false);
-      setCurrentTimeMs(Math.floor(nextAudio.duration * 1000) || durationMs);
+      setCurrentTimeMs(Math.floor(nextAudio.duration * 1000) || poetry.audio.durationMs);
     };
 
     nextAudio.addEventListener("timeupdate", handleTimeUpdate);

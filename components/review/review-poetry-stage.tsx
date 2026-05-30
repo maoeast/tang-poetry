@@ -106,17 +106,6 @@ export function ReviewPoetryStage({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setShowPinyin(false);
-    setIsPlaying(false);
-    setCurrentTimeMs(0);
-    setDurationMs(poetry.audio.durationMs);
-    setCurrentLineIndex(0);
-    setCurrentLineStartMs(0);
-    setIsUnlocked(!hasAudio);
-    setMessage(null);
-  }, [hasAudio, poetry.audio.durationMs, poetry.id]);
-
-  useEffect(() => {
     const currentAudio = audioRef.current;
 
     if (currentAudio) {

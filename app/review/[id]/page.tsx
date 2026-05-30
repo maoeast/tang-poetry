@@ -42,6 +42,7 @@ export default async function ReviewPlayerPage({
 
   return (
     <ReviewPoetryStage
+      key={poetry.id}
       poetry={poetry}
       initialQueuePoetryIds={viewModel.queuePoetryIds}
       initialQueuePosition={viewModel.queuePosition}

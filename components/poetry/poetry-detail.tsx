@@ -30,7 +30,7 @@ export function PoetryDetail({ poetry, relatedPoetries }: PoetryDetailProps) {
           </Link>
         </div>
 
-        <ImmersivePoetryStage poetry={poetry} />
+        <ImmersivePoetryStage key={poetry.id} poetry={poetry} />
 
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)]">
           <article className="rounded-[2rem] border border-[var(--color-line)] bg-white/80 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
