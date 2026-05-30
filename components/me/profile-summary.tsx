@@ -42,6 +42,9 @@ const statCards = [
 
 export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
   const champion = affinity[0];
+  const bannerAccent = champion
+    ? `与 ${champion.author} 相遇 ${champion.count} 次`
+    : "从今日一诗开始写下第一笔相遇";
 
   return (
     <main className="min-h-screen bg-[var(--color-page)] px-6 py-10 text-[var(--color-ink)] sm:px-10">
@@ -60,31 +63,71 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
 
         <section className="relative overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-soft)]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.34),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.3),transparent_34%)]" />
+          <div className="pointer-events-none absolute inset-y-8 left-8 hidden w-px bg-[linear-gradient(to_bottom,rgba(126,103,81,0.02),rgba(126,103,81,0.22),rgba(126,103,81,0.02))] lg:block" />
 
           <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_18rem]">
-            <div className="space-y-4">
-              <p className="text-sm tracking-[0.28em] text-[var(--color-muted)] uppercase">
-                Learning Footprint
-              </p>
-              <h1 className="text-4xl font-semibold sm:text-5xl">我的诗心小档案</h1>
-              <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-                把最近学过、读过、收藏过的痕迹收起来，做成一页能看见成长感的唐诗记录。
-                {champion
-                  ? ` 目前和你最有缘分的诗人是${champion.author}，已经相遇 ${champion.count} 次。`
-                  : " 当前还没有学习记录，读一首今日诗就会开始点亮这里。"}
-              </p>
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-3 text-sm text-[var(--color-muted)]">
+                <span className="rounded-full border border-[var(--color-line)] bg-white/70 px-4 py-2">
+                  卷名：诗心小档案
+                </span>
+                <span className="rounded-full border border-[var(--color-line)] bg-white/55 px-4 py-2">
+                  小景：山色入卷，风声留痕
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm tracking-[0.28em] text-[var(--color-muted)] uppercase">
+                  Personal Scroll
+                </p>
+                <h1 className="text-4xl font-semibold sm:text-5xl">把近来的读诗痕迹收成一轴小长卷</h1>
+                <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
+                  不做铺满整屏的海报，只把你最近读过、练过、收藏过的片段收进卷首，
+                  让这一页像诗画题跋一样，先交代去处，再慢慢展开今天的成长记录。
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/65 px-5 py-4">
+                  <p className="text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
+                    卷首题记
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                    {bannerAccent}
+                  </p>
+                </div>
+                <div className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/65 px-5 py-4">
+                  <p className="text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
+                    行路节奏
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                    连续学习 {summary.streakDays} 天，读诗手感在日常里慢慢接上。
+                  </p>
+                </div>
+                <div className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/65 px-5 py-4">
+                  <p className="text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
+                    下一步
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                    保留挑战与复习入口，方便从卷首继续往下练。
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="rounded-[1.75rem] border border-[var(--color-line)] bg-white/72 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
               <p className="text-sm tracking-[0.2em] text-[var(--color-muted)] uppercase">
-                本轮手感
+                临卷手感
               </p>
               <p className="mt-4 text-5xl font-semibold text-[var(--color-accent)]">
                 {summary.challengeAccuracy}%
               </p>
               <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                共完成 {summary.challengeAttemptCount} 次挑战作答，答对率会随着练习持续刷新。
+                共完成 {summary.challengeAttemptCount} 次挑战作答。正确率仅统计正式挑战，不计入复习自评。
               </p>
+              <div className="mt-5 rounded-[1.25rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]/70 px-4 py-3 text-sm leading-7 text-[var(--color-muted)]">
+                快捷入口仍保留在下方，卷首只负责交代你此刻的读诗气象。
+              </div>
             </div>
           </div>
         </section>
