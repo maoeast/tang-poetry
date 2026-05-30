@@ -81,7 +81,6 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
 
     const nextAudio = new Audio(poetry.audio.url);
     nextAudio.preload = "metadata";
-    nextAudio.playbackRate = playbackRate;
 
     const handleTimeUpdate = () => {
       setCurrentTimeMs(Math.floor(nextAudio.currentTime * 1000));
@@ -123,7 +122,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
         audioRef.current = null;
       }
     };
-  }, [hasAudio, playbackRate, poetry.audio.durationMs, poetry.audio.url]);
+  }, [hasAudio, poetry.audio.durationMs, poetry.audio.url]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -162,7 +161,16 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
   function replayCurrentLine() {
     if (hasAudio) {
       seekTo(currentLineStartMs);
-      void togglePlayPause();
+      const audio = audioRef.current;
+
+      if (!audio) {
+        return;
+      }
+
+      if (audio.paused) {
+        void audio.play();
+      }
+
       return;
     }
 

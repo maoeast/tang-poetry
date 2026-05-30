@@ -199,6 +199,57 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
   });
 });
 
+test("getPoetryById falls back to none when audio metadata status is unsupported", async () => {
+  const result = await getPoetryById(
+    "ts300-0004",
+    {
+      poetry: {
+        findUnique: async () => ({
+          id: "ts300-0004",
+          title: "鹿柴",
+          author: "王维",
+          dynasty: "唐",
+          lines: ["空山不见人。", "但闻人语响。"],
+          themes: ["山水"],
+          pinyin: [],
+          translation: null,
+          imageKey: "ts300-0004",
+          imageStatus: "ready",
+          audioMeta: {
+            status: "processing",
+            durationMs: 15_000,
+            lineTimings: [
+              {
+                lineIndex: 0,
+                startMs: 0,
+              },
+            ],
+          },
+        }),
+      },
+    } as never,
+    {
+      getPoetryImage: async (poetryId: string) => ({
+        poetryId,
+        imagePath: "/images/generated/ts300-0004.jpg",
+        thumbPath: "/images/generated/ts300-0004-thumb.jpg",
+        status: "ready",
+        style: "storybook-watercolor",
+        promptVersion: "v1",
+        width: 1200,
+        height: 1800,
+        isPlaceholder: false,
+      }),
+    },
+  );
+
+  assert.deepEqual(result?.audio, {
+    audioStatus: "none",
+    url: null,
+    durationMs: 0,
+  });
+});
+
 test("getPoetryById returns null when poetry does not exist", async () => {
   const result = await getPoetryById(
     "missing-id",

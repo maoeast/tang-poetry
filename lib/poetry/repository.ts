@@ -172,7 +172,7 @@ function toPoetryAudio(
 ): PoetryAudio {
   const audioStatus = getAudioStatus(audioMeta);
 
-  if (audioStatus === "none") {
+  if (audioStatus !== "ready" && audioStatus !== "tts") {
     return {
       audioStatus: "none",
       url: null,
@@ -181,7 +181,7 @@ function toPoetryAudio(
   }
 
   return {
-    audioStatus: audioStatus === "tts" ? "tts" : "ready",
+    audioStatus,
     url: getAudioUrl(poetryId),
     durationMs:
       typeof audioMeta?.durationMs === "number" && Number.isFinite(audioMeta.durationMs)
