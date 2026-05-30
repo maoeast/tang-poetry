@@ -223,14 +223,21 @@ export async function getPoetryById(
   }
 
   const image = await dependencies.getPoetryImage(poetry.id);
+  const audio = toPoetryAudio(poetry.id, poetry.audioMeta);
 
   return {
-    ...poetry,
+    id: poetry.id,
+    title: poetry.title,
+    author: poetry.author,
+    dynasty: poetry.dynasty,
+    translation: poetry.translation,
+    imageKey: poetry.imageKey,
+    imageStatus: poetry.imageStatus,
     lines: toStringArray(poetry.lines),
     themes: toStringArray(poetry.themes),
     pinyin: toStringArray(poetry.pinyin),
     image,
-    audio: toPoetryAudio(poetry.id, poetry.audioMeta),
+    audio,
   };
 }
 
