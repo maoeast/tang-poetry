@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -23,30 +24,49 @@ export function PoetryDetail({ poetry, relatedPoetries }: PoetryDetailProps) {
         <section className="relative overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-soft)]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.3),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.25),transparent_30%)]" />
 
-          <div className="relative space-y-6">
-            <div className="space-y-3">
-              <p className="text-sm tracking-[0.28em] text-[var(--color-muted)] uppercase">
-                Poetry Detail
-              </p>
-              <h1 className="text-4xl font-semibold sm:text-5xl">{poetry.title}</h1>
-              <p className="text-base text-[var(--color-muted)]">
-                {poetry.dynasty} · {poetry.author}
-              </p>
+          <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(17rem,0.92fr)] lg:items-center">
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <p className="text-sm tracking-[0.28em] text-[var(--color-muted)] uppercase">
+                  Poetry Detail
+                </p>
+                <h1 className="text-4xl font-semibold sm:text-5xl">{poetry.title}</h1>
+                <p className="text-base text-[var(--color-muted)]">
+                  {poetry.dynasty} · {poetry.author}
+                </p>
+              </div>
+
+              <div className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/60 p-5">
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
+                    {poetry.image.isPlaceholder ? "插画占位中" : "已接入配图"}
+                  </span>
+                  {poetry.themes.map((theme) => (
+                    <span
+                      key={theme}
+                      className="rounded-full border border-[var(--color-line)] bg-white/70 px-3 py-1 text-sm"
+                    >
+                      {theme}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/60 p-5">
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs tracking-[0.2em] text-[var(--color-muted)] uppercase">
-                  {poetry.imageStatus === "ready" ? "已接入配图" : "插画占位中"}
-                </span>
-                {poetry.themes.map((theme) => (
-                  <span
-                    key={theme}
-                    className="rounded-full border border-[var(--color-line)] bg-white/70 px-3 py-1 text-sm"
-                  >
-                    {theme}
-                  </span>
-                ))}
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]">
+              <Image
+                src={poetry.image.thumbPath ?? poetry.image.imagePath}
+                alt={`${poetry.title} 配图`}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 24rem, 100vw"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(63,47,35,0.76)] via-[rgba(63,47,35,0.2)] to-transparent p-4 text-white">
+                <p className="text-sm leading-6">
+                  {poetry.image.isPlaceholder
+                    ? "当前展示系统占位图，后续会继续替换为精选诗境配图。"
+                    : "本图已从数据库 ImageAsset 实时读取。"}
+                </p>
               </div>
             </div>
           </div>

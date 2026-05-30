@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 
 type DailyPoetryRepository = {
   dailyPoetry: {
@@ -43,7 +44,12 @@ export type DailyPoetryResult = {
     lines: string[];
     imageKey: string | null;
     imageStatus: string;
+    image: PoetryImage;
   };
+};
+
+type DailyPoetryDependencies = {
+  getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
 };
 
 export function getTodayDateString(date = new Date()) {
@@ -53,6 +59,7 @@ export function getTodayDateString(date = new Date()) {
 export async function getDailyPoetry(
   date: string,
   repository: DailyPoetryRepository = db,
+  dependencies: DailyPoetryDependencies = { getPoetryImage },
 ): Promise<DailyPoetryResult | null> {
   const entry = await repository.dailyPoetry.findUnique({
     where: { date },
@@ -76,6 +83,8 @@ export async function getDailyPoetry(
     return null;
   }
 
+  const image = await dependencies.getPoetryImage(entry.poetry.id);
+
   return {
     date: entry.date,
     poetry: {
@@ -83,6 +92,7 @@ export async function getDailyPoetry(
       lines: Array.isArray(entry.poetry.lines)
         ? entry.poetry.lines.filter((line): line is string => typeof line === "string")
         : [],
+      image,
     },
   };
 }

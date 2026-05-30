@@ -104,12 +104,13 @@
 ### 已完成：任务 6 今日一诗首页基础读取链路
 
 已落地内容：
-- `app/page.tsx` 已从数据库 `DailyPoetry -> Poetry` 读取当天诗歌
+- `app/page.tsx` 已从数据库 `DailyPoetry -> Poetry -> ImageAsset` 读取当天诗歌与运行时主视觉图
 - 首页当前展示：
   - 标题
   - 作者
   - 朝代
   - 前两句
+  - 今日主视觉图
   - “阅读全文”按钮
 
 ### 已完成：任务 7 诗歌详情页
@@ -126,6 +127,7 @@
   - 标题
   - 作者
   - 朝代
+  - 运行时头图
   - 全文
   - 译文占位
   - 拼音占位
@@ -136,14 +138,60 @@
 - 首页“阅读全文”已可真实跳转 `/poetry/[id]`
 - 缺失诗歌时走 `notFound()`
 
-### 已补的占位页
+### 已完成：任务 8 挑战系统基础闭环
 
-为避免详情页里的挑战入口跳到 404，已增加：
+已落地内容：
 - `app/challenge/page.tsx`
+- `components/challenge/challenge-runner.tsx`
+- `lib/challenge/engine.ts`
+- `lib/challenge/judge.ts`
+- `tests/challenge/judge.test.ts`
 
-注意：
-- 这只是最小占位入口
-- 不代表任务 8 已完成
+已完成能力：
+- 四类题型：`couplet`、`author`、`title`、`ordering`
+- 开始挑战、逐题作答、即时反馈、结果页
+- 写入 `ChallengeAttempt`
+- 同步写入 `LearningRecord`
+
+### 已完成：任务 9 复习池与熟练度规则
+
+已落地内容：
+- `app/review/page.tsx`
+- `components/review/review-list.tsx`
+- `lib/review/scheduler.ts`
+- `tests/review/scheduler.test.ts`
+
+已完成能力：
+- 固定复习间隔序列
+- 今日待复习 / 即将到期 / 最近错题
+- `view_poetry` 和挑战结果会驱动复习状态更新
+
+### 已完成：任务 10 DeepSeek 服务端代理与 AI 讲解基础链路
+
+已落地内容：
+- `app/api/ai/explain/route.ts`
+- `lib/ai/deepseek.ts`
+- `lib/ai/prompts.ts`
+- `components/poetry/ai-explanation-card.tsx`
+- `tests/ai/explain-route.test.ts`
+- `tests/ai/prompts.test.ts`
+
+已完成能力：
+- 详情页点击后加载 AI 讲解
+- 按 `{audience}_{promptVersion}` 命中缓存
+- 缓存未命中时再请求 DeepSeek
+
+### 已完成：任务 11 我的页面与诗人缘分榜
+
+已落地内容：
+- `app/me/page.tsx`
+- `components/me/profile-summary.tsx`
+- `lib/stats/affinity.ts`
+- `tests/stats/affinity.test.ts`
+
+已完成能力：
+- 连续学习、已读诗作、收藏数、挑战正确率
+- 诗人缘分榜 Top 5
 
 ---
 
@@ -152,19 +200,14 @@
 对照 `docs/superpowers/plans/2026-05-29-tang-poetry-app-phase-1.md`：
 
 未完成主体任务：
-- 任务 4：建立图片资产规范与导入链路
-- 任务 5：实现全局主题与布局系统
-- 任务 8：实现挑战系统基础闭环
-- 任务 9：实现复习池与熟练度规则
-- 任务 10：实现 DeepSeek 服务端代理与 AI 讲解
-- 任务 11：实现我的页面与诗人缘分榜
-- 任务 12：补充种子数据、占位图和首批精选图清单
+- 任务 12：补充种子数据、占位图和首批精选图清单的剩余收口
 - 任务 13：端到端联调与基础验证
 - 任务 14：生产部署配置
 
-但是执行顺序上，**下一步从任务 8 开始**，因为任务 4 和任务 5 当前计划里的“主体内容”未做，但并不阻塞挑战系统继续推进；用户已经明确要求按 phase plan 里剩余任务顺序继续执行，所以下一会话应先核对文档里的剩余顺序并从任务 8 开始做业务实现。
-
-如果要更严格补任务 4/5，也只能在不打断主线的前提下补最小必需项。
+下一步不应再从任务 8 重做。当前应继续：
+1. 收尾任务 12 的运行时图片统一接入
+2. 执行任务 13 的联调与缺口记录
+3. 最后进入任务 14 的部署配置
 
 ---
 
@@ -194,6 +237,9 @@
 - `/`
 - `/poetry/[id]`
 - `/challenge`
+- `/review`
+- `/me`
+- `/api/ai/explain`
 - `/unlock`
 
 注意：
@@ -235,12 +281,16 @@ README 和其余文档里的命令示例已经统一更新为 `docker compose up
 - `app/page.tsx`
 - `app/poetry/[id]/page.tsx`
 - `app/challenge/page.tsx`
+- `app/review/page.tsx`
+- `app/me/page.tsx`
 - `components/poetry/poetry-detail.tsx`
+- `components/poetry/ai-explanation-card.tsx`
 - `lib/poetry/daily.ts`
 - `lib/poetry/repository.ts`
+- `lib/images/repository.ts`
 - `tests/poetry/daily.test.ts`
-- `tests/poetry/normalize.test.ts`
 - `tests/poetry/repository.test.ts`
+- `tests/images/repository.test.ts`
 - `README.md`
 
 关键文档：

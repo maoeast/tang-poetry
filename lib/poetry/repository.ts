@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
 
 type PoetryRepository = {
@@ -71,6 +72,11 @@ export type PoetryDetail = {
   translation: string | null;
   imageKey: string | null;
   imageStatus: string;
+  image: PoetryImage;
+};
+
+type PoetryRepositoryDependencies = {
+  getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
 };
 
 export type RelatedPoetry = {
@@ -90,6 +96,7 @@ function toStringArray(value: unknown) {
 export async function getPoetryById(
   id: string,
   repository?: PoetryRepository,
+  dependencies: PoetryRepositoryDependencies = { getPoetryImage },
 ): Promise<PoetryDetail | null> {
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
   const poetry = await targetRepository.poetry.findUnique({
@@ -112,11 +119,14 @@ export async function getPoetryById(
     return null;
   }
 
+  const image = await dependencies.getPoetryImage(poetry.id);
+
   return {
     ...poetry,
     lines: toStringArray(poetry.lines),
     themes: toStringArray(poetry.themes),
     pinyin: toStringArray(poetry.pinyin),
+    image,
   };
 }
 

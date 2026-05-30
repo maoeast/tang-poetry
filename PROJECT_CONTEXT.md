@@ -5,3 +5,5 @@
 - 一期复习规则已固化在 `lib/review/scheduler.ts`，间隔序列固定为 `1 -> 2 -> 4 -> 7 -> 15 -> 30` 天。
 - 新增全局 AI 数据流：`POST /api/ai/explain` 先查 `Poetry.aiExplanation[audience_promptVersion]`，未命中才调用 DeepSeek 并回写缓存。
 - 新增全局约束：AI 讲解缓存 key 固定为 `{audience}_{promptVersion}`，一期只允许 `child_v1` 与 `general_v1`。
+- 新增全局图片数据流：首页与详情页统一通过 `getPoetryImage(poetryId)` 读取 `ImageAsset`，运行时不再直接消费图片 JSON。
+- 新增全局约束：一期运行时图片唯一数据源是数据库 `ImageAsset`，缺图只能回退 `/images/placeholders/default-poetry-card.jpg`。

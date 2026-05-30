@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -63,47 +64,68 @@ export default async function HomePage() {
             </div>
 
             <section className="rounded-[1.75rem] border border-[var(--color-line)] bg-white/75 p-6 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-              <div className="flex flex-wrap items-center justify-between gap-4">
+              {todayPoetry ? (
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-center">
+                  <div className="space-y-5">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="space-y-2">
+                        <p className="text-sm tracking-[0.25em] text-[var(--color-muted)] uppercase">
+                          今日一诗
+                        </p>
+                        <h2 className="text-2xl font-semibold">
+                          {todayPoetry.poetry.title}
+                        </h2>
+                        <p className="text-sm text-[var(--color-muted)]">
+                          {todayPoetry.poetry.dynasty} · {todayPoetry.poetry.author}
+                        </p>
+                      </div>
+
+                      <Link
+                        href={`/poetry/${todayPoetry.poetry.id}` as Route}
+                        className="rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition hover:bg-white"
+                      >
+                        阅读全文
+                      </Link>
+                    </div>
+
+                    <div className="space-y-2 text-base leading-8">
+                      {todayPoetry.poetry.lines.slice(0, 2).map((line) => (
+                        <p key={line}>{line}</p>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]">
+                    <Image
+                      src={
+                        todayPoetry.poetry.image.thumbPath ??
+                        todayPoetry.poetry.image.imagePath
+                      }
+                      alt={`${todayPoetry.poetry.title} 配图`}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 28rem, 100vw"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(63,47,35,0.72)] via-[rgba(63,47,35,0.2)] to-transparent p-4 text-white">
+                      <p className="text-sm leading-6">
+                        {todayPoetry.poetry.image.isPlaceholder
+                          ? "当前展示系统占位图，精选配图会继续补齐。"
+                          : "今日诗境配图已从数据库 ImageAsset 实时读取。"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div className="space-y-2">
                   <p className="text-sm tracking-[0.25em] text-[var(--color-muted)] uppercase">
                     今日一诗
                   </p>
-                  {todayPoetry ? (
-                    <>
-                      <h2 className="text-2xl font-semibold">
-                        {todayPoetry.poetry.title}
-                      </h2>
-                      <p className="text-sm text-[var(--color-muted)]">
-                        {todayPoetry.poetry.dynasty} · {todayPoetry.poetry.author}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <h2 className="text-2xl font-semibold">今日排期暂未生成</h2>
-                      <p className="text-sm text-[var(--color-muted)]">
-                        请先执行数据导入脚本，写入 Poetry 与 DailyPoetry。
-                      </p>
-                    </>
-                  )}
+                  <h2 className="text-2xl font-semibold">今日排期暂未生成</h2>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    请先执行数据导入脚本，写入 Poetry 与 DailyPoetry。
+                  </p>
                 </div>
-
-                {todayPoetry ? (
-                  <Link
-                    href={`/poetry/${todayPoetry.poetry.id}` as Route}
-                    className="rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition hover:bg-white"
-                  >
-                    阅读全文
-                  </Link>
-                ) : null}
-              </div>
-
-              {todayPoetry ? (
-                <div className="mt-5 space-y-2 text-base leading-8">
-                  {todayPoetry.poetry.lines.slice(0, 2).map((line) => (
-                    <p key={line}>{line}</p>
-                  ))}
-                </div>
-              ) : null}
+              )}
             </section>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
