@@ -3,24 +3,34 @@ import type { Route } from "next";
 
 import { AiExplanationCard } from "@/components/poetry/ai-explanation-card";
 import { ImmersivePoetryStage } from "@/components/poetry/immersive-poetry-stage";
+import { ScriptVariantToggle } from "@/components/poetry/script-variant-toggle";
 import type { PoetryDetail as PoetryDetailModel, RelatedPoetry } from "@/lib/poetry/repository";
+import type { ScriptVariant } from "@/lib/poetry/script-variant";
 
 type PoetryDetailProps = {
   poetry: PoetryDetailModel;
   relatedPoetries: RelatedPoetry[];
+  initialScriptVariant: ScriptVariant;
 };
 
-export function PoetryDetail({ poetry, relatedPoetries }: PoetryDetailProps) {
+export function PoetryDetail({
+  poetry,
+  relatedPoetries,
+  initialScriptVariant,
+}: PoetryDetailProps) {
   return (
     <main className="min-h-screen bg-[var(--color-page)] px-5 py-8 text-[var(--color-ink)] sm:px-8 lg:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link
-            href={"/" as Route}
-            className="inline-flex w-fit items-center rounded-full border border-[var(--color-line)] bg-white/72 px-4 py-2 text-sm text-[var(--color-muted)] transition hover:bg-white"
-          >
-            返回首页
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href={"/" as Route}
+              className="inline-flex w-fit items-center rounded-full border border-[var(--color-line)] bg-white/72 px-4 py-2 text-sm text-[var(--color-muted)] transition hover:bg-white"
+            >
+              返回首页
+            </Link>
+            <ScriptVariantToggle initialVariant={initialScriptVariant} />
+          </div>
 
           <Link
             href={"/challenge" as Route}

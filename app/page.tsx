@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import type { Route } from "next";
 
 import { TodayPoetryHero } from "@/components/home/today-poetry-hero";
 import { getTodayPoetry } from "@/lib/poetry/daily";
+import {
+  resolveScriptVariant,
+  SCRIPT_VARIANT_COOKIE_NAME,
+} from "@/lib/poetry/script-variant";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +15,7 @@ const featureCards = [
   {
     title: "今日一诗",
     body: "已经接入 DailyPoetry 排期读取，首页会直接展示当天命中的诗歌。",
-    href: "/" as Route,
+    href: "/#today-poetry" as Route,
     action: "查看今日一诗",
   },
   {
@@ -34,7 +39,13 @@ const featureCards = [
 ];
 
 export default async function HomePage() {
-  const todayPoetry = await getTodayPoetry();
+  const cookieStore = await cookies();
+  const scriptVariant = resolveScriptVariant(
+    cookieStore.get(SCRIPT_VARIANT_COOKIE_NAME)?.value,
+  );
+  const todayPoetry = await getTodayPoetry(undefined, undefined, {
+    scriptVariant,
+  });
 
   return (
     <main className="min-h-screen bg-[var(--color-page)] text-[var(--color-ink)]">
@@ -64,7 +75,9 @@ export default async function HomePage() {
             </div>
 
             {todayPoetry ? (
-              <TodayPoetryHero todayPoetry={todayPoetry} />
+              <div id="today-poetry">
+                <TodayPoetryHero todayPoetry={todayPoetry} />
+              </div>
             ) : (
               <section className="rounded-[1.75rem] border border-[var(--color-line)] bg-white/75 p-6 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
                 <div className="space-y-2">

@@ -14,3 +14,4 @@
 - 新增全局数据约束：唐诗展示文本改为双权威源，简体以 `data/ts300.simple.json` 为准，繁体以 `data/ts300.raw.json` 为准，禁止使用运行时 OpenCC 作为最终展示文本来源。
 - 新增全局展示约束：简繁切换仅作用于诗题、作者、正文，不包含固定 UI 文案、导航、按钮与提示语。
 - 新增全局 SSR 约束：诗歌脚本偏好以 `cookie` 为服务端真相源，`localStorage` 仅作客户端镜像，不允许单独决定首屏文案。
+- 新增全局开发约束：开发阶段 Prisma schema 变更后禁止在业务代码中增加旧 runtime client 兼容分支，标准处理是重新生成 Prisma client 并重启 dev server。

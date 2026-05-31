@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { getHomeCtaLabel } from "@/components/home/today-poetry-hero";
+import {
+  getHomeCtaHref,
+  getHomeCtaLabel,
+} from "@/components/home/today-poetry-hero";
 import { getDailyPoetry } from "@/lib/poetry/daily";
 
 test("getDailyPoetry returns scheduled poetry for a given date", async () => {
@@ -16,12 +19,26 @@ test("getDailyPoetry returns scheduled poetry for a given date", async () => {
           date: "2026-05-29",
           poetry: {
             id: "ts300-0001",
-            title: "在岳咏蝉",
+            title: "在狱咏蝉",
+            titleOriginal: "在嶽詠蟬",
+            titleZhHans: "在狱咏蝉",
+            titleZhHant: "在嶽詠蟬",
             author: "骆宾王",
+            authorOriginal: "駱賓王",
+            authorZhHans: "骆宾王",
+            authorZhHant: "駱賓王",
             dynasty: "唐",
             lines: [
               "西陆蝉声唱，南冠客思侵。",
               "那堪玄鬓影，来对白头吟。",
+            ],
+            linesZhHans: [
+              "西陆蝉声唱，南冠客思侵。",
+              "那堪玄鬓影，来对白头吟。",
+            ],
+            linesZhHant: [
+              "西陸蟬聲唱，南冠客思侵。",
+              "那堪玄鬢影，來對白頭吟。",
             ],
             imageKey: "ts300-0001",
             imageStatus: "placeholder",
@@ -47,35 +64,22 @@ test("getDailyPoetry returns scheduled poetry for a given date", async () => {
     },
     {
       now: new Date("2026-05-29T09:00:00.000Z"),
+      scriptVariant: "zh-Hans",
     },
   );
 
   process.env.SYSTEM_USER_ID = previousUserId;
 
-  assert.deepEqual(result, {
-    date: "2026-05-29",
-    isReadToday: false,
-    poetry: {
-      id: "ts300-0001",
-      title: "在岳咏蝉",
-      author: "骆宾王",
-      dynasty: "唐",
-      lines: ["西陆蝉声唱，南冠客思侵。", "那堪玄鬓影，来对白头吟。"],
-      imageKey: "ts300-0001",
-      imageStatus: "placeholder",
-      image: {
-        poetryId: "ts300-0001",
-        imagePath: "/images/generated/ts300-0001.jpg",
-        thumbPath: "/images/generated/ts300-0001-thumb.jpg",
-        status: "ready",
-        style: "storybook-watercolor",
-        promptVersion: "v1",
-        width: 1200,
-        height: 675,
-        isPlaceholder: false,
-      },
-    },
-  });
+  assert.equal(result?.date, "2026-05-29");
+  assert.equal(result?.isReadToday, false);
+  assert.equal(result?.poetry.id, "ts300-0001");
+  assert.equal(result?.poetry.title, "在狱咏蝉");
+  assert.equal(result?.poetry.author, "骆宾王");
+  assert.deepEqual(result?.poetry.lines, [
+    "西陆蝉声唱，南冠客思侵。",
+    "那堪玄鬓影，来对白头吟。",
+  ]);
+  assert.equal(result?.poetry.image.imagePath, "/images/generated/ts300-0001.jpg");
 });
 
 test("getDailyPoetry returns null when schedule is missing", async () => {
@@ -112,10 +116,18 @@ test("getDailyPoetry requests poetry relation from repository", async () => {
             date: "2026-05-29",
             poetry: {
               id: "ts300-0001",
-              title: "在岳咏蝉",
+              title: "在狱咏蝉",
+              titleOriginal: "在嶽詠蟬",
+              titleZhHans: "在狱咏蝉",
+              titleZhHant: "在嶽詠蟬",
               author: "骆宾王",
+              authorOriginal: "駱賓王",
+              authorZhHans: "骆宾王",
+              authorZhHant: "駱賓王",
               dynasty: "唐",
               lines: [],
+              linesZhHans: [],
+              linesZhHant: [],
               imageKey: "ts300-0001",
               imageStatus: "placeholder",
             },
@@ -152,9 +164,17 @@ test("getDailyPoetry requests poetry relation from repository", async () => {
           select: {
             id: true,
             title: true,
+            titleOriginal: true,
+            titleZhHans: true,
+            titleZhHant: true,
             author: true,
+            authorOriginal: true,
+            authorZhHans: true,
+            authorZhHant: true,
             dynasty: true,
             lines: true,
+            linesZhHans: true,
+            linesZhHant: true,
             imageKey: true,
             imageStatus: true,
           },
@@ -162,6 +182,63 @@ test("getDailyPoetry requests poetry relation from repository", async () => {
       },
     },
   ]);
+});
+
+test("getDailyPoetry returns traditional content when scriptVariant is zh-Hant", async () => {
+  const result = await getDailyPoetry(
+    "2026-05-29",
+    {
+      dailyPoetry: {
+        findUnique: async () => ({
+          date: "2026-05-29",
+          poetry: {
+            id: "ts300-0001",
+            title: "在狱咏蝉",
+            titleOriginal: "在嶽詠蟬",
+            titleZhHans: "在狱咏蝉",
+            titleZhHant: "在嶽詠蟬",
+            author: "骆宾王",
+            authorOriginal: "駱賓王",
+            authorZhHans: "骆宾王",
+            authorZhHant: "駱賓王",
+            dynasty: "唐",
+            lines: ["西陆蝉声唱，南冠客思侵。"],
+            linesZhHans: ["西陆蝉声唱，南冠客思侵。"],
+            linesZhHant: ["西陸蟬聲唱，南冠客思侵。"],
+            imageKey: "ts300-0001",
+            imageStatus: "placeholder",
+          },
+        }),
+      },
+      learningRecord: {
+        findMany: async () => [],
+      },
+    },
+    {
+      getPoetryImage: async () => ({
+        poetryId: "ts300-0001",
+        imagePath: "/images/generated/ts300-0001.jpg",
+        thumbPath: "/images/generated/ts300-0001-thumb.jpg",
+        status: "ready",
+        style: "storybook-watercolor",
+        promptVersion: "v1",
+        width: 1200,
+        height: 675,
+        isPlaceholder: false,
+      }),
+    },
+    {
+      scriptVariant: "zh-Hant",
+    },
+  );
+
+  assert.equal(result?.poetry.title, "在嶽詠蟬");
+  assert.equal(result?.poetry.author, "駱賓王");
+  assert.deepEqual(result?.poetry.lines, ["西陸蟬聲唱，南冠客思侵。"]);
+});
+
+test("getHomeCtaHref points unread items to the poem detail page", () => {
+  assert.equal(getHomeCtaHref("ts300-0001", false), "/poetry/ts300-0001");
 });
 
 test("getDailyPoetry fetches homepage image from the ImageAsset runtime source", async () => {
@@ -178,9 +255,17 @@ test("getDailyPoetry fetches homepage image from the ImageAsset runtime source",
           poetry: {
             id: "ts300-0121",
             title: "登鹳雀楼",
+            titleOriginal: "登鸛雀樓",
+            titleZhHans: "登鹳雀楼",
+            titleZhHant: "登鸛雀樓",
             author: "王之涣",
+            authorOriginal: "王之渙",
+            authorZhHans: "王之涣",
+            authorZhHant: "王之渙",
             dynasty: "唐",
             lines: ["白日依山尽，黄河入海流。", "欲穷千里目，更上一层楼。"],
+            linesZhHans: ["白日依山尽，黄河入海流。", "欲穷千里目，更上一层楼。"],
+            linesZhHant: ["白日依山盡，黃河入海流。", "欲窮千里目，更上一層樓。"],
             imageKey: "legacy-key",
             imageStatus: "placeholder",
           },
@@ -227,9 +312,17 @@ test("getDailyPoetry keeps homepage usable by returning the placeholder image wh
           poetry: {
             id: "ts300-0201",
             title: "静夜思",
+            titleOriginal: "靜夜思",
+            titleZhHans: "静夜思",
+            titleZhHant: "靜夜思",
             author: "李白",
+            authorOriginal: "李白",
+            authorZhHans: "李白",
+            authorZhHant: "李白",
             dynasty: "唐",
             lines: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
+            linesZhHans: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
+            linesZhHant: ["床前明月光，疑是地上霜。", "舉頭望明月，低頭思故鄉。"],
             imageKey: null,
             imageStatus: "ready",
           },
@@ -282,9 +375,17 @@ test("getDailyPoetry marks poetry as read when a view_poetry record exists on th
           poetry: {
             id: "ts300-0201",
             title: "静夜思",
+            titleOriginal: "靜夜思",
+            titleZhHans: "静夜思",
+            titleZhHant: "靜夜思",
             author: "李白",
+            authorOriginal: "李白",
+            authorZhHans: "李白",
+            authorZhHant: "李白",
             dynasty: "唐",
             lines: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
+            linesZhHans: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
+            linesZhHant: ["床前明月光，疑是地上霜。", "舉頭望明月，低頭思故鄉。"],
             imageKey: null,
             imageStatus: "ready",
           },

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getAudioStatus, getAudioUrl } from "@/lib/audio";
+import { getAudioStatus, getAudioUrl, hasMappedAudioFile } from "@/lib/audio";
 
 test("getAudioUrl uses the default poetry audio base path", () => {
   const previousAudioBaseUrl = process.env.AUDIO_BASE_URL;
@@ -54,4 +54,26 @@ test('getAudioStatus returns "none" when audio metadata is missing', () => {
 
 test("getAudioStatus returns the metadata status when available", () => {
   assert.equal(getAudioStatus({ status: "ready" }), "ready");
+});
+
+test("hasMappedAudioFile prefers sourceUid-based UUID files", () => {
+  assert.equal(
+    hasMappedAudioFile(
+      "ts300-0001",
+      "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
+      (path) => path === "public/audio/poetry/c65539db-4e2b-4ce4-a22b-563b6ef3f4f1.mp3",
+    ),
+    true,
+  );
+});
+
+test("hasMappedAudioFile falls back to poetryId files when sourceUid is missing", () => {
+  assert.equal(
+    hasMappedAudioFile(
+      "ts300-0005",
+      null,
+      (path) => path === "public/audio/poetry/ts300-0005.mp3",
+    ),
+    true,
+  );
 });

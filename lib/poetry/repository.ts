@@ -1,5 +1,11 @@
 import { db } from "@/lib/db";
-import { getAudioStatus, getAudioUrl } from "@/lib/audio";
+import { existsSync } from "node:fs";
+
+import { getAudioStatus, getAudioUrl, hasMappedAudioFile } from "@/lib/audio";
+import {
+  pickPoetryContentVariant,
+  type ScriptVariant,
+} from "@/lib/poetry/script-variant";
 import { shouldCreateViewRecord, toUtcDayKey } from "@/lib/poetry/view-record";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
@@ -20,27 +26,22 @@ type PoetryRepository = {
   poetry: {
     findUnique?: (args: {
       where: { id: string };
-      select: {
-        id: true;
-        sourceUid: true;
-        title: true;
-        author: true;
-        dynasty: true;
-        lines: true;
-        themes: true;
-        pinyin: true;
-        translation: true;
-        imageKey: true;
-        imageStatus: true;
-        audioMeta: true;
-      };
+      select: Record<string, true>;
     }) => Promise<{
       id: string;
       sourceUid: string | null;
       title: string;
+      titleOriginal: string | null;
+      titleZhHans: string | null;
+      titleZhHant: string | null;
       author: string;
+      authorOriginal: string | null;
+      authorZhHans: string | null;
+      authorZhHant: string | null;
       dynasty: string;
       lines: unknown;
+      linesZhHans: unknown;
+      linesZhHant: unknown;
       themes: unknown;
       pinyin: unknown;
       translation: string | null;
@@ -101,9 +102,17 @@ type PoetryRecordWithSourceUid = {
   id: string;
   sourceUid: string | null;
   title: string;
+  titleOriginal: string | null;
+  titleZhHans: string | null;
+  titleZhHant: string | null;
   author: string;
+  authorOriginal: string | null;
+  authorZhHans: string | null;
+  authorZhHant: string | null;
   dynasty: string;
   lines: unknown;
+  linesZhHans: unknown;
+  linesZhHant: unknown;
   themes: unknown;
   pinyin: unknown;
   translation: string | null;
@@ -135,6 +144,7 @@ export type PoetryDetail = {
 
 type PoetryRepositoryDependencies = {
   getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
+  hasAudioFile: (poetryId: string, sourceUid?: string | null) => boolean;
 };
 
 type SyncReviewState = typeof syncReviewStateFromLearningEvent;
@@ -185,17 +195,6 @@ function toAudioLineTimings(value: unknown): AudioLineTiming[] | undefined {
   return lineTimings.length > 0 ? lineTimings : undefined;
 }
 
-function isMissingSourceUidSelectError(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  return (
-    error.message.includes("Unknown field `sourceUid`") &&
-    error.message.includes("model `Poetry`")
-  );
-}
-
 function toPoetryAudio(
   poetryId: string,
   sourceUid: string | null,
@@ -204,10 +203,20 @@ function toPoetryAudio(
     durationMs: number;
     lineTimings: unknown;
   } | null,
+  hasAudioFile: (poetryId: string, sourceUid?: string | null) => boolean,
 ): PoetryAudio {
   const audioStatus = getAudioStatus(audioMeta);
+  const audioUrl = getAudioUrl(poetryId, sourceUid);
 
   if (audioStatus !== "ready" && audioStatus !== "tts") {
+    if (hasAudioFile(poetryId, sourceUid)) {
+      return {
+        audioStatus: "ready",
+        url: audioUrl,
+        durationMs: 0,
+      };
+    }
+
     return {
       audioStatus: "none",
       url: null,
@@ -217,7 +226,7 @@ function toPoetryAudio(
 
   return {
     audioStatus,
-    url: getAudioUrl(poetryId, sourceUid),
+    url: audioUrl,
     durationMs:
       typeof audioMeta?.durationMs === "number" && Number.isFinite(audioMeta.durationMs)
         ? Math.max(audioMeta.durationMs, 0)
@@ -229,73 +238,62 @@ function toPoetryAudio(
 export async function getPoetryById(
   id: string,
   repository?: PoetryRepository,
-  dependencies: PoetryRepositoryDependencies = { getPoetryImage },
+  dependencies: PoetryRepositoryDependencies = {
+    getPoetryImage,
+    hasAudioFile: (poetryId, sourceUid) =>
+      hasMappedAudioFile(poetryId, sourceUid, existsSync),
+  },
+  scriptVariant: ScriptVariant = "zh-Hans",
 ): Promise<PoetryDetail | null> {
   const targetRepository = repository ?? (db as unknown as PoetryRepository);
   if (!targetRepository.poetry.findUnique) {
     return null;
   }
 
-  let poetry: PoetryRecordWithSourceUid | PoetryRecordWithoutSourceUid | null;
-
-  try {
-    poetry = await targetRepository.poetry.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        sourceUid: true,
-        title: true,
-        author: true,
-        dynasty: true,
-        lines: true,
-        themes: true,
-        pinyin: true,
-        translation: true,
-        imageKey: true,
-        imageStatus: true,
-        audioMeta: true,
-      },
-    });
-  } catch (error) {
-    if (!isMissingSourceUidSelectError(error)) {
-      throw error;
-    }
-
-    poetry = await targetRepository.poetry.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        dynasty: true,
-        lines: true,
-        themes: true,
-        pinyin: true,
-        translation: true,
-        imageKey: true,
-        imageStatus: true,
-        audioMeta: true,
-      },
-    });
-  }
+  const poetry = await targetRepository.poetry.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      sourceUid: true,
+      title: true,
+      titleOriginal: true,
+      titleZhHans: true,
+      titleZhHant: true,
+      author: true,
+      authorOriginal: true,
+      authorZhHans: true,
+      authorZhHant: true,
+      dynasty: true,
+      lines: true,
+      linesZhHans: true,
+      linesZhHant: true,
+      themes: true,
+      pinyin: true,
+      translation: true,
+      imageKey: true,
+      imageStatus: true,
+      audioMeta: true,
+    },
+  });
 
   if (!poetry) {
     return null;
   }
 
   const image = await dependencies.getPoetryImage(poetry.id);
-  const sourceUid = "sourceUid" in poetry ? poetry.sourceUid : null;
-  const audio = toPoetryAudio(poetry.id, sourceUid, poetry.audioMeta);
+  const sourceUid = poetry.sourceUid;
+  const audio = toPoetryAudio(poetry.id, sourceUid, poetry.audioMeta, dependencies.hasAudioFile);
+  const content = pickPoetryContentVariant(poetry, scriptVariant);
 
   return {
     id: poetry.id,
-    title: poetry.title,
-    author: poetry.author,
+    title: content.title,
+    author: content.author,
     dynasty: poetry.dynasty,
     translation: poetry.translation,
     imageKey: poetry.imageKey,
     imageStatus: poetry.imageStatus,
-    lines: toStringArray(poetry.lines),
+    lines: content.lines,
     themes: toStringArray(poetry.themes),
     pinyin: toStringArray(poetry.pinyin),
     image,

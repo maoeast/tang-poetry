@@ -11,7 +11,7 @@ export function getHomeCtaLabel(isReadToday: boolean) {
   return isReadToday ? "去挑战这首诗" : "阅读全文";
 }
 
-function getHomeCtaHref(poetryId: string, isReadToday: boolean): Route {
+export function getHomeCtaHref(poetryId: string, isReadToday: boolean): Route {
   if (isReadToday) {
     return `/challenge?poetryId=${poetryId}` as Route;
   }

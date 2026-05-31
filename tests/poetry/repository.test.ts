@@ -15,12 +15,26 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
         findUnique: async () => ({
           id: "ts300-0001",
           sourceUid: "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
-          title: "在岳咏蝉",
+          title: "在狱咏蝉",
+          titleOriginal: "在嶽詠蟬",
+          titleZhHans: "在狱咏蝉",
+          titleZhHant: "在嶽詠蟬",
           author: "骆宾王",
+          authorOriginal: "駱賓王",
+          authorZhHans: "骆宾王",
+          authorZhHant: "駱賓王",
           dynasty: "唐",
           lines: [
             "西陆蝉声唱，南冠客思侵。",
             "那堪玄鬓影，来对白头吟。",
+          ],
+          linesZhHans: [
+            "西陆蝉声唱，南冠客思侵。",
+            "那堪玄鬓影，来对白头吟。",
+          ],
+          linesZhHant: [
+            "西陸蟬聲唱，南冠客思侵。",
+            "那堪玄鬢影，來對白頭吟。",
           ],
           themes: ["咏物", "自况"],
           pinyin: ["xi lu chan sheng chang"],
@@ -43,12 +57,13 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
         height: 960,
         isPlaceholder: false,
       }),
+      hasAudioFile: () => true,
     },
   );
 
   assert.deepEqual(result, {
     id: "ts300-0001",
-    title: "在岳咏蝉",
+    title: "在狱咏蝉",
     author: "骆宾王",
     dynasty: "唐",
     lines: ["西陆蝉声唱，南冠客思侵。", "那堪玄鬓影，来对白头吟。"],
@@ -58,8 +73,8 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
     imageKey: "ts300-0001",
     imageStatus: "placeholder",
     audio: {
-      audioStatus: "none",
-      url: null,
+      audioStatus: "ready",
+      url: "/audio/poetry/c65539db-4e2b-4ce4-a22b-563b6ef3f4f1.mp3",
       durationMs: 0,
     },
     image: {
@@ -76,6 +91,57 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
   });
 });
 
+test("getPoetryById returns traditional content when scriptVariant is zh-Hant", async () => {
+  const result = await getPoetryById(
+    "ts300-0001",
+    {
+      poetry: {
+        findUnique: async () => ({
+          id: "ts300-0001",
+          sourceUid: "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
+          title: "在狱咏蝉",
+          titleOriginal: "在嶽詠蟬",
+          titleZhHans: "在狱咏蝉",
+          titleZhHant: "在嶽詠蟬",
+          author: "骆宾王",
+          authorOriginal: "駱賓王",
+          authorZhHans: "骆宾王",
+          authorZhHant: "駱賓王",
+          dynasty: "唐",
+          lines: ["西陆蝉声唱，南冠客思侵。"],
+          linesZhHans: ["西陆蝉声唱，南冠客思侵。"],
+          linesZhHant: ["西陸蟬聲唱，南冠客思侵。"],
+          themes: ["咏物"],
+          pinyin: [],
+          translation: null,
+          imageKey: "ts300-0001",
+          imageStatus: "placeholder",
+          audioMeta: null,
+        }),
+      },
+    } as never,
+    {
+      getPoetryImage: async () => ({
+        poetryId: "ts300-0001",
+        imagePath: "/images/generated/ts300-0001.jpg",
+        thumbPath: "/images/generated/ts300-0001-thumb.jpg",
+        status: "ready",
+        style: "storybook-watercolor",
+        promptVersion: "v1",
+        width: 1440,
+        height: 960,
+        isPlaceholder: false,
+      }),
+      hasAudioFile: () => true,
+    },
+    "zh-Hant",
+  );
+
+  assert.equal(result?.title, "在嶽詠蟬");
+  assert.equal(result?.author, "駱賓王");
+  assert.deepEqual(result?.lines, ["西陸蟬聲唱，南冠客思侵。"]);
+});
+
 test("getPoetryById filters invalid json arrays into safe string lists", async () => {
   const result = await getPoetryById(
     "ts300-0002",
@@ -85,9 +151,17 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
           id: "ts300-0002",
           sourceUid: "75db753d-e7da-48a1-a6c0-6ed9147e58db",
           title: "静夜思",
+          titleOriginal: "靜夜思",
+          titleZhHans: "静夜思",
+          titleZhHant: "靜夜思",
           author: "李白",
+          authorOriginal: "李白",
+          authorZhHans: "李白",
+          authorZhHant: "李白",
           dynasty: "唐",
           lines: ["床前明月光。", 2, null, "疑是地上霜。"],
+          linesZhHans: ["床前明月光。", 2, null, "疑是地上霜。"],
+          linesZhHant: ["床前明月光。", "疑是地上霜。"],
           themes: "思乡",
           pinyin: ["chuang qian ming yue guang", { bad: true }],
           translation: null,
@@ -109,6 +183,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
         height: null,
         isPlaceholder: true,
       }),
+      hasAudioFile: () => false,
     },
   );
 
@@ -188,6 +263,7 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
         height: 1800,
         isPlaceholder: false,
       }),
+      hasAudioFile: () => true,
     },
   );
 
@@ -244,6 +320,7 @@ test("getPoetryById falls back to none when audio metadata status is unsupported
         height: 1800,
         isPlaceholder: false,
       }),
+      hasAudioFile: () => false,
     },
   );
 
@@ -266,6 +343,7 @@ test("getPoetryById returns null when poetry does not exist", async () => {
       getPoetryImage: async () => {
         throw new Error("should not query image when poetry is missing");
       },
+      hasAudioFile: () => false,
     },
   );
 
@@ -285,10 +363,18 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
           return {
             id: "ts300-0001",
             sourceUid: "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
-            title: "在岳咏蝉",
+            title: "在狱咏蝉",
+            titleOriginal: "在嶽詠蟬",
+            titleZhHans: "在狱咏蝉",
+            titleZhHant: "在嶽詠蟬",
             author: "骆宾王",
+            authorOriginal: "駱賓王",
+            authorZhHans: "骆宾王",
+            authorZhHant: "駱賓王",
             dynasty: "唐",
             lines: [],
+            linesZhHans: [],
+            linesZhHant: [],
             themes: [],
             pinyin: null,
             translation: null,
@@ -311,6 +397,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
         height: null,
         isPlaceholder: true,
       }),
+      hasAudioFile: () => false,
     },
   );
 
@@ -321,9 +408,17 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
         id: true,
         sourceUid: true,
         title: true,
+        titleOriginal: true,
+        titleZhHans: true,
+        titleZhHant: true,
         author: true,
+        authorOriginal: true,
+        authorZhHans: true,
+        authorZhHant: true,
         dynasty: true,
         lines: true,
+        linesZhHans: true,
+        linesZhHant: true,
         themes: true,
         pinyin: true,
         translation: true,
@@ -333,99 +428,6 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
       },
     },
   ]);
-});
-
-test("getPoetryById falls back when runtime Prisma client does not know sourceUid yet", async () => {
-  const calls: unknown[] = [];
-
-  const result = await getPoetryById(
-    "ts300-0005",
-    {
-      poetry: {
-        findUnique: async (args: unknown) => {
-          calls.push(args);
-
-          if (calls.length === 1) {
-            throw new Error(
-              "Unknown field `sourceUid` for select statement on model `Poetry`.",
-            );
-          }
-
-          return {
-            id: "ts300-0005",
-            title: "出塞",
-            author: "王昌龄",
-            dynasty: "唐",
-            lines: ["秦时明月汉时关，万里长征人未还。"],
-            themes: ["边塞"],
-            pinyin: [],
-            translation: null,
-            imageKey: "ts300-0005",
-            imageStatus: "ready",
-            audioMeta: {
-              status: "ready",
-              durationMs: 12_000,
-              lineTimings: null,
-            },
-          };
-        },
-      },
-    } as never,
-    {
-      getPoetryImage: async (poetryId: string) => ({
-        poetryId,
-        imagePath: "/images/generated/ts300-0005.jpg",
-        thumbPath: "/images/generated/ts300-0005-thumb.jpg",
-        status: "ready",
-        style: "storybook-watercolor",
-        promptVersion: "v1",
-        width: 1200,
-        height: 1800,
-        isPlaceholder: false,
-      }),
-    },
-  );
-
-  assert.equal(calls.length, 2);
-  assert.deepEqual(calls[0], {
-    where: { id: "ts300-0005" },
-    select: {
-      id: true,
-      sourceUid: true,
-      title: true,
-      author: true,
-      dynasty: true,
-      lines: true,
-      themes: true,
-      pinyin: true,
-      translation: true,
-      imageKey: true,
-      imageStatus: true,
-      audioMeta: true,
-    },
-  });
-  assert.deepEqual(calls[1], {
-    where: { id: "ts300-0005" },
-    select: {
-      id: true,
-      title: true,
-      author: true,
-      dynasty: true,
-      lines: true,
-      themes: true,
-      pinyin: true,
-      translation: true,
-      imageKey: true,
-      imageStatus: true,
-      audioMeta: true,
-    },
-  });
-  assert.deepEqual(result?.audio, {
-    audioStatus: "ready",
-    url: "/audio/poetry/ts300-0005.mp3",
-    durationMs: 12_000,
-    lineTimings: undefined,
-  });
 });
 
 test("getPoetryById fetches runtime image data from ImageAsset by poetry id", async () => {
@@ -439,9 +441,17 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
           id: "ts300-0121",
           sourceUid: "e77ecf12-0c3f-4484-8c49-fca0a1d8309b",
           title: "登鹳雀楼",
+          titleOriginal: "登鸛雀樓",
+          titleZhHans: "登鹳雀楼",
+          titleZhHant: "登鸛雀樓",
           author: "王之涣",
+          authorOriginal: "王之渙",
+          authorZhHans: "王之涣",
+          authorZhHant: "王之渙",
           dynasty: "唐",
           lines: ["白日依山尽，黄河入海流。", "欲穷千里目，更上一层楼。"],
+          linesZhHans: ["白日依山尽，黄河入海流。", "欲穷千里目，更上一层楼。"],
+          linesZhHant: ["白日依山盡，黃河入海流。", "欲窮千里目，更上一層樓。"],
           themes: ["登高"],
           pinyin: [],
           translation: null,
@@ -467,6 +477,7 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
           isPlaceholder: false,
         };
       },
+      hasAudioFile: () => false,
     },
   );
 

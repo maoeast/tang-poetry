@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { PoetryDetail } from "@/components/poetry/poetry-detail";
@@ -6,6 +7,10 @@ import {
   getRelatedPoetries,
   recordPoetryView,
 } from "@/lib/poetry/repository";
+import {
+  resolveScriptVariant,
+  SCRIPT_VARIANT_COOKIE_NAME,
+} from "@/lib/poetry/script-variant";
 
 type PoetryDetailPageProps = {
   params: Promise<{
@@ -17,7 +22,11 @@ export default async function PoetryDetailPage({
   params,
 }: PoetryDetailPageProps) {
   const { id } = await params;
-  const poetry = await getPoetryById(id);
+  const cookieStore = await cookies();
+  const scriptVariant = resolveScriptVariant(
+    cookieStore.get(SCRIPT_VARIANT_COOKIE_NAME)?.value,
+  );
+  const poetry = await getPoetryById(id, undefined, undefined, scriptVariant);
 
   if (!poetry) {
     notFound();
@@ -26,5 +35,11 @@ export default async function PoetryDetailPage({
   await recordPoetryView(poetry.id);
   const relatedPoetries = await getRelatedPoetries(poetry);
 
-  return <PoetryDetail poetry={poetry} relatedPoetries={relatedPoetries} />;
+  return (
+    <PoetryDetail
+      poetry={poetry}
+      relatedPoetries={relatedPoetries}
+      initialScriptVariant={scriptVariant}
+    />
+  );
 }
