@@ -103,6 +103,70 @@
 - 还没有验证在 `SYSTEM_USER_ID` 缺失时各页面的降级表现是否符合预期
 - 还没有补齐本轮联调截图
 
+## 2026-05-30 当前会话补充联调
+
+### 工具与环境结论
+
+- 当前 Codex 会话仍未拿到 `browser` / `chrome` / Playwright / DevTools 类浏览器控制工具。
+- 因此本轮只能完成本地 HTTP 级联调，不能完成真实点击、截图、前端交互级最终浏览器联调。
+- 本轮为打通页面链路，补做了两项环境修复：
+  - 重新生成 Prisma Client，修复 `Poetry.audioMeta` 已进 schema 但生成产物过期的问题。
+  - 对本地开发库应用迁移 `20260530120000_add_audio_meta`，修复 `/poetry/[id]` 与 `/review/[id]` 访问时报 `public.AudioMeta` 缺表的问题。
+
+### 本轮 HTTP 级联调结果
+
+- `/unlock`：通过，返回 `200` 并正常渲染口令页。
+- `/`：通过，带认证 cookie 后返回 `200`。
+- `/poetry/ts300-0003`：通过，返回 `200`，详情页沉浸阅读区、AI 卡入口、相关推荐区均能渲染。
+- `/challenge?poetryId=ts300-0003`：通过，返回 `200`，可下发固定 5 题的挑战轮次。
+- `/review`：通过，返回 `200`，能渲染今日建议、即将到期和 `/review/ts300-0002?from=upcoming&index=0` 入口。
+- `/review/ts300-0002?from=upcoming&index=0`：通过，返回 `200`，复习播放器页可渲染。
+- `/me`：通过，返回 `200`，统计卡、卷首 banner、诗人缘分榜和快捷入口均能渲染。
+
+### 关键行为核对
+
+- 首页已读态 CTA：通过。
+  - 先访问 `/poetry/ts300-0003` 后，再访问 `/`，首页出现 `已读` / `今日已读` 标识。
+  - 首页主 CTA 已切到 `/challenge?poetryId=ts300-0003`，符合“已读后必须跳挑战页”的约束。
+- AI 讲解接口：按预期失败。
+  - `POST /api/ai/explain` 仍返回 `500`。
+  - 根因仍是环境约束：`Missing DEEPSEEK_API_KEY.`
+
+### 当前仍未完成的最终联调项
+
+- 无浏览器控制工具，仍未完成真实浏览器点击链路：
+  - `/unlock` 提交表单
+  - 首页 CTA 点击跳转
+  - `/challenge` 实际作答与提交流程
+  - `/review/[id]` 自评提交流程
+- 因未完成真实点击，以下写库链路仍缺最终实证：
+  - `ChallengeAttempt`
+  - 挑战产生的 `LearningRecord`
+  - 挑战后的复习入池联动
+- AI 讲解真实成功链路仍需补 `DEEPSEEK_API_KEY` 后再测。
+
+## 2026-05-30 后续自动化补充
+
+- 已新增本地环境文件 `.env.local`，用于注入 `DEEPSEEK_API_KEY`。
+- 已新增 Playwright 冒烟脚本：
+  - `playwright.config.ts`
+  - `tests/e2e/smoke.spec.ts`
+  - `npm run test:smoke`
+- 已实际执行 `npm run test:smoke`，结果通过。
+- 当前 Playwright 冒烟覆盖：
+  - `/unlock`
+  - `/`
+  - `/poetry/ts300-0003`
+  - 首页已读后 CTA 变为 `/challenge?poetryId=ts300-0003`
+  - `/challenge?poetryId=ts300-0003`
+  - `/review`
+  - `/review/ts300-0002?from=upcoming&index=0`
+  - `/me`
+- 当前 Playwright 脚本仍未覆盖：
+  - `/challenge` 真正开始答题并提交流程
+  - `/review/[id]` 自评提交流程
+  - AI 讲解成功返回后的前端展示
+
 ### 内容与体验缺口
 
 - 译文和拼音仍有占位内容，尚未系统补录
