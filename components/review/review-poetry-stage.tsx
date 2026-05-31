@@ -13,6 +13,10 @@ import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import { getLineStartMs } from "@/lib/audio/timings";
 import type { PoetryDetail } from "@/lib/poetry/repository";
 import {
+  buildInitialReviewPlayerQueue,
+  mergePersistedReviewPlayerQueue,
+} from "@/lib/review/player-queue";
+import {
   readReviewQueue,
   writeReviewQueue,
 } from "@/lib/review/session-queue";
@@ -78,21 +82,12 @@ export function ReviewPoetryStage({
     text: line,
     pinyin: poetry.pinyin[index],
   }));
-  const sessionQueue = useMemo(() => readReviewQueue(), []);
-  const queuePoetryIds = useMemo(() => {
-    const merged = Array.from(
-      new Set([
-        ...(sessionQueue?.poetryIds ?? []),
-        ...initialQueuePoetryIds,
-      ]),
-    );
-
-    if (!merged.includes(poetry.id)) {
-      merged.unshift(poetry.id);
-    }
-
-    return merged;
-  }, [initialQueuePoetryIds, poetry.id, sessionQueue?.poetryIds]);
+  const [queuePoetryIds, setQueuePoetryIds] = useState(() =>
+    buildInitialReviewPlayerQueue({
+      poetryId: poetry.id,
+      initialQueuePoetryIds,
+    }),
+  );
   const queuePosition = queuePoetryIds.indexOf(poetry.id);
   const nextPoetryId = queuePoetryIds[queuePosition + 1] ?? null;
   const [showPinyin, setShowPinyin] = useState(false);
@@ -104,6 +99,40 @@ export function ReviewPoetryStage({
   const [isUnlocked, setIsUnlocked] = useState(!hasAudio);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setQueuePoetryIds(
+      buildInitialReviewPlayerQueue({
+        poetryId: poetry.id,
+        initialQueuePoetryIds,
+      }),
+    );
+  }, [initialQueuePoetryIds, poetry.id]);
+
+  useEffect(() => {
+    const persistedQueue = readReviewQueue();
+
+    if (!persistedQueue) {
+      return;
+    }
+
+    setQueuePoetryIds((currentQueuePoetryIds) => {
+      const nextQueuePoetryIds = mergePersistedReviewPlayerQueue({
+        poetryId: poetry.id,
+        initialQueuePoetryIds: currentQueuePoetryIds,
+        persistedQueuePoetryIds: persistedQueue.poetryIds,
+      });
+
+      if (
+        nextQueuePoetryIds.length === currentQueuePoetryIds.length &&
+        nextQueuePoetryIds.every((poetryId, index) => poetryId === currentQueuePoetryIds[index])
+      ) {
+        return currentQueuePoetryIds;
+      }
+
+      return nextQueuePoetryIds;
+    });
+  }, [poetry.id]);
 
   useEffect(() => {
     const currentAudio = audioRef.current;

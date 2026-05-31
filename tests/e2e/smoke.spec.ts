@@ -17,6 +17,35 @@ test("phase 1 smoke flow", async ({ page }) => {
   await page.goto(`/poetry/${TODAY_POETRY_ID}`);
   await expect(page).toHaveURL(new RegExp(`/poetry/${TODAY_POETRY_ID}$`));
   await expect(page.getByText("译文与读法")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AI 讲解" })).toBeVisible();
+
+  const [explainResponse] = await Promise.all([
+    page.waitForResponse((response) => {
+      return (
+        response.url().includes("/api/ai/explain") &&
+        response.request().method() === "POST"
+      );
+    }),
+    page.getByRole("button", { name: "加载 AI 讲解" }).click(),
+  ]);
+  const explainPayload = (await explainResponse.json()) as {
+    summary?: string;
+    imagery?: string;
+    emotion?: string;
+  };
+
+  expect(explainResponse.status()).toBe(200);
+  expect(typeof explainPayload.summary).toBe("string");
+  expect(explainPayload.summary?.trim().length ?? 0).toBeGreaterThan(0);
+  expect(typeof explainPayload.imagery).toBe("string");
+  expect(explainPayload.imagery?.trim().length ?? 0).toBeGreaterThan(0);
+  expect(typeof explainPayload.emotion).toBe("string");
+  expect(explainPayload.emotion?.trim().length ?? 0).toBeGreaterThan(0);
+
+  await expect(page.getByText(explainPayload.summary ?? "")).toBeVisible();
+  await expect(page.getByText(explainPayload.imagery ?? "")).toBeVisible();
+  await expect(page.getByText(explainPayload.emotion ?? "")).toBeVisible();
+  await expect(page.getByText("讲解已缓存，下次切换同版本受众会直接命中。")).toBeVisible();
 
   await page.goto("/");
   await expect(page.getByText("今日已读")).toBeVisible();
