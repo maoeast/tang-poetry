@@ -146,6 +146,23 @@ http://localhost:3000
 
 更完整的策略见 [docs/audio-asset-strategy.md](./docs/audio-asset-strategy.md)。
 
+## 图片资产生成
+
+- 运行时图片通过数据库 `ImageAsset` 读取，缺图会回退占位图
+- 366 首诗的批量出图流水线见 [docs/image-generation-plan.md](./docs/image-generation-plan.md)
+- Prompt 归纳与参考图分析见 [docs/poetry-image-prompt-guide.md](./docs/poetry-image-prompt-guide.md)
+- 生成批量任务与导入草稿：
+
+```bash
+./node_modules/.bin/tsx scripts/prepare-image-generation.ts
+```
+
+- 扫描本地成品图并把 `data/image-assets.json` 切成 `ready`：
+
+```bash
+./node_modules/.bin/tsx scripts/finalize-image-assets.ts
+```
+
 ## 本地验证
 
 推荐在数据库启动并完成导入后执行：

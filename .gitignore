@@ -26,6 +26,7 @@ CLAUDE.md
 
 # Local generated assets and secrets
 AIimage/
+AIimages/
 _meta.json
 public/audio/
 scripts/generate_tts_audio.py
