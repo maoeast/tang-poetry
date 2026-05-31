@@ -21,10 +21,27 @@ pnpm-debug.log*
 .continue-here.md
 .codex/
 .agents/
+.superpowers/
+CLAUDE.md
 
 # Local generated assets and secrets
 AIimage/
 _meta.json
+public/audio/
+scripts/generate_tts_audio.py
+
+# Local planning / review artifacts
+docs/audio-and-page-design-guide.md
+docs/audio-matching-checklist.md
+docs/audio-sourceuid-mapping.md
+docs/component-hierarchy-spec.md
+docs/core-component-spec-final.md
+docs/core-component-spec.md
+docs/page-information-architecture.md
+docs/visual-system-review.md
+docs/superpowers/plans/2026-05-30-tang-poetry-visual-audio-implementation-plan.md
+docs/superpowers/plans/2026-05-31-tang-poetry-script-variant-phase-1-prisma-plan.md
+docs/superpowers/specs/2026-05-30-tang-poetry-phase-1-visual-audio-design.md
 
 # Editor / OS noise
 .DS_Store
