@@ -10,6 +10,7 @@ datasource db {
 model Poetry {
   id             String             @id
   sourceId       Int?
+  sourceUid      String?
   title          String
   titleOriginal  String?
   author         String

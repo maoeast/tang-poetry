@@ -13,4 +13,8 @@ test("generated Prisma client includes Poetry.audioMeta relation", () => {
     poetryModel.fields.some((field) => field.name === "audioMeta"),
     "generated Prisma client is stale: Poetry.audioMeta is missing",
   );
+  assert.ok(
+    poetryModel.fields.some((field) => field.name === "sourceUid"),
+    "generated Prisma client is stale: Poetry.sourceUid is missing",
+  );
 });

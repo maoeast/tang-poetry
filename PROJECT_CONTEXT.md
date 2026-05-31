@@ -8,3 +8,9 @@
 - 新增全局图片数据流：首页、详情页与复习卡片统一通过 `getPoetryImage(poetryId)` 读取 `ImageAsset`，运行时不再直接消费图片 JSON。
 - 新增全局约束：一期运行时图片唯一数据源是数据库 `ImageAsset`，缺图只能回退 `/images/placeholders/default-poetry-card.jpg`。
 - 新增全局联调基线：任务 13 的缺口与手工验证入口统一记录在 `docs/task-13-gap-list.md`。
+
+## 2026-05-31
+
+- 新增全局数据约束：唐诗展示文本改为双权威源，简体以 `data/ts300.simple.json` 为准，繁体以 `data/ts300.raw.json` 为准，禁止使用运行时 OpenCC 作为最终展示文本来源。
+- 新增全局展示约束：简繁切换仅作用于诗题、作者、正文，不包含固定 UI 文案、导航、按钮与提示语。
+- 新增全局 SSR 约束：诗歌脚本偏好以 `cookie` 为服务端真相源，`localStorage` 仅作客户端镜像，不允许单独决定首屏文案。

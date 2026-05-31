@@ -1,8 +1,9 @@
 const DEFAULT_AUDIO_BASE_URL = "/audio/poetry";
 
-export function getAudioUrl(poetryId: string) {
+export function getAudioUrl(poetryId: string, sourceUid?: string | null) {
   const baseUrl = process.env.AUDIO_BASE_URL ?? DEFAULT_AUDIO_BASE_URL;
-  return `${baseUrl}/${poetryId}.mp3`;
+  const filename = sourceUid?.trim() || poetryId;
+  return `${baseUrl}/${filename}.mp3`;
 }
 
 export function getAudioStatus(meta: { status: string } | null) {

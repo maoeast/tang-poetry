@@ -52,6 +52,7 @@ async function writePoetriesToDb(
       create: {
         id: poetry.id,
         sourceId: poetry.sourceId,
+        sourceUid: poetry.sourceUid,
         title: poetry.title,
         titleOriginal: poetry.titleOriginal,
         author: poetry.author,
@@ -66,6 +67,7 @@ async function writePoetriesToDb(
       },
       update: {
         sourceId: poetry.sourceId,
+        sourceUid: poetry.sourceUid,
         title: poetry.title,
         titleOriginal: poetry.titleOriginal,
         author: poetry.author,

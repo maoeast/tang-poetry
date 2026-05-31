@@ -14,6 +14,7 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
       poetry: {
         findUnique: async () => ({
           id: "ts300-0001",
+          sourceUid: "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
           title: "在岳咏蝉",
           author: "骆宾王",
           dynasty: "唐",
@@ -82,6 +83,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
       poetry: {
         findUnique: async () => ({
           id: "ts300-0002",
+          sourceUid: "75db753d-e7da-48a1-a6c0-6ed9147e58db",
           title: "静夜思",
           author: "李白",
           dynasty: "唐",
@@ -147,6 +149,7 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
       poetry: {
         findUnique: async () => ({
           id: "ts300-0003",
+          sourceUid: "8f8e2130-36ea-4334-9ae6-ec17edac4703",
           title: "春晓",
           author: "孟浩然",
           dynasty: "唐",
@@ -190,7 +193,7 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
 
   assert.deepEqual(result?.audio, {
     audioStatus: "ready",
-    url: "/audio/poetry/ts300-0003.mp3",
+    url: "/audio/poetry/8f8e2130-36ea-4334-9ae6-ec17edac4703.mp3",
     durationMs: 18_000,
     lineTimings: [
       { lineIndex: 0, startMs: 0 },
@@ -206,6 +209,7 @@ test("getPoetryById falls back to none when audio metadata status is unsupported
       poetry: {
         findUnique: async () => ({
           id: "ts300-0004",
+          sourceUid: "1a45fc32-351c-469c-9c31-b279ef20ee8a",
           title: "鹿柴",
           author: "王维",
           dynasty: "唐",
@@ -280,6 +284,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
 
           return {
             id: "ts300-0001",
+            sourceUid: "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
             title: "在岳咏蝉",
             author: "骆宾王",
             dynasty: "唐",
@@ -314,6 +319,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
       where: { id: "ts300-0001" },
       select: {
         id: true,
+        sourceUid: true,
         title: true,
         author: true,
         dynasty: true,
@@ -329,6 +335,99 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
   ]);
 });
 
+test("getPoetryById falls back when runtime Prisma client does not know sourceUid yet", async () => {
+  const calls: unknown[] = [];
+
+  const result = await getPoetryById(
+    "ts300-0005",
+    {
+      poetry: {
+        findUnique: async (args: unknown) => {
+          calls.push(args);
+
+          if (calls.length === 1) {
+            throw new Error(
+              "Unknown field `sourceUid` for select statement on model `Poetry`.",
+            );
+          }
+
+          return {
+            id: "ts300-0005",
+            title: "出塞",
+            author: "王昌龄",
+            dynasty: "唐",
+            lines: ["秦时明月汉时关，万里长征人未还。"],
+            themes: ["边塞"],
+            pinyin: [],
+            translation: null,
+            imageKey: "ts300-0005",
+            imageStatus: "ready",
+            audioMeta: {
+              status: "ready",
+              durationMs: 12_000,
+              lineTimings: null,
+            },
+          };
+        },
+      },
+    } as never,
+    {
+      getPoetryImage: async (poetryId: string) => ({
+        poetryId,
+        imagePath: "/images/generated/ts300-0005.jpg",
+        thumbPath: "/images/generated/ts300-0005-thumb.jpg",
+        status: "ready",
+        style: "storybook-watercolor",
+        promptVersion: "v1",
+        width: 1200,
+        height: 1800,
+        isPlaceholder: false,
+      }),
+    },
+  );
+
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls[0], {
+    where: { id: "ts300-0005" },
+    select: {
+      id: true,
+      sourceUid: true,
+      title: true,
+      author: true,
+      dynasty: true,
+      lines: true,
+      themes: true,
+      pinyin: true,
+      translation: true,
+      imageKey: true,
+      imageStatus: true,
+      audioMeta: true,
+    },
+  });
+  assert.deepEqual(calls[1], {
+    where: { id: "ts300-0005" },
+    select: {
+      id: true,
+      title: true,
+      author: true,
+      dynasty: true,
+      lines: true,
+      themes: true,
+      pinyin: true,
+      translation: true,
+      imageKey: true,
+      imageStatus: true,
+      audioMeta: true,
+    },
+  });
+  assert.deepEqual(result?.audio, {
+    audioStatus: "ready",
+    url: "/audio/poetry/ts300-0005.mp3",
+    durationMs: 12_000,
+    lineTimings: undefined,
+  });
+});
+
 test("getPoetryById fetches runtime image data from ImageAsset by poetry id", async () => {
   const imageCalls: string[] = [];
 
@@ -338,6 +437,7 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
       poetry: {
         findUnique: async () => ({
           id: "ts300-0121",
+          sourceUid: "e77ecf12-0c3f-4484-8c49-fca0a1d8309b",
           title: "登鹳雀楼",
           author: "王之涣",
           dynasty: "唐",
