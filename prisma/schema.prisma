@@ -13,10 +13,16 @@ model Poetry {
   sourceUid      String?
   title          String
   titleOriginal  String?
+  titleZhHans    String?
+  titleZhHant    String?
   author         String
   authorOriginal String?
+  authorZhHans   String?
+  authorZhHant   String?
   dynasty        String
   lines          Json
+  linesZhHans    Json?
+  linesZhHant    Json?
   tags           Json
   themes         Json
   difficulty     Int                @default(1)

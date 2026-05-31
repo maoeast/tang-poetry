@@ -1,7 +1,3 @@
-import OpenCC from "opencc-js";
-
-const toSimplified = OpenCC.Converter({ from: "t", to: "cn" });
-
 const THEME_BLACKLIST = new Set(["唐诗三百首"]);
 const DIFFICULTY_KEYWORDS = [
   { value: 3, keywords: ["古诗", "乐府", "歌行", "七言古诗", "五言古诗"] },
@@ -22,10 +18,16 @@ export type NormalizedPoem = {
   sourceUid: string;
   title: string;
   titleOriginal: string;
+  titleZhHans: string;
+  titleZhHant: string;
   author: string;
   authorOriginal: string;
+  authorZhHans: string;
+  authorZhHant: string;
   dynasty: "唐";
   lines: string[];
+  linesZhHans: string[];
+  linesZhHant: string[];
   tags: string[];
   themes: string[];
   difficulty: number;
@@ -37,8 +39,12 @@ function padPoetryId(index: number) {
   return String(index + 1).padStart(4, "0");
 }
 
-function simplifyText(value: string) {
-  return toSimplified(value).trim().replaceAll("沈", "沉");
+function normalizeText(value: string) {
+  return value.trim();
+}
+
+function normalizeLines(lines: string[]) {
+  return lines.map((line) => normalizeText(line));
 }
 
 function normalizeTags(tags?: string[]) {
@@ -60,22 +66,35 @@ function inferDifficulty(tags: string[]) {
 }
 
 export function normalizeTs300Poem(
-  poem: RawTs300Poem,
+  simplePoem: RawTs300Poem,
+  rawPoem: RawTs300Poem,
   index: number,
 ): NormalizedPoem {
   const poetryId = `ts300-${padPoetryId(index)}`;
-  const tags = normalizeTags(poem.tags);
+  const tags = normalizeTags(simplePoem.tags);
+  const linesZhHans = normalizeLines(simplePoem.paragraphs);
+  const linesZhHant = normalizeLines(rawPoem.paragraphs);
+  const titleZhHans = normalizeText(simplePoem.title);
+  const titleZhHant = normalizeText(rawPoem.title);
+  const authorZhHans = normalizeText(simplePoem.author);
+  const authorZhHant = normalizeText(rawPoem.author);
 
   return {
     id: poetryId,
     sourceId: index + 1,
-    sourceUid: poem.id,
-    title: simplifyText(poem.title),
-    titleOriginal: poem.title.trim(),
-    author: simplifyText(poem.author),
-    authorOriginal: poem.author.trim(),
+    sourceUid: simplePoem.id,
+    title: titleZhHans,
+    titleOriginal: titleZhHant,
+    titleZhHans,
+    titleZhHant,
+    author: authorZhHans,
+    authorOriginal: authorZhHant,
+    authorZhHans,
+    authorZhHant,
     dynasty: "唐",
-    lines: poem.paragraphs.map((line) => simplifyText(line)),
+    lines: linesZhHans,
+    linesZhHans,
+    linesZhHant,
     tags,
     themes: extractThemes(tags),
     difficulty: inferDifficulty(tags),
@@ -84,6 +103,11 @@ export function normalizeTs300Poem(
   };
 }
 
-export function normalizeTs300Poems(poems: RawTs300Poem[]) {
-  return poems.map((poem, index) => normalizeTs300Poem(poem, index));
+export function normalizeTs300Poems(
+  simplePoems: RawTs300Poem[],
+  rawPoems: RawTs300Poem[],
+) {
+  return simplePoems.map((simplePoem, index) =>
+    normalizeTs300Poem(simplePoem, rawPoems[index]!, index),
+  );
 }

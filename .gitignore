@@ -32,3 +32,6 @@ Thumbs.db
 
 # Scratch files
 新建文本文档.txt
+
+# Test runner outputs
+test-results/
