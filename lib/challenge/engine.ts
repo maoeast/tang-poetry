@@ -1,4 +1,8 @@
 import { db } from "@/lib/db";
+import {
+  pickPoetryContentVariant,
+  type ScriptVariant,
+} from "@/lib/poetry/script-variant";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
 import {
   judgeAuthor,
@@ -82,6 +86,14 @@ type ChallengeRepository = {
         author: true;
         dynasty: true;
         lines: true;
+        titleOriginal: true;
+        authorOriginal: true;
+        titleZhHans: true;
+        titleZhHant: true;
+        authorZhHans: true;
+        authorZhHant: true;
+        linesZhHans: true;
+        linesZhHant: true;
       };
       orderBy: { createdAt: "asc" };
     }) => Promise<
@@ -91,6 +103,14 @@ type ChallengeRepository = {
         author: string;
         dynasty: string;
         lines: unknown;
+        titleOriginal?: string | null;
+        authorOriginal?: string | null;
+        titleZhHans?: string | null;
+        titleZhHant?: string | null;
+        authorZhHans?: string | null;
+        authorZhHant?: string | null;
+        linesZhHans?: unknown;
+        linesZhHant?: unknown;
       }>
     >;
   };
@@ -140,6 +160,7 @@ type GetChallengePoetrySeedOptions = {
   mode?: ChallengeMode;
   poetryId?: string;
   userId?: string;
+  scriptVariant?: ScriptVariant;
 };
 
 type SubmitAnswerInput = {
@@ -390,16 +411,29 @@ export async function getChallengePoetrySeeds(
       author: true,
       dynasty: true,
       lines: true,
+      titleOriginal: true,
+      authorOriginal: true,
+      titleZhHans: true,
+      titleZhHant: true,
+      authorZhHans: true,
+      authorZhHant: true,
+      linesZhHans: true,
+      linesZhHant: true,
     },
   });
+  const scriptVariant = options?.scriptVariant ?? "zh-Hans";
 
-  const seeds = poetries.map((poetry) => ({
-    id: poetry.id,
-    title: poetry.title,
-    author: poetry.author,
-    dynasty: poetry.dynasty,
-    lines: toStringArray(poetry.lines),
-  }));
+  const seeds = poetries.map((poetry) => {
+    const content = pickPoetryContentVariant(poetry, scriptVariant);
+
+    return {
+      id: poetry.id,
+      title: content.title,
+      author: content.author,
+      dynasty: poetry.dynasty,
+      lines: content.lines,
+    };
+  });
 
   if (options?.mode !== "review" || !targetRepository.reviewState) {
     return options?.poetryId

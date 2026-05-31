@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -9,6 +10,10 @@ import {
   type ChallengeMode,
   type ChallengeQuestion,
 } from "@/lib/challenge/engine";
+import {
+  resolveScriptVariant,
+  SCRIPT_VARIANT_COOKIE_NAME,
+} from "@/lib/poetry/script-variant";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +38,10 @@ async function recordChallengeAnswer(
 
 export default async function ChallengePage({ searchParams }: ChallengePageProps) {
   const params = await searchParams;
+  const cookieStore = await cookies();
+  const scriptVariant = resolveScriptVariant(
+    cookieStore.get(SCRIPT_VARIANT_COOKIE_NAME)?.value,
+  );
   const mode: ChallengeMode =
     params.mode === "review"
       ? "review"
@@ -44,6 +53,7 @@ export default async function ChallengePage({ searchParams }: ChallengePageProps
   const poetrySeeds = await getChallengePoetrySeeds(undefined, {
     mode,
     poetryId,
+    scriptVariant,
   });
   const challengeRound = buildChallengeRound(poetrySeeds, {
     mode,

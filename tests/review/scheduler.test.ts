@@ -6,6 +6,7 @@ import {
   buildReviewSummary,
   createInitialReviewState,
   getReviewBuckets,
+  getReviewPlayerViewModel,
   updateReviewStateAfterAnswer,
   type ReviewStateSnapshot,
 } from "@/lib/review/scheduler";
@@ -305,6 +306,104 @@ test("getReviewBuckets attaches runtime images from ImageAsset and keeps placeho
     "/images/placeholders/default-poetry-card.jpg",
   );
   assert.equal(buckets.upcoming[0]?.image.isPlaceholder, true);
+});
+
+test("getReviewBuckets returns traditional poetry content when scriptVariant is zh-Hant", async () => {
+  const buckets = await getReviewBuckets(
+    {
+      reviewState: {
+        findMany: async () => [
+          {
+            ...createState({
+              poetryId: "ts300-0001",
+              nextReviewAt: new Date("2026-05-29T06:00:00.000Z"),
+            }),
+            poetry: {
+              title: "静夜思",
+              author: "李白",
+              lines: ["床前明月光，"],
+              titleOriginal: "靜夜思",
+              authorOriginal: "李白",
+              titleZhHans: "静夜思",
+              titleZhHant: "靜夜思",
+              authorZhHans: "李白",
+              authorZhHant: "李白",
+              linesZhHans: ["床前明月光，"],
+              linesZhHant: ["牀前明月光，"],
+            },
+          },
+        ],
+      },
+    },
+    {
+      userId: "family-001",
+      now: baseNow,
+      scriptVariant: "zh-Hant",
+    },
+  );
+
+  assert.equal(buckets.todayDue[0]?.title, "靜夜思");
+  assert.equal(buckets.todayDue[0]?.author, "李白");
+  assert.equal(buckets.todayDue[0]?.previewLine, "牀前明月光，");
+});
+
+test("getReviewPlayerViewModel returns variant-aware snapshot state", async () => {
+  const viewModel = await getReviewPlayerViewModel(
+    {
+      userId: "family-001",
+      poetryId: "ts300-0001",
+      now: baseNow,
+      scriptVariant: "zh-Hant",
+    },
+    {
+      reviewState: {
+        findMany: async () => [
+          {
+            ...createState({
+              poetryId: "ts300-0001",
+              nextReviewAt: new Date("2026-05-29T06:00:00.000Z"),
+            }),
+            poetry: {
+              title: "静夜思",
+              author: "李白",
+              lines: ["床前明月光，"],
+              titleOriginal: "靜夜思",
+              authorOriginal: "李白",
+              titleZhHans: "静夜思",
+              titleZhHant: "靜夜思",
+              authorZhHans: "李白",
+              authorZhHant: "李白",
+              linesZhHans: ["床前明月光，"],
+              linesZhHant: ["牀前明月光，"],
+            },
+          },
+        ],
+        findUnique: async () => ({
+          ...createState({
+            poetryId: "ts300-0001",
+            nextReviewAt: new Date("2026-05-29T06:00:00.000Z"),
+          }),
+          poetry: {
+            title: "静夜思",
+            author: "李白",
+            lines: ["床前明月光，"],
+            titleOriginal: "靜夜思",
+            authorOriginal: "李白",
+            titleZhHans: "静夜思",
+            titleZhHant: "靜夜思",
+            authorZhHans: "李白",
+            authorZhHant: "李白",
+            linesZhHans: ["床前明月光，"],
+            linesZhHant: ["牀前明月光，"],
+          },
+        }),
+      },
+    },
+  );
+
+  assert.equal(viewModel.state?.title, "靜夜思");
+  assert.equal(viewModel.state?.author, "李白");
+  assert.equal(viewModel.state?.previewLine, "牀前明月光，");
 });
 
 test("buildReviewSummary exposes suggested count and recent wrong items", () => {

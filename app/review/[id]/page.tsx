@@ -1,7 +1,12 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { ReviewPoetryStage } from "@/components/review/review-poetry-stage";
 import { getPoetryById } from "@/lib/poetry/repository";
+import {
+  resolveScriptVariant,
+  SCRIPT_VARIANT_COOKIE_NAME,
+} from "@/lib/poetry/script-variant";
 import {
   getReviewPlayerViewModel,
   submitReviewSelfReport,
@@ -29,7 +34,11 @@ export default async function ReviewPlayerPage({
 }: ReviewPlayerPageProps) {
   const userId = process.env.SYSTEM_USER_ID;
   const { id } = await params;
-  const poetry = await getPoetryById(id);
+  const cookieStore = await cookies();
+  const scriptVariant = resolveScriptVariant(
+    cookieStore.get(SCRIPT_VARIANT_COOKIE_NAME)?.value,
+  );
+  const poetry = await getPoetryById(id, undefined, undefined, scriptVariant);
 
   if (!poetry || !userId) {
     notFound();
@@ -38,6 +47,7 @@ export default async function ReviewPlayerPage({
   const viewModel = await getReviewPlayerViewModel({
     userId,
     poetryId: id,
+    scriptVariant,
   });
 
   return (

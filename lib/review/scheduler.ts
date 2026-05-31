@@ -1,5 +1,9 @@
 import { db } from "@/lib/db";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
+import {
+  pickPoetryContentVariant,
+  type ScriptVariant,
+} from "@/lib/poetry/script-variant";
 
 const REVIEW_INTERVAL_SEQUENCE = [1, 2, 4, 7, 15, 30] as const;
 const UPCOMING_WINDOW_DAYS = 7;
@@ -37,6 +41,14 @@ type ReviewStateRecord = {
     title: string;
     author: string;
     lines: unknown;
+    titleOriginal?: string | null;
+    authorOriginal?: string | null;
+    titleZhHans?: string | null;
+    titleZhHant?: string | null;
+    authorZhHans?: string | null;
+    authorZhHant?: string | null;
+    linesZhHans?: unknown;
+    linesZhHant?: unknown;
   };
 };
 
@@ -52,6 +64,14 @@ type ReviewRepository = {
             title: true;
             author: true;
             lines: true;
+            titleOriginal: true;
+            authorOriginal: true;
+            titleZhHans: true;
+            titleZhHant: true;
+            authorZhHans: true;
+            authorZhHant: true;
+            linesZhHans: true;
+            linesZhHant: true;
           };
         };
       };
@@ -70,6 +90,14 @@ type ReviewRepository = {
             title: true;
             author: true;
             lines: true;
+            titleOriginal: true;
+            authorOriginal: true;
+            titleZhHans: true;
+            titleZhHant: true;
+            authorZhHans: true;
+            authorZhHant: true;
+            linesZhHans: true;
+            linesZhHant: true;
           };
         };
       };
@@ -146,12 +174,14 @@ type BuildReviewSelfReportPayloadInput = {
 type GetReviewBucketsOptions = {
   userId: string;
   now?: Date;
+  scriptVariant?: ScriptVariant;
 };
 
 type GetReviewPlayerViewModelInput = {
   userId: string;
   poetryId: string;
   now?: Date;
+  scriptVariant?: ScriptVariant;
 };
 
 type SubmitReviewSelfReportInput = {
@@ -208,8 +238,10 @@ function buildPlaceholderImage(poetryId: string): PoetryImage {
 async function toSnapshot(
   record: ReviewStateRecord,
   dependencies: ReviewSchedulerDependencies,
+  scriptVariant: ScriptVariant,
 ): Promise<ReviewStateSnapshot> {
   const image = await dependencies.getPoetryImage(record.poetryId);
+  const content = pickPoetryContentVariant(record.poetry, scriptVariant);
 
   return {
     userId: record.userId,
@@ -221,9 +253,9 @@ async function toSnapshot(
     nextReviewAt: record.nextReviewAt,
     wrongCount: record.wrongCount,
     consecutiveWrongCount: record.consecutiveWrongCount,
-    title: record.poetry.title,
-    author: record.poetry.author,
-    previewLine: toStringArray(record.poetry.lines)[0] ?? "",
+    title: content.title,
+    author: content.author,
+    previewLine: content.lines[0] ?? "",
     image,
   };
 }
@@ -328,6 +360,7 @@ export async function getReviewBuckets(
   const options =
     maybeOptions ?? (repositoryOrOptions as GetReviewBucketsOptions);
   const now = options.now ?? new Date();
+  const scriptVariant = options.scriptVariant ?? "zh-Hans";
 
   if (!repository.reviewState) {
     return {
@@ -347,6 +380,14 @@ export async function getReviewBuckets(
           title: true,
           author: true,
           lines: true,
+          titleOriginal: true,
+          authorOriginal: true,
+          titleZhHans: true,
+          titleZhHant: true,
+          authorZhHans: true,
+          authorZhHant: true,
+          linesZhHans: true,
+          linesZhHant: true,
         },
       },
     },
@@ -354,7 +395,7 @@ export async function getReviewBuckets(
   });
 
   const snapshots = await Promise.all(
-    records.map((record) => toSnapshot(record, dependencies)),
+    records.map((record) => toSnapshot(record, dependencies, scriptVariant)),
   );
   const upcomingLimit = addDays(now, UPCOMING_WINDOW_DAYS);
 
@@ -421,9 +462,11 @@ export async function getReviewPlayerViewModel(
     {
       userId: input.userId,
       now: input.now,
+      scriptVariant: input.scriptVariant,
     },
     dependencies,
   );
+  const scriptVariant = input.scriptVariant ?? "zh-Hans";
 
   const existing =
     targetRepository.reviewState?.findUnique
@@ -440,12 +483,22 @@ export async function getReviewPlayerViewModel(
                 title: true,
                 author: true,
                 lines: true,
+                titleOriginal: true,
+                authorOriginal: true,
+                titleZhHans: true,
+                titleZhHant: true,
+                authorZhHans: true,
+                authorZhHant: true,
+                linesZhHans: true,
+                linesZhHant: true,
               },
             },
           },
         })
       : null;
-  const state = existing ? await toSnapshot(existing, dependencies) : null;
+  const state = existing
+    ? await toSnapshot(existing, dependencies, scriptVariant)
+    : null;
   const queuePoetryIds = Array.from(
     new Set([
       ...buckets.todayDue.map((item) => item.poetryId),
@@ -502,6 +555,14 @@ export async function submitReviewSelfReport(
                 title: true,
                 author: true,
                 lines: true,
+                titleOriginal: true,
+                authorOriginal: true,
+                titleZhHans: true,
+                titleZhHant: true,
+                authorZhHans: true,
+                authorZhHant: true,
+                linesZhHans: true,
+                linesZhHant: true,
               },
             },
           },
@@ -510,7 +571,7 @@ export async function submitReviewSelfReport(
   const baseState = existing
     ? await toSnapshot(existing, {
         getPoetryImage: async (poetryId) => buildPlaceholderImage(poetryId),
-      })
+      }, "zh-Hans")
     : buildFallbackSnapshot(userId, input.poetryId, reviewedAt);
   const nextState = updateReviewStateAfterAnswer({
     state: baseState,

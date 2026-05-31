@@ -1,16 +1,26 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import type { Route } from "next";
 
 import { ReviewList } from "@/components/review/review-list";
 import { buildReviewSummary, getReviewBuckets } from "@/lib/review/scheduler";
+import {
+  resolveScriptVariant,
+  SCRIPT_VARIANT_COOKIE_NAME,
+} from "@/lib/poetry/script-variant";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {
   const userId = process.env.SYSTEM_USER_ID;
+  const cookieStore = await cookies();
+  const scriptVariant = resolveScriptVariant(
+    cookieStore.get(SCRIPT_VARIANT_COOKIE_NAME)?.value,
+  );
   const buckets = userId
     ? await getReviewBuckets({
         userId,
+        scriptVariant,
       })
     : {
         todayDue: [],

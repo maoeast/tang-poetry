@@ -153,3 +153,36 @@ test("getChallengePoetrySeeds returns review pool items first in review mode", a
     ["ts300-0003", "ts300-0002", "ts300-0001"],
   );
 });
+
+test("getChallengePoetrySeeds returns traditional content when scriptVariant is zh-Hant", async () => {
+  const seeds = await getChallengePoetrySeeds(
+    {
+      poetry: {
+        findMany: async () => [
+          {
+            id: "ts300-0001",
+            title: "静夜思",
+            author: "李白",
+            dynasty: "唐",
+            lines: ["床前明月光，", "疑是地上霜。"],
+            titleOriginal: "靜夜思",
+            authorOriginal: "李白",
+            titleZhHans: "静夜思",
+            titleZhHant: "靜夜思",
+            authorZhHans: "李白",
+            authorZhHant: "李白",
+            linesZhHans: ["床前明月光，", "疑是地上霜。"],
+            linesZhHant: ["牀前明月光，", "疑是地上霜。"],
+          },
+        ],
+      },
+    },
+    {
+      scriptVariant: "zh-Hant",
+    },
+  );
+
+  assert.equal(seeds[0]?.title, "靜夜思");
+  assert.equal(seeds[0]?.author, "李白");
+  assert.deepEqual(seeds[0]?.lines, ["牀前明月光，", "疑是地上霜。"]);
+});
