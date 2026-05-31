@@ -132,6 +132,19 @@ http://localhost:3000
 - `APP_URL`：应用外部访问地址
 - `APP_PASSWORD`：一期家庭部署口令
 - `SYSTEM_USER_ID`：一期固定单用户 ID
+- `AUDIO_BASE_URL`：可选，音频 CDN / 对象存储前缀；未设置时默认读 `/audio/poetry`
+- `STEPFUN_API_KEY`：可选，仅离线生成 TTS 音频脚本使用
+
+## 音频资产管理
+
+- 运行时音频文件约定目录是 `public/audio/poetry/`
+- 文件名优先使用 `Poetry.sourceUid`，回退到 `poetryId`，由 [`lib/audio.ts`](./lib/audio.ts) 统一映射
+- 仓库默认 **不跟踪** `public/audio/`，避免把大体积二进制资产直接放进 Git 历史
+- 本地开发可直接把成品 mp3 放在 `public/audio/poetry/`
+- 生产环境推荐把同目录内容同步到对象存储或 CDN，并通过 `AUDIO_BASE_URL` 切换访问前缀
+- 离线补音可用 [`scripts/generate-tts-audio.py`](./scripts/generate-tts-audio.py)，脚本会把文件写入运行时音频目录，且必须通过环境变量注入 `STEPFUN_API_KEY`
+
+更完整的策略见 [docs/audio-asset-strategy.md](./docs/audio-asset-strategy.md)。
 
 ## 本地验证
 
