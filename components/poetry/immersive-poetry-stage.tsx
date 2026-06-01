@@ -69,7 +69,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
       return;
     }
 
-    const nextAudio = new Audio(poetry.audio.url);
+    const nextAudio = new Audio();
     nextAudio.preload = "metadata";
 
     const handleTimeUpdate = () => {
@@ -98,7 +98,24 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
 
     audioRef.current = nextAudio;
 
+    // Fetch audio as blob to avoid download-manager extensions (e.g. IDM)
+    // intercepting the .mp3 request and triggering a file-save dialog.
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    fetch(poetry.audio.url)
+      .then((res) => res.blob())
+      .then((blob) => {
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        nextAudio.src = objectUrl;
+      })
+      .catch(() => {
+        // Failed to load audio — silently recover; play button will be no-op.
+      });
+
     return () => {
+      cancelled = true;
       nextAudio.pause();
       nextAudio.removeEventListener("timeupdate", handleTimeUpdate);
       nextAudio.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -106,6 +123,9 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
       nextAudio.removeEventListener("play", handlePlay);
       nextAudio.removeEventListener("pause", handlePause);
       nextAudio.removeEventListener("ended", handleEnded);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
       nextAudio.removeAttribute("src");
       nextAudio.load();
       if (audioRef.current === nextAudio) {
@@ -130,7 +150,18 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
     }
 
     if (audio.paused) {
-      await audio.play();
+      if (audio.ended) {
+        audio.currentTime = 0;
+      }
+
+      try {
+        await audio.play();
+      } catch {
+        // AbortError: play() was interrupted by pause() or a new load.
+        // NotAllowedError: autoplay policy blocked playback.
+        // Both are expected in normal interaction — silently recover.
+      }
+
       return;
     }
 
@@ -158,7 +189,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
       }
 
       if (audio.paused) {
-        void audio.play();
+        void audio.play().catch(() => {});
       }
 
       return;
