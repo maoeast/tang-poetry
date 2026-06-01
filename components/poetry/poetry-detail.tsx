@@ -66,6 +66,23 @@ export function PoetryDetail({
           </article>
 
           <aside className="space-y-6">
+            <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/80 p-5 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
+              <Link
+                href={`/author/${poetry.author}` as Route}
+                className="flex items-center gap-3 transition hover:opacity-80"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] text-sm text-[var(--color-muted)]">
+                  诗
+                </div>
+                <div>
+                  <p className="text-sm font-medium">关于诗人</p>
+                  <p className="text-xs text-[var(--color-muted)]">
+                    {poetry.author} · {poetry.dynasty}
+                  </p>
+                </div>
+              </Link>
+            </section>
+
             <AiExplanationCard poetryId={poetry.id} />
 
             <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/80 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">

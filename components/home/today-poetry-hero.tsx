@@ -75,7 +75,13 @@ export function TodayPoetryHero({ todayPoetry }: TodayPoetryHeroProps) {
               {todayPoetry.poetry.title}
             </h1>
             <p className="mt-2 text-sm text-[var(--color-muted)]">
-              {todayPoetry.poetry.dynasty} · {todayPoetry.poetry.author}
+              {todayPoetry.poetry.dynasty} ·{" "}
+              <Link
+                href={`/author/${todayPoetry.poetry.author}` as import("next").Route}
+                className="transition hover:text-[var(--color-ink)]"
+              >
+                {todayPoetry.poetry.author}
+              </Link>
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
               首页改为竖版诗画主视觉。无音频时保留轻歌词窗预览，拼音默认隐藏。
