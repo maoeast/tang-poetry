@@ -1,0 +1,28 @@
+[
+  {
+    "name": "李白",
+    "nameZhHant": "李白",
+    "avatarUrl": "/images/authors/libai.jpg",
+    "dynasty": "唐",
+    "courtesyName": "太白",
+    "literaryName": "青莲居士",
+    "bio": "李白（701年—762年），字太白，号青莲居士，又号“谪仙人”，唐代伟大的浪漫主义诗人，被后人誉为“诗仙”，与杜甫并称为“李杜”。其诗以豪放飘逸见长，想象丰富，语言流转自然。",
+    "bioZhHant": "李白（701年—762年），字太白，號青蓮居士，又號「謫仙人」，唐代偉大的浪漫主義詩人，被後人譽為「詩仙」，與杜甫並稱為「李杜」。其詩以豪放飄逸見長，想像豐富，語言流轉自然。",
+    "lifeStory": "李白少年即显露才华，博览群书。二十五岁出蜀远游，天宝初入长安，贺知章见其文，叹为“谪仙人”。后因得罪权贵，被赐金放还。安史之乱中因卷入永王李璘案被流放夜郎，中途遇赦。晚年漂泊东南，卒于当涂。",
+    "lifeStoryZhHant": "李白少年即顯露才華，博覽群書。二十五歲出蜀遠遊，天寶初入長安，賀知章見其文，嘆為「謫仙人」。後因得罪權貴，被賜金放還。安史之亂中因捲入永王李璘案被流放夜郎，中途遇赦。晚年漂泊東南，卒於當塗。",
+    "sourceUrl": "https://www.guwendao.net/authorv_b90660e3e492.aspx"
+  },
+  {
+    "name": "无名氏",
+    "nameZhHant": null,
+    "avatarUrl": null,
+    "dynasty": "唐",
+    "courtesyName": null,
+    "literaryName": null,
+    "bio": null,
+    "bioZhHant": null,
+    "lifeStory": null,
+    "lifeStoryZhHant": null,
+    "sourceUrl": null
+  }
+]
