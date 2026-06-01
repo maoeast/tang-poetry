@@ -67,6 +67,26 @@ describe("getAuthorByName", () => {
     assert.equal(result.lifeStory, null);
   });
 
+  it("returns zh-Hant name when nameZhHant is available", async () => {
+    const dataWithHantName: AuthorData[] = [
+      {
+        ...testData[0],
+        nameZhHant: "李白",
+      },
+    ];
+    const result = await getAuthorByName("李白", "zh-Hant", dataWithHantName);
+
+    assert.ok(result);
+    assert.equal(result.name, "李白");
+  });
+
+  it("falls back to name when nameZhHant is null", async () => {
+    const result = await getAuthorByName("李白", "zh-Hant", testData);
+
+    assert.ok(result);
+    assert.equal(result.name, "李白");
+  });
+
   it("returns null for unknown author", async () => {
     const result = await getAuthorByName("不存在", "zh-Hans", testData);
     assert.equal(result, null);

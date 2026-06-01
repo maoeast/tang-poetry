@@ -126,7 +126,10 @@ export async function getAuthorByName(
       : entry.lifeStory ?? null;
 
   return {
-    name: entry.name,
+    name:
+      scriptVariant === "zh-Hant" && entry.nameZhHant
+        ? entry.nameZhHant
+        : entry.name,
     avatarUrl: entry.avatarUrl ?? DEFAULT_AVATAR,
     dynasty: entry.dynasty,
     courtesyName: entry.courtesyName ?? null,
