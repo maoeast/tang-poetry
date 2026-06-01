@@ -693,6 +693,14 @@ export async function syncReviewStateFromLearningEvent(
           title: true,
           author: true,
           lines: true,
+          titleOriginal: true,
+          authorOriginal: true,
+          titleZhHans: true,
+          titleZhHant: true,
+          authorZhHans: true,
+          authorZhHant: true,
+          linesZhHans: true,
+          linesZhHant: true,
         },
       },
     },
@@ -701,7 +709,7 @@ export async function syncReviewStateFromLearningEvent(
   const baseState = existing
     ? await toSnapshot(existing, {
         getPoetryImage: async (poetryId) => buildPlaceholderImage(poetryId),
-      })
+      }, "zh-Hans")
     : {
         ...createInitialReviewState({
           userId,

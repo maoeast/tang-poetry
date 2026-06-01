@@ -382,7 +382,7 @@ export async function runPrepareImageGeneration() {
   );
 
   // Preview batch
-  const previewJobs = jobs.filter((j) => PREVIEW_POETRY_IDS.includes(j.name));
+  const previewJobs = jobs.filter((j) => (PREVIEW_POETRY_IDS as readonly string[]).includes(j.name));
   const previewBatch = buildBatchJson(previewJobs);
 
   // Formal batches

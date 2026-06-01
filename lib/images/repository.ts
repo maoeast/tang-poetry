@@ -50,6 +50,88 @@ export type PoetryImage = {
   isPlaceholder: boolean;
 };
 
+type ImageAssetBatchRepository = {
+  imageAsset: {
+    findMany: (args: {
+      where: { status: string };
+      select: {
+        poetryId: true;
+        style: true;
+        status: true;
+        promptVersion: true;
+        imagePath: true;
+        thumbPath: true;
+        width: true;
+        height: true;
+      };
+      orderBy: Array<{ updatedAt?: "desc"; createdAt?: "desc" }>;
+    }) => Promise<
+      Array<{
+        poetryId: string;
+        style: string;
+        status: string;
+        promptVersion: string;
+        imagePath: string;
+        thumbPath: string | null;
+        width: number | null;
+        height: number | null;
+      }>
+    >;
+  };
+};
+
+export async function getAllPoetryImages(
+  repository?: ImageAssetBatchRepository,
+): Promise<Map<string, PoetryImage>> {
+  const targetRepository = repository ?? (db as unknown as ImageAssetBatchRepository);
+  const assets = await targetRepository.imageAsset.findMany({
+    where: { status: "ready" },
+    select: {
+      poetryId: true,
+      style: true,
+      status: true,
+      promptVersion: true,
+      imagePath: true,
+      thumbPath: true,
+      width: true,
+      height: true,
+    },
+    orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+  });
+
+  const map = new Map<string, PoetryImage>();
+  for (const asset of assets) {
+    if (!map.has(asset.poetryId)) {
+      map.set(asset.poetryId, {
+        poetryId: asset.poetryId,
+        imagePath: asset.imagePath,
+        thumbPath: asset.thumbPath,
+        status: asset.status,
+        style: asset.style,
+        promptVersion: asset.promptVersion,
+        width: asset.width,
+        height: asset.height,
+        isPlaceholder: false,
+      });
+    }
+  }
+  return map;
+}
+
+export function getPlaceholderImage(poetryId: string): PoetryImage {
+  return {
+    poetryId,
+    imagePath: DEFAULT_POETRY_IMAGE_PATH,
+    thumbPath: DEFAULT_POETRY_IMAGE_PATH,
+    status: "placeholder",
+    style: DEFAULT_IMAGE_STYLE,
+    promptVersion: DEFAULT_PROMPT_VERSION,
+    width: null,
+    height: null,
+    isPlaceholder: true,
+  };
+}
+
 export async function getPoetryImage(
   poetryId: string,
   repository?: ImageAssetRepository,
@@ -74,17 +156,7 @@ export async function getPoetryImage(
   });
 
   if (!imageAsset) {
-    return {
-      poetryId,
-      imagePath: DEFAULT_POETRY_IMAGE_PATH,
-      thumbPath: DEFAULT_POETRY_IMAGE_PATH,
-      status: "placeholder",
-      style: DEFAULT_IMAGE_STYLE,
-      promptVersion: DEFAULT_PROMPT_VERSION,
-      width: null,
-      height: null,
-      isPlaceholder: true,
-    };
+    return getPlaceholderImage(poetryId);
   }
 
   return {

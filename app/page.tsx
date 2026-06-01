@@ -13,6 +13,12 @@ export const dynamic = "force-dynamic";
 
 const featureCards = [
   {
+    title: "诗歌分类",
+    body: "按体裁浏览 366 首唐诗：五言绝句、七言绝句、律诗、古诗与乐府。",
+    href: "/browse" as Route,
+    action: "浏览诗歌",
+  },
+  {
     title: "今日一诗",
     body: "已经接入 DailyPoetry 排期读取，首页会直接展示当天命中的诗歌。",
     href: "/#today-poetry" as Route,
