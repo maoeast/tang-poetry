@@ -37,13 +37,11 @@
 - 已完成：任务 9 复习池与熟练度规则
 - 已完成：任务 10 DeepSeek 服务端代理与 AI 讲解基础链路
 - 已完成：任务 11 我的页面与诗人缘分榜
-- 已部分完成：任务 12 补充种子数据、占位图和运行时图片接入
+- 已完成：任务 12 补充种子数据、占位图和运行时图片接入（含 366 首配图全部生成入库）
 - 未完成主体：任务 13 端到端联调与基础验证、任务 14 生产部署配置
 
 当前还没有完成的阶段包括：
 
-- 非关键卡片位的运行时图片统一接入
-- 精选图片资产的持续替换与质量验收
 - AI 讲解依赖的本地密钥配置与真实联调补证
 - 任务 13 剩余的 AI 讲解、挑战写库、`SYSTEM_USER_ID` 降级联调
 - 生产部署文档与部署流程
@@ -53,13 +51,13 @@
 本轮已经完成的范围：
 
 - 首页今日一诗主视觉、详情页头图、复习卡片缩略图已统一走数据库 `ImageAsset`
+- **366 首配图已全部生成入库**，运行时不再回退占位图
 - `/me` 页面保留结构化统计区与诗人缘分榜，页头升级为非全屏的结构化诗画语汇 banner
 - 仓库已纳入首批音频相关资产与实现文件，用于一期朗读/听感增强
 
 仍未在本轮解决的项：
 
 - 挑战页、相关推荐等非关键卡片位尚未统一接入运行时图片
-- 精选视觉资产仍需继续补齐与人工验收
 - 音频内容质量、更多朗读策略与无障碍细节属于二期继续打磨范围
 
 ## 环境要求
@@ -149,19 +147,39 @@ http://localhost:3000
 ## 图片资产生成
 
 - 运行时图片通过数据库 `ImageAsset` 读取，缺图会回退占位图
-- 366 首诗的批量出图流水线见 [docs/image-generation-plan.md](./docs/image-generation-plan.md)
-- Prompt 归纳与参考图分析见 [docs/poetry-image-prompt-guide.md](./docs/poetry-image-prompt-guide.md)
-- 生成批量任务与导入草稿：
+- **366 首唐诗配图已全部生成并导入数据库**（apimart gpt-image-2，2:3 竖版 2K，storybook-watercolor v1）
+- 成品图位于 `public/images/generated/`（1.8 GB）
+- ImageAsset 表 366 条记录全部为 `ready` 状态
+
+如需重新生成或增量更新，流水线如下：
+
+- 生成 Prompt 与批量任务 JSON：
 
 ```bash
 ./node_modules/.bin/tsx scripts/prepare-image-generation.ts
 ```
 
-- 扫描本地成品图并把 `data/image-assets.json` 切成 `ready`：
+- 调用 apimart 生成图片（提交后等待完成，再下载到 `AIimages/`）
+
+- 将审核通过的成品图拷贝到 `public/images/generated/`，扫描并翻转为 `ready`：
 
 ```bash
 ./node_modules/.bin/tsx scripts/finalize-image-assets.ts
 ```
+
+- 导入数据库：
+
+```bash
+npm run import:image-assets
+```
+
+- 若生成成功但下载阶段失败，可在 72 小时内重试下载：
+
+```bash
+./node_modules/.bin/tsx scripts/retry-image-downloads.ts
+```
+
+完整流水线文档见 [docs/image-generation-plan.md](./docs/image-generation-plan.md)，Prompt 指南见 [docs/poetry-image-prompt-guide.md](./docs/poetry-image-prompt-guide.md)。
 
 ## 本地验证
 
