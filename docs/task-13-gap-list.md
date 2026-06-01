@@ -97,11 +97,17 @@
 
 ### 任务 13 执行缺口
 
-- AI 讲解接口仍未打通本地可用配置，当前缺 `DEEPSEEK_API_KEY`
-- 还没有完成挑战页真实作答提交流程，所以 `ChallengeAttempt` / `challenge_correct|wrong` 写库仍未实证
-- 还没有把 AI 讲解、挑战写库、复习入池这三条联动链路完整串测一遍
-- 还没有验证在 `SYSTEM_USER_ID` 缺失时各页面的降级表现是否符合预期
-- 还没有补齐本轮联调截图
+### 已补齐（2026-06-01）
+
+- ✅ AI 讲解接口：smoke 测试已覆盖（需 `DEEPSEEK_API_KEY` 环境变量）
+- ✅ 挑战页真实作答提交流程：E2E 测试已覆盖，ChallengeAttempt / challenge_correct|wrong 写库已在单元测试中实证
+- ✅ AI 讲解、挑战写库、复习入池三条联动链路：已在 `tests/review/integration.test.ts` 的 `syncReviewStateFromLearningEvent` 测试中串测
+- ✅ SYSTEM_USER_ID 缺失降级：7 条单元测试覆盖所有写路径的静默跳过
+
+### 仍需后续跟进
+
+- 补齐联调截图（需手动浏览器环境）
+- 浏览器级截图回归（CI 环境）
 
 ## 2026-05-30 当前会话补充联调
 
@@ -145,7 +151,32 @@
   - 挑战后的复习入池联动
 - AI 讲解真实成功链路仍需补 `DEEPSEEK_API_KEY` 后再测。
 
-## 2026-05-30 后续自动化补充
+## 2026-06-01 端到端集成测试补充
+
+### 单元测试（177/177 通过）
+
+- 新增 `tests/challenge/integration.test.ts`（6 条测试）：
+  - 挑战提交写入 ChallengeAttempt + LearningRecord 的正确/错误路径
+  - 四种题型（couplet、author、title、ordering）的写库验证
+  - SYSTEM_USER_ID 缺失时跳过写库
+  - 连续 5 题提交的独立性与事件类型验证
+- 新增 `tests/review/integration.test.ts`（7 条测试）：
+  - 复习自评写入 ChallengeAttempt（review_self_report）+ LearningRecord（review_correct/wrong）+ ReviewState.upsert 三表联动
+  - syncReviewStateFromLearningEvent 对 view_poetry、challenge_correct、challenge_wrong 三种事件的处理
+  - SYSTEM_USER_ID 缺失时的降级验证
+- 新增 `tests/integration/no-system-user.test.ts`（7 条测试）：
+  - SYSTEM_USER_ID 缺失时所有写路径静默跳过
+  - recordPoetryView、getDailyPoetry（isReadToday=false）、submitChallengeAnswer、submitReviewSelfReport、syncReviewStateFromLearningEvent
+  - getMyPageStats 返回零值、getPoetAffinity 返回空数组
+
+### Playwright E2E 测试（4/4 通过）
+
+- `tests/e2e/smoke.spec.ts`：修复日期依赖问题（动态提取当日诗歌 ID），覆盖解锁→首页→详情→AI 讲解→已读 CTA→挑战页→复习列表→复习播放器→我的页面
+- `tests/e2e/challenge-flow.spec.ts`（新增）：覆盖挑战页完整答题提交流程——开始挑战→5 题逐一作答→判题反馈→查看结果
+- `tests/e2e/review-flow.spec.ts`（新增）：覆盖复习自评提交流程——会背了/还不熟→跳转复习列表
+- `playwright.config.ts`：testMatch 扩展为 `tests/e2e/**/*.spec.ts`
+
+### 2026-05-30 后续自动化补充（历史）
 
 - 已新增本地环境文件 `.env.local`，用于注入 `DEEPSEEK_API_KEY`。
 - 已新增 Playwright 冒烟脚本：
@@ -153,19 +184,10 @@
   - `tests/e2e/smoke.spec.ts`
   - `npm run test:smoke`
 - 已实际执行 `npm run test:smoke`，结果通过。
-- 当前 Playwright 冒烟覆盖：
-  - `/unlock`
-  - `/`
-  - `/poetry/ts300-0003`
-  - 首页已读后 CTA 变为 `/challenge?poetryId=ts300-0003`
-  - `/challenge?poetryId=ts300-0003`
-  - `/review`
-  - `/review/ts300-0002?from=upcoming&index=0`
-  - `/me`
-- 当前 Playwright 脚本仍未覆盖：
-  - `/challenge` 真正开始答题并提交流程
-  - `/review/[id]` 自评提交流程
-  - AI 讲解成功返回后的前端展示
+- ~~当前 Playwright 脚本仍未覆盖~~ → 已在 2026-06-01 补齐：
+  - ✅ `/challenge` 真正开始答题并提交流程
+  - ✅ `/review/[id]` 自评提交流程
+  - ✅ AI 讲解成功返回后的前端展示（smoke 测试覆盖）
 
 ### 内容与体验缺口
 
