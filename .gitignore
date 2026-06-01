@@ -18,7 +18,6 @@ pnpm-debug.log*
 *.tsbuildinfo
 
 # Local workflow state
-.continue-here.md
 .codex/
 .agents/
 .superpowers/
