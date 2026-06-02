@@ -40,7 +40,7 @@ export default async function ReviewPage() {
             返回首页
           </Link>
           <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-            Review
+            温故知新
           </p>
         </div>
 
@@ -48,9 +48,9 @@ export default async function ReviewPage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.3),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.25),transparent_30%)]" />
 
           <div className="relative space-y-4">
-            <h1 className="text-4xl font-semibold sm:text-5xl">复习批次入口</h1>
+            <h1 className="text-4xl font-semibold sm:text-5xl">温故知新</h1>
             <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-              在这里按今日到期、最近错题、即将到期三个 bucket 组织当前批次。列表页只负责构造本轮复习队列并进入 `/review/[id]`，不会在这里写入复习结果。
+              今日待复习、最近错题、即将到期——按记忆曲线为你安排复习计划。
             </p>
           </div>
         </section>

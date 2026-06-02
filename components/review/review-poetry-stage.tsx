@@ -304,7 +304,7 @@ export function ReviewPoetryStage({
 
   function handleReplayHint() {
     replayAll();
-    setMessage("已从头重新播放，不会写入复习记录。");
+    setMessage("已从头重新播放。");
   }
 
   function handleSubmit(isCorrect: boolean) {
@@ -340,7 +340,7 @@ export function ReviewPoetryStage({
             返回复习池
           </Link>
           <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-            Review Player
+            复习播放
           </p>
         </div>
 
@@ -387,9 +387,7 @@ export function ReviewPoetryStage({
                 author={poetry.author}
                 dynasty={poetry.dynasty}
               />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(28,22,17,0.88)] via-[rgba(28,22,17,0.32)] to-transparent px-5 pb-5 pt-16 text-sm text-white/82 sm:px-6">
-                <p>{isUnlocked ? "已解锁复习自评操作。" : "先听到 80% 后再进行复习自评。"}</p>
-              </div>
+
             </PoetryPoster>
 
             <div className="space-y-5">
@@ -464,7 +462,7 @@ export function ReviewPoetryStage({
             <div>
               <h1 className="text-2xl font-semibold">{poetry.title}</h1>
               <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                有音频时先听到 80% 才能自评；无音频时直接解锁。拼音默认隐藏。
+                请先听一遍朗读，然后进行自评。
               </p>
             </div>
             <span

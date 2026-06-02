@@ -16,12 +16,9 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
     <main className="flex min-h-screen items-center justify-center bg-[var(--color-page)] px-6 py-12">
       <section className="w-full max-w-md overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-soft)] backdrop-blur">
         <div className="space-y-4">
-          <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-            Family Access
-          </p>
           <h1 className="text-3xl font-semibold">输入访问口令</h1>
           <p className="text-sm leading-7 text-[var(--color-muted)]">
-            一期先采用家庭私有部署的轻量访问保护。验证通过后，会写入站内 cookie。
+            请输入口令以进入唐诗画境。
           </p>
         </div>
 
@@ -35,7 +32,7 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
               type="password"
               autoComplete="current-password"
               className="w-full rounded-2xl border border-[var(--color-line)] bg-white/80 px-4 py-3 outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(185,130,70,0.16)]"
-              placeholder="请输入 APP_PASSWORD"
+              placeholder="请输入口令"
               required
             />
           </label>

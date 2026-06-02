@@ -31,14 +31,14 @@ export function getReviewCardLayout() {
 
 function getBucketLabel(bucket: ReviewBucketKey) {
   if (bucket === "todayDue") {
-    return "due";
+    return "待复习";
   }
 
   if (bucket === "recentWrong") {
-    return "wrong";
+    return "错题";
   }
 
-  return "soon";
+  return "即将到期";
 }
 
 function getBucketTitle(bucket: ReviewBucketKey) {
@@ -233,7 +233,7 @@ export function ReviewList({
             {firstSuggestedPoetryId ? "从当前批次开始" : "先去挑战练习"}
           </button>
           <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-            入口页只构造本轮复习批次，不在这里写入复习结果。
+            选择一首诗开始复习。
           </p>
         </article>
       </section>

@@ -26,8 +26,8 @@ export function AiExplanationCard({ poetryId }: AiExplanationCardProps) {
 
   const explanation = explanations[audience];
   const helperMessage = explanation
-    ? "讲解已缓存，下次切换同版本受众会直接命中。"
-    : "点击按钮按需加载 AI 讲解，不会打断当前阅读。";
+    ? "讲解已加载，可以随时切换版本。"
+    : "点击按钮加载 AI 讲解。";
 
   function loadExplanation(nextAudience: ExplanationAudience) {
     startTransition(async () => {
@@ -103,7 +103,7 @@ export function AiExplanationCard({ poetryId }: AiExplanationCardProps) {
       ) : (
         <div className="mt-4 space-y-4">
           <p className="text-sm leading-8 text-[var(--color-muted)]">
-            点击上方按钮后再加载 AI 讲解。讲解会按受众和提示词版本写入缓存，下次会直接命中。
+            选择版本后点击按钮，即可生成 AI 讲解。
           </p>
           <button
             type="button"

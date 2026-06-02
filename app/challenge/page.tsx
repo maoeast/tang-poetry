@@ -71,7 +71,7 @@ export default async function ChallengePage({ searchParams }: ChallengePageProps
             返回首页
           </Link>
           <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-            Challenge
+            诗词挑战
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default async function ChallengePage({ searchParams }: ChallengePageProps
           <div className="relative space-y-4">
             <h1 className="text-4xl font-semibold sm:text-5xl">挑战闯关</h1>
             <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-              当前轮次固定 5 题：2 道对句、1 道作者题、1 道题名题、1 道排序题。支持默认抽题、指定诗挑战和复习池优先挑战；每次作答都会写入挑战记录，并同步更新学习事件。
+              每轮 5 题，涵盖对句、选作者、选诗名和排序四种题型，看看你能拿多少分？
             </p>
           </div>
         </section>
@@ -95,7 +95,7 @@ export default async function ChallengePage({ searchParams }: ChallengePageProps
           <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
             <h2 className="text-2xl font-semibold">题库暂未就绪</h2>
             <p className="mt-4 text-sm leading-8 text-[var(--color-muted)]">
-              当前数据库里还没有可用于出题的诗歌，请先完成唐诗数据导入。
+              诗歌题库正在准备中，请稍后再来挑战。
             </p>
           </section>
         )}

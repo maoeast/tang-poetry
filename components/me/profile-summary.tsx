@@ -57,7 +57,7 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
             返回首页
           </Link>
           <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-            My Archive
+            我的小档案
           </p>
         </div>
 
@@ -78,12 +78,11 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
 
               <div className="space-y-4">
                 <p className="text-sm tracking-[0.28em] text-[var(--color-muted)] uppercase">
-                  Personal Scroll
+                  个人长卷
                 </p>
-                <h1 className="text-4xl font-semibold sm:text-5xl">把近来的读诗痕迹收成一轴小长卷</h1>
+                <h1 className="text-4xl font-semibold sm:text-5xl">读诗长卷</h1>
                 <p className="max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-                  不做铺满整屏的海报，只把你最近读过、练过、收藏过的片段收进卷首，
-                  让这一页像诗画题跋一样，先交代去处，再慢慢展开今天的成长记录。
+                  你最近读过、练过、收藏过的诗作都在这里，像一轴慢慢展开的小长卷。
                 </p>
               </div>
 
@@ -123,11 +122,8 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
                 {summary.challengeAccuracy}%
               </p>
               <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                共完成 {summary.challengeAttemptCount} 次挑战作答。正确率仅统计正式挑战，不计入复习自评。
+                共完成 {summary.challengeAttemptCount} 次挑战作答。
               </p>
-              <div className="mt-5 rounded-[1.25rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]/70 px-4 py-3 text-sm leading-7 text-[var(--color-muted)]">
-                快捷入口仍保留在下方，卷首只负责交代你此刻的读诗气象。
-              </div>
             </div>
           </div>
         </section>
@@ -159,12 +155,12 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-                  Poet Affinity
+                  诗人缘分
                 </p>
                 <h2 className="mt-3 text-2xl font-semibold">诗人缘分榜</h2>
               </div>
               <span className="rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-4 py-2 text-sm text-[var(--color-muted)]">
-                Top 5
+                前 5 位
               </span>
             </div>
 

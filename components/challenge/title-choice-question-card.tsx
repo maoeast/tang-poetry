@@ -24,7 +24,7 @@ export function TitleChoiceQuestionCard({
 
       <div className="relative">
         <span className={`inline-flex rounded-full px-3 py-1 text-xs tracking-[0.18em] uppercase ${theme.pill}`}>
-          Title Choice
+          选诗名
         </span>
         <h3 className="mt-4 text-2xl font-semibold">{question.title}</h3>
         <p className="mt-3 text-lg leading-8">{question.prompt}</p>

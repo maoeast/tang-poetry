@@ -229,13 +229,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
             author={poetry.author}
             dynasty={poetry.dynasty}
           />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(28,22,17,0.88)] via-[rgba(28,22,17,0.32)] to-transparent px-5 pb-5 pt-16 text-sm text-white/82 sm:px-6">
-            <p>
-              {poetry.image.isPlaceholder
-                ? "当前为占位诗境图，后续会继续替换为正式配图。"
-                : "插画已从运行时图片资源读取。"}
-            </p>
-          </div>
+
         </PoetryPoster>
 
         <div className="space-y-5">
@@ -312,7 +306,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
             />
           ) : (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-dashed border-[var(--color-line)] bg-white/72 px-4 py-4 text-sm text-[var(--color-muted)]">
-              <p>当前没有可播放音频，已切换为手动逐句阅读。</p>
+              <p>暂无音频，可以逐句阅读。</p>
               <div className="flex gap-2">
                 <button
                   type="button"

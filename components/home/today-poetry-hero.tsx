@@ -57,19 +57,13 @@ export function TodayPoetryHero({ todayPoetry }: TodayPoetryHeroProps) {
             author={todayPoetry.poetry.author}
             dynasty={todayPoetry.poetry.dynasty}
           />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(28,22,17,0.9)] via-[rgba(28,22,17,0.36)] to-transparent px-5 pb-5 pt-20 text-sm text-white/82 sm:px-6">
-            <p>
-              {todayPoetry.poetry.image.isPlaceholder
-                ? "当前展示占位诗境图，后续会继续补齐正式配图。"
-                : "今日诗境配图已从运行时图片资源读取。"}
-            </p>
-          </div>
+
         </PoetryPoster>
 
         <div className="space-y-5">
           <div className="rounded-[1.75rem] border border-[var(--color-line)] bg-white/78 p-5 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
             <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-              Today Poetry
+              今日一诗
             </p>
             <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
               {todayPoetry.poetry.title}
@@ -83,9 +77,7 @@ export function TodayPoetryHero({ todayPoetry }: TodayPoetryHeroProps) {
                 {todayPoetry.poetry.author}
               </Link>
             </p>
-            <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-              首页改为竖版诗画主视觉。无音频时保留轻歌词窗预览，拼音默认隐藏。
-            </p>
+
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               {todayPoetry.isReadToday ? (

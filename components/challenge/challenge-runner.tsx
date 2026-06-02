@@ -37,7 +37,7 @@ export function ChallengeRunner({
   const [selectedChoice, setSelectedChoice] = useState("");
   const [orderingAnswer, setOrderingAnswer] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<AnswerState | null>(null);
-  const [results, setResults] = useState<AnswerState[]>([]);
+  const [results, set挑战结果s] = useState<AnswerState[]>([]);
   const [isPending, startTransition] = useTransition();
 
   const currentQuestion = questions[currentIndex];
@@ -53,7 +53,7 @@ export function ChallengeRunner({
   function startRound() {
     setStarted(true);
     setCurrentIndex(0);
-    setResults([]);
+    set挑战结果s([]);
     resetInput(questions[0]);
   }
 
@@ -91,7 +91,7 @@ export function ChallengeRunner({
       };
 
       setFeedback(nextFeedback);
-      setResults((previous) => [...previous, nextFeedback]);
+      set挑战结果s((previous) => [...previous, nextFeedback]);
     });
   }
 
@@ -117,7 +117,7 @@ export function ChallengeRunner({
     return (
       <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
         <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-          Ready
+          准备开始
         </p>
         <h2 className="mt-3 text-3xl font-semibold">开始一轮基础挑战</h2>
         <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--color-muted)]">
@@ -138,7 +138,7 @@ export function ChallengeRunner({
     return (
       <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
         <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-          Result
+          挑战结果
         </p>
         <h2 className="mt-3 text-3xl font-semibold">本轮完成</h2>
         <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">
@@ -188,7 +188,10 @@ export function ChallengeRunner({
           第 {currentIndex + 1} / {questions.length} 题
         </p>
         <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-sm text-[var(--color-muted)]">
-          {currentQuestion.type}
+          {currentQuestion.type === "couplet" && "对句"}
+	          {currentQuestion.type === "author" && "选作者"}
+	          {currentQuestion.type === "title" && "选诗名"}
+	          {currentQuestion.type === "ordering" && "排序"}
         </span>
       </div>
 

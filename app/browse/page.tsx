@@ -28,7 +28,7 @@ export default async function BrowsePage() {
             返回首页
           </Link>
           <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
-            Browse
+            诗歌浏览
           </p>
         </div>
 

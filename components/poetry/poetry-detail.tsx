@@ -55,14 +55,6 @@ export function PoetryDetail({
               {poetry.translation ?? "当前还没有录入译文，可先结合原文与 AI 讲解理解诗意。"}
             </p>
 
-            <div className="mt-6 rounded-[1.5rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)]/55 p-5">
-              <h3 className="text-lg font-medium">阅读提示</h3>
-              <p className="mt-3 text-sm leading-8 text-[var(--color-muted)]">
-                {poetry.audio.audioStatus === "none"
-                  ? "当前详情页没有音频，已自动退化为手动逐句模式。你可以按句推进，再按需展开拼音。"
-                  : "音频播放时会自动滚动并高亮当前诗句；拼音默认隐藏，建议先听原句，再按需展开。"}
-              </p>
-            </div>
           </article>
 
           <aside className="space-y-6">
@@ -111,7 +103,7 @@ export function PoetryDetail({
                 </div>
               ) : (
                 <p className="mt-4 text-sm leading-8 text-[var(--color-muted)]">
-                  暂无相关推荐，后续会继续补充同作者与同题材作品。
+                  暂无相关推荐。
                 </p>
               )}
             </section>
