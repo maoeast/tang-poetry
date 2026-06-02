@@ -11,6 +11,8 @@ export type PoetryPosterProps = {
   priority?: boolean;
   overlay?: ReactNode;
   badge?: ReactNode;
+  /** Override the default badge wrapper positioning (default: "absolute left-4 top-4 z-10") */
+  badgeClassName?: string;
   className?: string;
   children?: ReactNode;
 };
@@ -23,6 +25,7 @@ export function PoetryPoster({
   priority = false,
   overlay,
   badge,
+  badgeClassName,
   className,
   children,
 }: PoetryPosterProps) {
@@ -42,7 +45,7 @@ export function PoetryPoster({
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(63,47,35,0.18))]" />
         ) : null}
 
-        {badge ? <div className="absolute left-4 top-4 z-10">{badge}</div> : null}
+        {badge ? <div className={badgeClassName ?? "absolute left-4 top-4 z-10"}>{badge}</div> : null}
         {overlay ? <div className="absolute inset-0 z-0">{overlay}</div> : null}
         {children ? <div className="absolute inset-0 z-10">{children}</div> : null}
       </div>
