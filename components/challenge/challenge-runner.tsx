@@ -115,18 +115,18 @@ export function ChallengeRunner({
 
   if (!started) {
     return (
-      <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-        <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+      <section className="rounded-[2rem] border border-ink-200 bg-surface/78 p-8 shadow-[var(--shadow-panel)]">
+        <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
           准备开始
         </p>
         <h2 className="mt-3 text-3xl font-semibold">开始一轮基础挑战</h2>
-        <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--color-muted)]">
+        <p className="mt-4 max-w-2xl text-sm leading-8 text-ink-600">
           本轮共 {questions.length} 题。答题后会即时显示结果，并在最后汇总正确题数。
         </p>
         <button
           type="button"
           onClick={startRound}
-          className="mt-8 rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-medium text-white transition hover:brightness-105"
+          className="mt-8 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:brightness-105"
         >
           开始挑战
         </button>
@@ -136,12 +136,12 @@ export function ChallengeRunner({
 
   if (isComplete) {
     return (
-      <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-        <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+      <section className="rounded-[2rem] border border-ink-200 bg-surface/78 p-8 shadow-[var(--shadow-panel)]">
+        <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
           挑战结果
         </p>
         <h2 className="mt-3 text-3xl font-semibold">本轮完成</h2>
-        <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">
+        <p className="mt-4 text-base leading-8 text-ink-600">
           你答对了 {correctCount} / {questions.length} 题。
         </p>
         <div className="mt-6 space-y-3">
@@ -151,13 +151,13 @@ export function ChallengeRunner({
             return (
               <div
                 key={question.id}
-                className="rounded-[1.5rem] border border-[var(--color-line)] bg-[var(--color-card)] p-4"
+                className="rounded-[1.5rem] border border-ink-200 bg-surface p-4"
               >
-                <p className="text-sm text-[var(--color-muted)]">{question.title}</p>
+                <p className="text-sm text-ink-600">{question.title}</p>
                 <p className="mt-2 text-lg font-medium">{question.prompt}</p>
                 <p
                   className={`mt-3 text-sm ${
-                    result?.isCorrect ? "text-[#2f6a45]" : "text-[#8c3e2f]"
+                    result?.isCorrect ? "text-primary" : "text-accent"
                   }`}
                 >
                   {result?.isCorrect ? "回答正确" : "回答有误"}
@@ -169,7 +169,7 @@ export function ChallengeRunner({
         <button
           type="button"
           onClick={startRound}
-          className="mt-8 rounded-full border border-[var(--color-line)] bg-white px-6 py-3 text-sm font-medium"
+          className="mt-8 rounded-full border border-ink-200 bg-surface px-6 py-3 text-sm font-medium"
         >
           再来一轮
         </button>
@@ -182,12 +182,12 @@ export function ChallengeRunner({
   }
 
   return (
-    <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-8 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
+    <section className="rounded-[2rem] border border-ink-200 bg-surface/78 p-8 shadow-[var(--shadow-panel)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+        <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
           第 {currentIndex + 1} / {questions.length} 题
         </p>
-        <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-sm text-[var(--color-muted)]">
+        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-ink-600">
           {currentQuestion.type === "couplet" && "对句"}
 	          {currentQuestion.type === "author" && "选作者"}
 	          {currentQuestion.type === "title" && "选诗名"}
@@ -205,11 +205,11 @@ export function ChallengeRunner({
       <div className="mt-8">
         {currentQuestion.type === "couplet" ? (
           <label className="block space-y-2">
-            <span className="text-sm text-[var(--color-muted)]">输入你的答案</span>
+            <span className="text-sm text-ink-600">输入你的答案</span>
             <input
               value={textAnswer}
               onChange={(event) => setTextAnswer(event.target.value)}
-              className="w-full rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-accent)]"
+              className="w-full rounded-2xl border border-ink-200 bg-surface px-4 py-3 outline-none transition focus:border-primary"
               placeholder="例如：处处闻啼鸟"
             />
           </label>
@@ -236,9 +236,9 @@ export function ChallengeRunner({
             {orderingAnswer.map((line, index) => (
               <div
                 key={`${line}-${index}`}
-                className="flex items-center gap-3 rounded-[1.25rem] border border-[var(--color-line)] bg-white px-4 py-3"
+                className="flex items-center gap-3 rounded-[1.25rem] border border-ink-200 bg-surface px-4 py-3"
               >
-                <span className="min-w-7 text-sm text-[var(--color-muted)]">
+                <span className="min-w-7 text-sm text-ink-600">
                   {index + 1}
                 </span>
                 <p className="flex-1">{normalizeOptionLine(line)}</p>
@@ -246,14 +246,14 @@ export function ChallengeRunner({
                   <button
                     type="button"
                     onClick={() => swapOrderingItem(index, -1)}
-                    className="rounded-full border border-[var(--color-line)] px-3 py-1 text-sm"
+                    className="rounded-full border border-ink-200 px-3 py-1 text-sm"
                   >
                     上移
                   </button>
                   <button
                     type="button"
                     onClick={() => swapOrderingItem(index, 1)}
-                    className="rounded-full border border-[var(--color-line)] px-3 py-1 text-sm"
+                    className="rounded-full border border-ink-200 px-3 py-1 text-sm"
                   >
                     下移
                   </button>
@@ -268,8 +268,8 @@ export function ChallengeRunner({
         <div
           className={`mt-6 rounded-[1.5rem] px-4 py-3 text-sm ${
             feedback.isCorrect
-              ? "bg-[rgba(92,146,109,0.12)] text-[#2f6a45]"
-              : "bg-[rgba(188,91,66,0.12)] text-[#8c3e2f]"
+              ? "bg-primary/10 text-primary"
+              : "bg-accent/10 text-accent"
           }`}
         >
           {feedback.isCorrect ? "回答正确，继续下一题。" : "回答有误，可以继续下一题。"}
@@ -281,7 +281,7 @@ export function ChallengeRunner({
           <button
             type="button"
             onClick={moveToNextQuestion}
-            className="rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-medium text-white transition hover:brightness-105"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:brightness-105"
           >
             {currentIndex + 1 === questions.length ? "查看结果" : "下一题"}
           </button>
@@ -290,7 +290,7 @@ export function ChallengeRunner({
             type="button"
             onClick={submitCurrentAnswer}
             disabled={isPending}
-            className="rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "判题中..." : "提交答案"}
           </button>

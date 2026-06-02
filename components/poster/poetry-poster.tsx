@@ -28,7 +28,7 @@ export function PoetryPoster({
 }: PoetryPosterProps) {
   return (
     <div className={`w-full max-w-[480px] ${className ?? ""}`} data-variant={variant}>
-      <div className="relative aspect-[2/3] overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-accent-soft)] shadow-[var(--shadow-soft)]">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-[2rem] border border-ink-200 bg-primary/10 shadow-[var(--shadow-panel)]">
         <Image
           src={imageSrc}
           alt={imageAlt}

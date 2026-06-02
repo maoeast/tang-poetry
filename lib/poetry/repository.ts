@@ -9,6 +9,7 @@ import {
 import { shouldCreateViewRecord, toUtcDayKey } from "@/lib/poetry/view-record";
 import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
+import authorsData from "../../data/authors.json";
 
 type AudioLineTiming = {
   lineIndex: number;
@@ -140,6 +141,7 @@ export type PoetryDetail = {
   imageStatus: string;
   image: PoetryImage;
   audio: PoetryAudio;
+  authorAvatarUrl: string | null;
 };
 
 type PoetryRepositoryDependencies = {
@@ -285,6 +287,11 @@ export async function getPoetryById(
   const audio = toPoetryAudio(poetry.id, sourceUid, poetry.audioMeta, dependencies.hasAudioFile);
   const content = pickPoetryContentVariant(poetry, scriptVariant);
 
+  const authorEntry = (authorsData as Array<{ name: string; avatarUrl?: string | null }>).find(
+    (a) => a.name === poetry.author,
+  );
+  const authorAvatarUrl = authorEntry?.avatarUrl ?? null;
+
   return {
     id: poetry.id,
     title: content.title,
@@ -298,6 +305,7 @@ export async function getPoetryById(
     pinyin: toStringArray(poetry.pinyin),
     image,
     audio,
+    authorAvatarUrl,
   };
 }
 

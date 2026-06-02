@@ -5,7 +5,6 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
-import { AudioControlBar } from "@/components/audio/audio-control-bar";
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
 import { PosterStatusBadge } from "@/components/poster/poster-status-badge";
@@ -302,11 +301,6 @@ export function ReviewPoetryStage({
     }
   }
 
-  function handleReplayHint() {
-    replayAll();
-    setMessage("已从头重新播放。");
-  }
-
   function handleSubmit(isCorrect: boolean) {
     if (!isUnlocked) {
       return;
@@ -330,43 +324,49 @@ export function ReviewPoetryStage({
   }
 
   return (
-    <main className="min-h-screen bg-[var(--color-page)] px-6 py-10 text-[var(--color-ink)] sm:px-10">
+    <main className="min-h-screen bg-paper px-6 pb-28 pt-10 text-ink-900 sm:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+        {/* Top bar */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
             href={"/review" as Route}
-            className="inline-flex w-fit items-center rounded-full border border-[var(--color-line)] bg-white/70 px-4 py-2 text-sm text-[var(--color-muted)] transition hover:bg-white"
+            className="inline-flex w-fit items-center rounded-full border border-ink-200 bg-surface/70 px-4 py-2 text-sm text-ink-600 transition hover:bg-surface"
           >
             返回复习池
           </Link>
-          <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
             复习播放
           </p>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-4">
-          <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-            <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">批次</p>
-            <p className="mt-3 text-3xl font-semibold">
+        {/* Dashboard: flat stats with dividers */}
+        <section className="flex items-center justify-between border-b border-ink-200/50 px-2 pb-4">
+          <div className="flex flex-col">
+            <span className="font-sans text-xs text-ink-400">批次</span>
+            <span className="font-sans text-xl font-bold text-ink-900">
               {queuePosition >= 0 ? queuePosition + 1 : initialQueuePosition ?? 1} / {queuePoetryIds.length}
-            </p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-            <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">今日待复习</p>
-            <p className="mt-3 text-3xl font-semibold">{dueTodayCount}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-            <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">即将到期</p>
-            <p className="mt-3 text-3xl font-semibold">{upcomingCount}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-            <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">最近错题</p>
-            <p className="mt-3 text-3xl font-semibold">{recentWrongCount}</p>
-          </article>
+            </span>
+          </div>
+          <div className="h-8 w-px bg-ink-200/50" />
+          <div className="flex flex-col">
+            <span className="font-sans text-xs text-ink-400">今日待复习</span>
+            <span className="font-sans text-xl font-bold text-ink-900">{dueTodayCount}</span>
+          </div>
+          <div className="h-8 w-px bg-ink-200/50" />
+          <div className="flex flex-col">
+            <span className="font-sans text-xs text-ink-400">即将到期</span>
+            <span className="font-sans text-xl font-bold text-ink-900">{upcomingCount}</span>
+          </div>
+          <div className="h-8 w-px bg-ink-200/50" />
+          <div className="flex flex-col">
+            <span className="font-sans text-xs text-ink-400">最近错题</span>
+            <span className="font-sans text-xl font-bold text-ink-900">{recentWrongCount}</span>
+          </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[2.25rem] border border-[var(--color-line)] bg-[var(--color-card)] px-5 py-6 shadow-[var(--shadow-soft)] sm:px-6 lg:px-8">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.3),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.22),transparent_30%)]" />
+        {/* Main content: poster + lyrics */}
+        <section className="relative overflow-hidden rounded-[2.25rem] border border-ink-200 bg-surface px-5 py-6 shadow-[var(--shadow-panel)] sm:px-6 lg:px-8">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(53,78,107,0.05),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(184,75,75,0.04),transparent_30%)]" />
 
           <div className="relative grid gap-6 lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)] lg:items-start">
             <PoetryPoster
@@ -387,16 +387,16 @@ export function ReviewPoetryStage({
                 author={poetry.author}
                 dynasty={poetry.dynasty}
               />
-
             </PoetryPoster>
 
             <div className="space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-[var(--color-line)] bg-white/72 px-4 py-3">
+              {/* Metadata: tags (ghost style) + pinyin toggle (top-right) */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
                   {poetry.themes.map((theme) => (
                     <span
                       key={theme}
-                      className="rounded-full border border-[var(--color-line)] bg-white/80 px-3 py-1 text-sm text-[var(--color-muted)]"
+                      className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400"
                     >
                       {theme}
                     </span>
@@ -406,14 +406,23 @@ export function ReviewPoetryStage({
                 <button
                   type="button"
                   onClick={() => setShowPinyin((current) => !current)}
-                  className="rounded-full border border-[var(--color-line)] bg-white/80 px-4 py-2 text-sm text-[var(--color-ink)]"
+                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition ${
+                    showPinyin
+                      ? "bg-primary/10 text-primary"
+                      : "text-ink-400 hover:text-ink-600"
+                  }`}
                 >
-                  {showPinyin ? "隐藏拼音" : "显示拼音"}
+                  <span className={`inline-block h-4 w-7 rounded-full transition-colors ${showPinyin ? "bg-primary" : "bg-ink-200"}`}>
+                    <span className={`block h-4 w-4 rounded-full bg-surface shadow-sm transition-transform ${showPinyin ? "translate-x-3" : "translate-x-0"}`} />
+                  </span>
+                  拼音
                 </button>
               </div>
 
+              {/* Lyrics: flow layout (no bubbles) */}
               {hasAudio ? (
                 <LyricsWindow
+                  layout="flow"
                   mode="auto"
                   lines={lyrics}
                   showPinyin={showPinyin}
@@ -434,6 +443,7 @@ export function ReviewPoetryStage({
                 />
               ) : (
                 <LyricsWindow
+                  layout="flow"
                   mode="manual"
                   lines={lyrics}
                   showPinyin={showPinyin}
@@ -441,73 +451,99 @@ export function ReviewPoetryStage({
                   onActiveLineChange={setCurrentLineIndex}
                 />
               )}
-
-              <AudioControlBar
-                variant="review"
-                isReady={hasAudio}
-                durationMs={durationMs}
-                currentTimeMs={currentTimeMs}
-                playbackRate={1}
-                isPlaying={isPlaying}
-                onPlayPause={togglePlayPause}
-                onReplayLine={replayCurrentLine}
-                onReplayAll={replayAll}
-              />
             </div>
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-[var(--color-line)] bg-white/78 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-semibold">{poetry.title}</h1>
-              <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                请先听一遍朗读，然后进行自评。
-              </p>
-            </div>
+        {/* Message toast */}
+        {message ? (
+          <div className="rounded-[1.25rem] border border-ink-200 bg-surface px-4 py-3 text-sm text-ink-600">
+            {message}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Sticky footer: play controls + self-eval */}
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-ink-200/50 bg-paper/80 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 sm:px-10">
+          {/* Left: play controls */}
+          <div className="flex items-center gap-3">
+            {hasAudio ? (
+              <>
+                <button
+                  type="button"
+                  onClick={togglePlayPause}
+                  className="rounded-full bg-primary p-2.5 text-white transition hover:brightness-105"
+                  aria-label={isPlaying ? "暂停" : "播放"}
+                >
+                  {isPlaying ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                      <path fillRule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Zm10.5 0a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                      <path fillRule="evenodd" d="M5.636 4.575a.75.75 0 0 1 .764-.04l12.5 7.5a.75.75 0 0 1 0 1.29l-12.5 7.5A.75.75 0 0 1 5 20.25V5.543a.75.75 0 0 1 .636-.968Z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={replayCurrentLine}
+                  className="rounded-full border border-ink-200 p-2 text-ink-600 transition hover:bg-surface/50"
+                  aria-label="单句重播"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={replayAll}
+                  className="rounded-full border border-ink-200 p-2 text-ink-600 transition hover:bg-surface/50"
+                  aria-label="从头播放"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <span className="rounded-full bg-ink-200/50 px-3 py-1.5 text-xs text-ink-400">
+                无音频
+              </span>
+            )}
             <span
-              className={`rounded-full px-4 py-2 text-sm ${
+              className={`rounded-full px-3 py-1 text-xs ${
                 isUnlocked
-                  ? "bg-[rgba(92,146,109,0.12)] text-[#2f6a45]"
-                  : "bg-[rgba(188,91,66,0.12)] text-[#8c3e2f]"
+                  ? "bg-primary/10 text-primary"
+                  : "bg-accent/10 text-accent"
               }`}
             >
-              {isUnlocked ? "已解锁" : "未解锁"}
+              {isUnlocked ? "已解锁" : "需听完解锁"}
             </span>
           </div>
 
-          {message ? (
-            <p className="mt-4 rounded-[1.25rem] bg-[var(--color-card)] px-4 py-3 text-sm text-[var(--color-muted)]">
-              {message}
-            </p>
-          ) : null}
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => handleSubmit(true)}
-              disabled={!isUnlocked || isPending}
-              className="rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isPending ? "记录中..." : "会背了"}
-            </button>
+          {/* Right: self-eval buttons */}
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => handleSubmit(false)}
               disabled={!isUnlocked || isPending}
-              className="rounded-full border border-[var(--color-line)] bg-white px-6 py-3 text-sm font-medium transition hover:bg-[var(--color-card)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full border border-primary px-6 py-2 text-sm text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              还不熟
+              {isPending ? "记录中..." : "还不熟"}
             </button>
             <button
               type="button"
-              onClick={handleReplayHint}
-              className="rounded-full border border-[var(--color-line)] bg-[var(--color-card)] px-6 py-3 text-sm font-medium transition hover:bg-white"
+              onClick={() => handleSubmit(true)}
+              disabled={!isUnlocked || isPending}
+              className="rounded-full bg-primary px-6 py-2 text-sm text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              再听一遍
+              {isPending ? "记录中..." : "会背了"}
             </button>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   );

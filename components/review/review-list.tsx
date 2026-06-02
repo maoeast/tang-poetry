@@ -71,9 +71,9 @@ function ReviewPosterCard({
   const layout = getReviewCardLayout();
 
   return (
-    <article className="flex h-[120px] min-w-0 overflow-hidden rounded-[1.25rem] border border-[var(--color-line)] bg-white/82 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
+    <article className="flex h-[120px] min-w-0 overflow-hidden rounded-[1.25rem] border border-ink-200 bg-surface/82 shadow-[var(--shadow-card)]">
       <div
-        className="relative shrink-0 overflow-hidden border-r border-[var(--color-line)] bg-[var(--color-accent-soft)]"
+        className="relative shrink-0 overflow-hidden border-r border-ink-200 bg-primary/10"
         style={{ width: `${layout.width}px`, height: `${layout.height}px` }}
       >
         <Image
@@ -90,18 +90,18 @@ function ReviewPosterCard({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="truncate text-base font-medium">{item.title}</h3>
-              <p className="truncate text-sm text-[var(--color-muted)]">{item.author}</p>
+              <p className="truncate text-sm text-ink-600">{item.author}</p>
             </div>
-            <span className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-1 text-[0.65rem] tracking-[0.18em] text-[var(--color-muted)] uppercase">
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[0.65rem] tracking-[0.18em] text-ink-600 uppercase">
               {badge}
             </span>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]">
-            <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1">
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-ink-600">
+            <span className="rounded-full border border-ink-200 px-2.5 py-1">
               熟练度 {item.mastery}
             </span>
-            <span className="rounded-full border border-[var(--color-line)] px-2.5 py-1">
+            <span className="rounded-full border border-ink-200 px-2.5 py-1">
               错题 {item.wrongCount}
             </span>
           </div>
@@ -111,7 +111,7 @@ function ReviewPosterCard({
           <Link
             href={href}
             onClick={onOpen}
-            className="inline-flex rounded-full bg-[var(--color-card)] px-4 py-2 text-sm transition hover:bg-white"
+            className="inline-flex rounded-full bg-surface px-4 py-2 text-sm transition hover:bg-surface"
           >
             开始复习
           </Link>
@@ -152,7 +152,7 @@ function ReviewBucketSection({
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-semibold">{title}</h2>
         {bucketKey === "todayDue" ? (
-          <span className="text-sm text-[var(--color-muted)]">错题优先排序</span>
+          <span className="text-sm text-ink-600">错题优先排序</span>
         ) : null}
       </div>
       {items.length > 0 ? (
@@ -171,7 +171,7 @@ function ReviewBucketSection({
           ))}
         </div>
       ) : (
-        <p className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/78 p-5 text-sm leading-7 text-[var(--color-muted)]">
+        <p className="rounded-[1.5rem] border border-ink-200 bg-surface/78 p-5 text-sm leading-7 text-ink-600">
           {emptyText}
         </p>
       )}
@@ -201,38 +201,38 @@ export function ReviewList({
   return (
     <div className="space-y-8">
       <section className="grid gap-4 md:grid-cols-3">
-        <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-          <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+        <article className="rounded-[1.5rem] border border-ink-200 bg-surface/75 p-5 shadow-[var(--shadow-card)]">
+          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
             今日建议
           </p>
           <p className="mt-3 text-3xl font-semibold">{suggestedCount}</p>
-          <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+          <p className="mt-2 text-sm leading-7 text-ink-600">
             今天可优先复习的诗作数量。
           </p>
         </article>
 
-        <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-          <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+        <article className="rounded-[1.5rem] border border-ink-200 bg-surface/75 p-5 shadow-[var(--shadow-card)]">
+          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
             即将到期
           </p>
           <p className="mt-3 text-3xl font-semibold">{upcomingCount}</p>
-          <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+          <p className="mt-2 text-sm leading-7 text-ink-600">
             未来 7 天内会进入复习池的内容。
           </p>
         </article>
 
-        <article className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/75 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
-          <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+        <article className="rounded-[1.5rem] border border-ink-200 bg-surface/75 p-5 shadow-[var(--shadow-card)]">
+          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
             开始复习
           </p>
           <button
             type="button"
             onClick={handleStartSuggestedReview}
-            className="mt-4 inline-flex rounded-full bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-white transition hover:brightness-105"
+            className="mt-4 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-medium text-white transition hover:brightness-105"
           >
             {firstSuggestedPoetryId ? "从当前批次开始" : "先去挑战练习"}
           </button>
-          <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+          <p className="mt-3 text-sm leading-7 text-ink-600">
             选择一首诗开始复习。
           </p>
         </article>

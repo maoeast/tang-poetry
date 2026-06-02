@@ -52,7 +52,7 @@ export function ScriptVariantToggle({
     <button
       type="button"
       onClick={toggleVariant}
-      className="rounded-full border border-[var(--color-line)] bg-white/80 px-4 py-2 text-sm text-[var(--color-ink)]"
+      className="rounded-full border border-ink-200 bg-surface/80 px-4 py-2 text-sm text-ink-900"
       aria-label={`切换到${variant === "zh-Hans" ? "繁体" : "简体"}`}
       disabled={isPending}
     >

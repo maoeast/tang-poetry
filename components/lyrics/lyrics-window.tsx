@@ -2,6 +2,33 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+/**
+ * Render a line of Chinese text with HTML5 ruby pinyin annotations.
+ * Pairs each CJK character with its corresponding pinyin syllable,
+ * skipping punctuation and non-CJK characters.
+ */
+function renderRubyText(text: string, pinyin: string) {
+  const chars = [...text];
+  const syllables = pinyin.trim().split(/\s+/);
+  let syllableIndex = 0;
+
+  return chars.map((char, i) => {
+    const isCJK = /[一-鿿㐀-䶿]/.test(char);
+    if (!isCJK || syllableIndex >= syllables.length) {
+      return <span key={i}>{char}</span>;
+    }
+    const syllable = syllables[syllableIndex++];
+    return (
+      <ruby key={i} className="ruby-inline">
+        {char}
+        <rt className="font-sans text-[10px] leading-none font-normal text-ink-400">
+          {syllable}
+        </rt>
+      </ruby>
+    );
+  });
+}
+
 type LineTiming = {
   lineIndex: number;
   startMs: number;
@@ -15,6 +42,7 @@ type LyricsLine = {
 type LyricsWindowBaseProps = {
   lines: LyricsLine[];
   showPinyin: boolean;
+  layout?: "bubble" | "flow";
   className?: string;
 };
 
@@ -98,6 +126,7 @@ function getPinyinVisibility({
 }
 
 export function LyricsWindow(props: LyricsWindowProps) {
+  const layout = props.layout ?? "bubble";
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const activeLineIndex = useMemo(() => {
     if (props.mode === "auto") {
@@ -149,38 +178,68 @@ export function LyricsWindow(props: LyricsWindowProps) {
       className={props.className ?? ""}
       data-active-line={activeLineIndex >= 0 ? String(activeLineIndex) : undefined}
       data-auto-follow={props.mode === "auto" ? String(isAutoFollowEnabled) : undefined}
+      data-layout={layout}
       data-mode={props.mode}
       onScroll={props.mode === "auto" ? () => setIsUserScrolling(true) : undefined}
     >
-      <div className="space-y-4 rounded-[1.75rem] border border-[var(--color-line)] bg-white/78 p-6 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-        {props.lines.map((line, lineIndex) => {
-          const isActive = lineIndex === activeLineIndex;
-          const shouldShowPinyin = getPinyinVisibility({
-            showPinyin: props.showPinyin,
-            lineIndex,
-            activeLineIndex,
-          });
+      {layout === "flow" ? (
+        <div className="space-y-3">
+          {props.lines.map((line, lineIndex) => {
+            const isActive = lineIndex === activeLineIndex;
+            const shouldShowPinyin = getPinyinVisibility({
+              showPinyin: props.showPinyin,
+              lineIndex,
+              activeLineIndex,
+            });
 
-          return (
-            <article
-              key={`${lineIndex}-${line}`}
-              className={`rounded-[1.25rem] px-4 py-3 transition ${
-                isActive
-                  ? "bg-[var(--color-accent-soft)] text-[var(--color-ink)]"
-                  : "bg-transparent text-[var(--color-muted)]"
-              }`}
-              data-line-index={lineIndex}
-            >
-              <p className="text-lg leading-8">{line.text}</p>
-              {shouldShowPinyin && line.pinyin ? (
-                <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                  {line.pinyin}
-                </p>
-              ) : null}
-            </article>
-          );
-        })}
-      </div>
+            return (
+              <p
+                key={`${lineIndex}-${line}`}
+                className={`font-serif text-lg tracking-widest leading-[2.8] transition-all duration-300 ease-in-out ${
+                  isActive
+                    ? "text-ink-900 font-bold"
+                    : "text-ink-400 opacity-70"
+                }`}
+                data-line-index={lineIndex}
+              >
+                {shouldShowPinyin && line.pinyin
+                  ? renderRubyText(line.text, line.pinyin)
+                  : line.text}
+              </p>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-4 rounded-[1.75rem] border border-ink-200 bg-surface/78 p-6 shadow-[var(--shadow-panel)]">
+          {props.lines.map((line, lineIndex) => {
+            const isActive = lineIndex === activeLineIndex;
+            const shouldShowPinyin = getPinyinVisibility({
+              showPinyin: props.showPinyin,
+              lineIndex,
+              activeLineIndex,
+            });
+
+            return (
+              <article
+                key={`${lineIndex}-${line}`}
+                className={`rounded-[1.25rem] px-4 py-3 transition ${
+                  isActive
+                    ? "bg-primary/10 text-ink-900"
+                    : "bg-transparent text-ink-600"
+                }`}
+                data-line-index={lineIndex}
+              >
+                <p className="text-lg leading-8">{line.text}</p>
+                {shouldShowPinyin && line.pinyin ? (
+                  <p className="mt-2 text-sm leading-6 text-ink-600">
+                    {line.pinyin}
+                  </p>
+                ) : null}
+              </article>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

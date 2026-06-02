@@ -72,6 +72,7 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
     translation: "秋天里蝉声不断，囚徒的愁思也更浓。",
     imageKey: "ts300-0001",
     imageStatus: "placeholder",
+    authorAvatarUrl: "/images/authors/luobinwang.jpg",
     audio: {
       audioStatus: "ready",
       url: "/audio/poetry/c65539db-4e2b-4ce4-a22b-563b6ef3f4f1.mp3",
@@ -198,6 +199,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
     translation: null,
     imageKey: null,
     imageStatus: "ready",
+    authorAvatarUrl: "/images/authors/libai.jpg",
     audio: {
       audioStatus: "none",
       url: null,

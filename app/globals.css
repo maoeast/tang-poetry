@@ -1,25 +1,40 @@
 @import "tailwindcss";
 
-:root {
-  --color-page: #f5efe3;
-  --color-card: rgba(255, 252, 246, 0.82);
-  --color-ink: #2d241c;
-  --color-muted: #6b5b4d;
-  --color-line: rgba(126, 103, 81, 0.18);
-  --color-accent: #b98246;
-  --color-accent-soft: rgba(223, 196, 154, 0.42);
-  --shadow-soft: 0 18px 48px rgba(96, 73, 52, 0.14);
+@theme inline {
+  /* ── 新中式色板 (Neo-Chinese Ink Palette) ── */
+
+  /* 纸面与容器 */
+  --color-paper: #F7F5F0;
+  --color-surface: #FFFFFF;
+
+  /* 品牌色 */
+  --color-primary: #354E6B;
+  --color-accent: #B84B4B;
+
+  /* 墨色层级 */
+  --color-ink-900: #2C2C2C;
+  --color-ink-600: #666666;
+  --color-ink-400: #999999;
+  --color-ink-200: #D4D4D4;
+
+  /* 字体栈 */
   --font-sans:
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     sans-serif;
-  --font-display:
-    "Iowan Old Style", "Palatino Linotype", "Noto Serif SC", "Songti SC", serif;
+
+  /* Tailwind 基础映射 */
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink-900);
 }
 
-@theme inline {
-  --color-background: var(--color-page);
-  --color-foreground: var(--color-ink);
-  --font-sans: var(--font-sans);
+/* 字体用非 inline @theme → 生成 CSS 变量，CDN 字体加载后自动生效 */
+@theme {
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", "Georgia", serif;
+}
+
+:root {
+  --shadow-card: 0 12px 30px rgba(53, 78, 107, 0.06);
+  --shadow-panel: 0 18px 48px rgba(53, 78, 107, 0.08);
 }
 
 * {
@@ -29,18 +44,18 @@
 html {
   min-height: 100%;
   background:
-    radial-gradient(circle at top, rgba(244, 222, 186, 0.72), transparent 34%),
-    linear-gradient(180deg, #f8f2e8 0%, #f3ecde 50%, #efe5d2 100%);
+    radial-gradient(circle at top, rgba(53, 78, 107, 0.04), transparent 34%),
+    linear-gradient(180deg, #FAF8F4 0%, #F7F5F0 50%, #F0EDE6 100%);
 }
 
 body {
   min-height: 100vh;
   margin: 0;
-  color: var(--color-ink);
+  color: var(--color-ink-900);
   font-family: var(--font-sans);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.4), transparent 30%),
-    radial-gradient(circle at 20% 20%, rgba(191, 213, 200, 0.28), transparent 18%);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent 30%),
+    radial-gradient(circle at 20% 20%, rgba(53, 78, 107, 0.03), transparent 18%);
 }
 
 h1,
@@ -49,7 +64,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-serif);
 }
 
 a {

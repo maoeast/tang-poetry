@@ -10,7 +10,7 @@ export function CategorySection({ category }: CategorySectionProps) {
     <section className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-semibold">{category.label}</h2>
-        <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-sm text-[var(--color-muted)]">
+        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-ink-600">
           {category.count} 首
         </span>
       </div>

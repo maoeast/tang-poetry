@@ -49,9 +49,9 @@ export default async function HomePage() {
   });
 
   return (
-    <main className="min-h-screen bg-[var(--color-page)] text-[var(--color-ink)]">
+    <main className="min-h-screen bg-paper text-ink-900">
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-16 sm:px-10">
-        <div className="relative overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[0_30px_80px_rgba(91,74,59,0.12)] backdrop-blur md:p-12">
+        <div className="relative overflow-hidden rounded-[2rem] border border-ink-200 bg-surface p-8 shadow-[0_30px_80px_rgba(91,74,59,0.12)] backdrop-blur md:p-12">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.35),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.28),transparent_28%)]" />
 
           <div className="relative space-y-8">
@@ -67,13 +67,13 @@ export default async function HomePage() {
                 <TodayPoetryHero todayPoetry={todayPoetry} />
               </div>
             ) : (
-              <section className="rounded-[1.75rem] border border-[var(--color-line)] bg-white/75 p-6 shadow-[0_12px_30px_rgba(91,74,59,0.08)]">
+              <section className="rounded-[1.75rem] border border-ink-200 bg-surface/75 p-6 shadow-[var(--shadow-card)]">
                 <div className="space-y-2">
-                  <p className="text-sm tracking-[0.25em] text-[var(--color-muted)] uppercase">
+                  <p className="text-sm tracking-[0.25em] text-ink-600 uppercase">
                     今日一诗
                   </p>
                   <h2 className="text-2xl font-semibold">今日诗歌即将上线</h2>
-                  <p className="text-sm text-[var(--color-muted)]">
+                  <p className="text-sm text-ink-600">
                     今天的诗歌正在准备中，请稍后再来看看。
                   </p>
                 </div>
@@ -84,13 +84,13 @@ export default async function HomePage() {
               {featureCards.map((card) => (
                 <article
                   key={card.title}
-                  className="rounded-[1.5rem] border border-[var(--color-line)] bg-white/70 p-5 shadow-[0_12px_30px_rgba(91,74,59,0.08)]"
+                  className="rounded-[1.5rem] border border-ink-200 bg-surface/70 p-5 shadow-[var(--shadow-card)]"
                 >
                   <h2 className="text-xl font-medium">{card.title}</h2>
 
                   <Link
                     href={card.href}
-                    className="mt-4 inline-flex rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-4 py-2 text-sm"
+                    className="mt-4 inline-flex rounded-full border border-ink-200 bg-primary/10 px-4 py-2 text-sm"
                   >
                     {card.action}
                   </Link>

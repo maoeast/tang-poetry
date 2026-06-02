@@ -18,7 +18,7 @@ export function TitleChoiceQuestionCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br ${theme.panel} p-6 text-[var(--color-ink)] shadow-[0_20px_46px_rgba(67,94,78,0.12)]`}
+      className={`relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br ${theme.panel} p-6 text-ink-900 shadow-[0_20px_46px_rgba(67,94,78,0.12)]`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.58),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.28),transparent_38%)]" />
 

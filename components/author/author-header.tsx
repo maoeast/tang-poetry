@@ -7,40 +7,62 @@ type AuthorHeaderProps = {
 };
 
 export function AuthorHeader({ author }: AuthorHeaderProps) {
-  return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-soft)]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.3),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.25),transparent_30%)]" />
+  const tags: string[] = [];
+  if (author.literaryName) tags.push(author.literaryName);
+  if (author.courtesyName) tags.push(`字${author.courtesyName}`);
 
-      <div className="relative flex flex-col items-center text-center">
-        <div className="relative h-24 w-24 overflow-hidden rounded-full border-[3px] border-[rgba(222,196,150,0.6)]">
-          <Image
-            src={author.avatarUrl}
-            alt={author.name}
-            fill
-            className="object-cover"
-            sizes="96px"
-          />
+  return (
+    <section className="relative px-4 py-8 sm:px-6">
+      <div className="mx-auto flex max-w-3xl flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
+        {/* Avatar with ink-wash effect */}
+        <div className="relative shrink-0">
+          <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-ink-200/60 shadow-[0_4px_20px_rgba(53,78,107,0.12)]">
+            <Image
+              src={author.avatarUrl}
+              alt={author.name}
+              fill
+              className="object-cover"
+              sizes="112px"
+            />
+          </div>
+          {/* Ink-wash halo */}
+          <div className="pointer-events-none absolute -inset-2 rounded-full bg-[radial-gradient(circle,rgba(53,78,107,0.08),transparent_70%)]" />
         </div>
 
-        <h1 className="mt-4 text-3xl font-semibold sm:text-4xl">
-          {author.name}
-        </h1>
-
-        <p className="mt-1 text-sm text-[var(--color-muted)]">
-          {author.dynasty}
-          {author.courtesyName ? ` · 字${author.courtesyName}` : ""}
-          {author.literaryName ? ` · ${author.literaryName}` : ""}
-        </p>
-
-        {author.bio ? (
-          <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--color-muted)]">
-            {author.bio}
+        {/* Text block — left-aligned, constrained width */}
+        <div className="min-w-0">
+          <h1 className="font-serif text-3xl font-bold tracking-wide sm:text-4xl">
+            {author.name}
+          </h1>
+          <p className="mt-1 text-sm text-ink-600">
+            {author.dynasty}
           </p>
-        ) : (
-          <p className="mt-4 max-w-2xl text-sm leading-8 text-[var(--color-muted)] italic">
-            此作者生平暂无考证，唯有佳作传世。
-          </p>
-        )}
+
+          {/* Tags */}
+          {tags.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {/* Bio */}
+          {author.bio ? (
+            <p className="mt-4 max-w-[65ch] text-left text-sm leading-8 text-ink-600">
+              {author.bio}
+            </p>
+          ) : (
+            <p className="mt-4 max-w-[65ch] text-left text-sm leading-8 text-ink-600 italic">
+              此作者生平暂无考证，唯有佳作传世。
+            </p>
+          )}
+        </div>
       </div>
     </section>
   );

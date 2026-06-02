@@ -13,11 +13,11 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
   const hasError = params.error === "invalid";
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--color-page)] px-6 py-12">
-      <section className="w-full max-w-md overflow-hidden rounded-[2rem] border border-[var(--color-line)] bg-[var(--color-card)] p-8 shadow-[var(--shadow-soft)] backdrop-blur">
+    <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-12">
+      <section className="w-full max-w-md overflow-hidden rounded-[2rem] border border-ink-200 bg-surface p-8 shadow-[var(--shadow-panel)] backdrop-blur">
         <div className="space-y-4">
           <h1 className="text-3xl font-semibold">输入访问口令</h1>
-          <p className="text-sm leading-7 text-[var(--color-muted)]">
+          <p className="text-sm leading-7 text-ink-600">
             请输入口令以进入唐诗画境。
           </p>
         </div>
@@ -31,21 +31,21 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
               name="password"
               type="password"
               autoComplete="current-password"
-              className="w-full rounded-2xl border border-[var(--color-line)] bg-white/80 px-4 py-3 outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(185,130,70,0.16)]"
+              className="w-full rounded-2xl border border-ink-200 bg-surface/80 px-4 py-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-[rgba(185,130,70,0.16)]"
               placeholder="请输入口令"
               required
             />
           </label>
 
           {hasError ? (
-            <p className="rounded-2xl bg-[rgba(188,91,66,0.12)] px-4 py-3 text-sm text-[#8c3e2f]">
+            <p className="rounded-2xl bg-accent/10 px-4 py-3 text-sm text-accent">
               口令不正确，请再试一次。
             </p>
           ) : null}
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-[var(--color-accent)] px-4 py-3 text-sm font-medium text-white transition hover:brightness-105"
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white transition hover:brightness-105"
           >
             进入应用
           </button>

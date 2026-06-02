@@ -31,7 +31,7 @@ export function TodayPoetryHero({ todayPoetry }: TodayPoetryHeroProps) {
     todayPoetry.poetry.image.thumbPath ?? todayPoetry.poetry.image.imagePath;
 
   return (
-    <section className="relative overflow-hidden rounded-[2.4rem] border border-[var(--color-line)] bg-[var(--color-card)] px-5 py-6 shadow-[var(--shadow-soft)] sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden rounded-[2.4rem] border border-ink-200 bg-surface px-5 py-6 shadow-[var(--shadow-panel)] sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.32),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.24),transparent_32%)]" />
 
       <div className="relative grid gap-6 lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)] lg:items-start">
@@ -61,18 +61,18 @@ export function TodayPoetryHero({ todayPoetry }: TodayPoetryHeroProps) {
         </PoetryPoster>
 
         <div className="space-y-5">
-          <div className="rounded-[1.75rem] border border-[var(--color-line)] bg-white/78 p-5 shadow-[0_18px_44px_rgba(96,73,52,0.08)]">
-            <p className="text-sm tracking-[0.24em] text-[var(--color-muted)] uppercase">
+          <div className="rounded-[1.75rem] border border-ink-200 bg-surface/78 p-5 shadow-[var(--shadow-panel)]">
+            <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
               今日一诗
             </p>
             <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
               {todayPoetry.poetry.title}
             </h1>
-            <p className="mt-2 text-sm text-[var(--color-muted)]">
+            <p className="mt-2 text-sm text-ink-600">
               {todayPoetry.poetry.dynasty} ·{" "}
               <Link
                 href={`/author/${todayPoetry.poetry.author}` as import("next").Route}
-                className="transition hover:text-[var(--color-ink)]"
+                className="transition hover:text-ink-900"
               >
                 {todayPoetry.poetry.author}
               </Link>
@@ -88,7 +88,7 @@ export function TodayPoetryHero({ todayPoetry }: TodayPoetryHeroProps) {
 
               <Link
                 href={getHomeCtaHref(todayPoetry.poetry.id, todayPoetry.isReadToday)}
-                className="inline-flex rounded-full border border-[var(--color-line)] bg-[var(--color-accent-soft)] px-5 py-3 text-sm font-medium text-[var(--color-ink)] transition hover:bg-white"
+                className="inline-flex rounded-full border border-ink-200 bg-primary/10 px-5 py-3 text-sm font-medium text-ink-900 transition hover:bg-surface/50"
               >
                 {getHomeCtaLabel(todayPoetry.isReadToday)}
               </Link>
