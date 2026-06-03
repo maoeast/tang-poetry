@@ -89,6 +89,81 @@ function classifyPoem(tags: string[]): FormTag | null {
   return null;
 }
 
+/**
+ * Search poems by query string across title, author, and lines content.
+ * Searches both simplified and traditional variants for maximum coverage.
+ * Returns a flat list of BrowsePoem (no category grouping).
+ */
+export async function searchPoems(
+  query: string,
+  scriptVariant: ScriptVariant,
+  repository?: BrowseRepository,
+  dependencies?: BrowseDependencies,
+): Promise<BrowsePoem[]> {
+  const repo = repository ?? (db as unknown as BrowseRepository);
+  const deps = dependencies ?? { getAllImages: () => getAllPoetryImages() };
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const [poems, imageMap] = await Promise.all([
+    repo.poetry.findMany({
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        dynasty: true,
+        tags: true,
+        lines: true,
+        titleZhHans: true,
+        titleZhHant: true,
+        authorZhHans: true,
+        authorZhHant: true,
+        linesZhHans: true,
+        linesZhHant: true,
+      },
+    }),
+    deps.getAllImages(),
+  ]);
+
+  const results: BrowsePoem[] = [];
+
+  for (const poem of poems) {
+    // Build searchable text from all variants
+    const allTitles = [poem.title, poem.titleZhHans, poem.titleZhHant].filter(
+      Boolean,
+    ) as string[];
+    const allAuthors = [
+      poem.author,
+      poem.authorZhHans,
+      poem.authorZhHant,
+    ].filter(Boolean) as string[];
+    const allLines = [
+      ...toStringArray(poem.lines),
+      ...toStringArray(poem.linesZhHans),
+      ...toStringArray(poem.linesZhHant),
+    ];
+
+    const searchableText = [...allTitles, ...allAuthors, ...allLines]
+      .join(" ")
+      .toLowerCase();
+
+    if (searchableText.includes(normalizedQuery)) {
+      const variant = pickPoetryContentVariant(poem, scriptVariant);
+      const image = imageMap.get(poem.id) ?? getPlaceholderImage(poem.id);
+
+      results.push({
+        id: poem.id,
+        title: variant.title,
+        author: variant.author,
+        dynasty: poem.dynasty,
+        image,
+      });
+    }
+  }
+
+  return results;
+}
+
 export async function getPoetryByCategories(
   scriptVariant: ScriptVariant,
   repository?: BrowseRepository,

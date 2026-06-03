@@ -2,8 +2,13 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 
 import { CategorySection } from "@/components/browse/category-section";
+import { PoetryCard } from "@/components/browse/poetry-card";
+import { SearchInput } from "@/components/browse/search-input";
 import { StickyCategoryNav } from "@/components/browse/sticky-category-nav";
-import { getPoetryByCategories } from "@/lib/browse/repository";
+import {
+  getPoetryByCategories,
+  searchPoems,
+} from "@/lib/browse/repository";
 import {
   resolveScriptVariant,
   SCRIPT_VARIANT_COOKIE_NAME,
@@ -11,12 +16,26 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function BrowsePage() {
-  const cookieStore = await cookies();
+export default async function BrowsePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const [{ q }, cookieStore] = await Promise.all([
+    searchParams,
+    cookies(),
+  ]);
   const scriptVariant = resolveScriptVariant(
     cookieStore.get(SCRIPT_VARIANT_COOKIE_NAME)?.value,
   );
-  const categories = await getPoetryByCategories(scriptVariant);
+
+  const query = q?.trim() ?? "";
+  const isSearching = query.length > 0;
+
+  const [categories, results] = await Promise.all([
+    getPoetryByCategories(scriptVariant),
+    isSearching ? searchPoems(query, scriptVariant) : Promise.resolve([]),
+  ]);
 
   const navItems = categories.map((c) => ({ tag: c.tag, label: c.label }));
 
@@ -40,29 +59,54 @@ export default async function BrowsePage() {
         {/* Hero — 去框化：直接渲染在宣纸底色上 */}
         <section className="antialiased">
           <h1 className="text-4xl font-serif tracking-[0.16em] sm:text-5xl">
-            诗歌分类
+            {isSearching ? "搜索结果" : "诗歌分类"}
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-ink-600">
-            按诗歌体裁浏览全部
-            366首唐诗，从五言绝句到乐府诗，每一种形式都有独特的韵味。点击任意一首即可查看全文与配图。
-          </p>
-          {/* 淡墨分割线 — 不贯穿全屏的优雅过渡 */}
+          {/* 淡墨分割线 */}
           <div className="mt-10 h-px w-24 bg-ink-200/60" />
         </section>
       </div>
 
-      {/* ── Sticky nav — full-bleed, CSS sticky 吸顶 ── */}
+      {/* ── Sticky bar: category nav (left) + search (right) ── */}
       <div className="sticky top-0 z-50 border-b border-ink-200/40 bg-paper/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center px-6 py-3 sm:px-10">
-          <StickyCategoryNav items={navItems} />
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3 sm:px-10">
+          {!isSearching && <StickyCategoryNav items={navItems} />}
+          <div className="ml-auto">
+            <SearchInput />
+          </div>
         </div>
       </div>
 
-      {/* ── Category sections ── */}
+      {/* ── Content: search results or category sections ── */}
       <div className="mx-auto mt-10 w-full max-w-6xl">
-        {categories.map((category) => (
-          <CategorySection key={category.tag} category={category} />
-        ))}
+        {isSearching ? (
+          <>
+            {/* Result summary */}
+            <p className="mb-8 text-sm tracking-widest text-ink-500 font-serif">
+              「{query}」— 共 {results.length} 首
+            </p>
+
+            {results.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {results.map((poem) => (
+                  <PoetryCard key={poem.id} poem={poem} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-20 text-center">
+                <p className="text-lg text-ink-400 font-serif tracking-widest">
+                  未找到相关诗歌
+                </p>
+                <p className="mt-2 text-sm text-ink-300 tracking-wide">
+                  试试换个关键词搜索
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          categories.map((category) => (
+            <CategorySection key={category.tag} category={category} />
+          ))
+        )}
       </div>
     </main>
   );
