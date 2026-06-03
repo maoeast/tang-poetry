@@ -82,6 +82,9 @@ function formatTime(ms: number): string {
 
 export function ImmersivePoetryStage({ poetry, initialScriptVariant }: ImmersivePoetryStageProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const posterRef = useRef<HTMLDivElement | null>(null);
+  const rightColRef = useRef<HTMLDivElement | null>(null);
   const hasAudio = poetry.audio.audioStatus !== "none" && poetry.audio.url !== null;
   const lyrics = splitCoupletLines(poetry.lines, poetry.pinyin);
   const [showPinyin, setShowPinyin] = useState(false);
@@ -90,6 +93,7 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
   const [durationMs, setDurationMs] = useState(poetry.audio.durationMs);
   const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(1);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [hasOverflow, setHasOverflow] = useState(false);
   const [currentLineStartMs, setCurrentLineStartMs] = useState(0);
 
   useEffect(() => {
@@ -177,6 +181,36 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
     audioRef.current.playbackRate = playbackRate;
   }, [playbackRate]);
 
+  // Detect poetry area overflow for conditional fade mask
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const check = () => setHasOverflow(el.scrollHeight > el.clientHeight + 2);
+    check();
+
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [lyrics]);
+
+  // Sync right column maxHeight to left image height (image is the height anchor)
+  useEffect(() => {
+    const poster = posterRef.current;
+    const rightCol = rightColRef.current;
+    if (!poster || !rightCol) return;
+
+    const sync = () => {
+      const posterHeight = poster.getBoundingClientRect().height;
+      rightCol.style.maxHeight = `${posterHeight}px`;
+    };
+    sync();
+
+    const ro = new ResizeObserver(sync);
+    ro.observe(poster);
+    return () => ro.disconnect();
+  }, []);
+
   async function togglePlayPause() {
     const audio = audioRef.current;
 
@@ -242,10 +276,9 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
   const progress = durationMs > 0 ? Math.min(currentTimeMs / durationMs, 1) : 0;
 
   return (
-    <section className="relative overflow-hidden rounded-[2.25rem] border border-ink-200 bg-surface px-5 py-6 shadow-[var(--shadow-panel)] sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(53,78,107,0.05),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(184,75,75,0.04),transparent_30%)]" />
-
-      <div className="relative grid gap-6 lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)] lg:items-start">
+    <section className="relative">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-6">
+        <div ref={posterRef} className="shrink-0 w-full lg:max-w-[28rem]">
         <PoetryPoster
           variant="immersive"
           imageSrc={poetry.image.thumbPath ?? poetry.image.imagePath}
@@ -266,10 +299,11 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
             </div>
           )}
         </PoetryPoster>
+        </div>
 
-        <div className="space-y-5">
+        <div ref={rightColRef} className="flex min-h-0 flex-col overflow-hidden">
           {/* Poetry title — prominent serif, centered */}
-          <div className="text-center">
+          <div className="shrink-0 text-center">
             <h1 className={`font-serif tracking-wide ${
               poetry.title.length > 15
                 ? "text-2xl font-semibold leading-relaxed"
@@ -302,8 +336,11 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
             </Link>
           </div>
 
-          {/* Lyrics: flow layout with ruby pinyin */}
-          <div className="max-h-[38rem] overflow-y-auto pt-4">
+          {/* Poetry scroll area with fade mask */}
+          <div
+            ref={scrollRef}
+            className={`scrollbar-hide flex-1 min-h-0 overflow-y-auto py-4${hasOverflow ? " poetry-fade-mask" : ""}`}
+          >
             {hasAudio ? (
               <LyricsWindow
                 layout="flow"
@@ -342,7 +379,8 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
             )}
           </div>
 
-          {/* ── Compact reading bar ── */}
+          {/* ── Compact reading bar — pinned to bottom ── */}
+          <div className="mt-auto shrink-0 pt-3">
           {hasAudio ? (
             <div className="flex items-center gap-2.5 rounded-[1.25rem] border border-ink-200 bg-surface/60 px-3 py-2">
               {/* Play / Pause */}
@@ -459,6 +497,7 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </section>
