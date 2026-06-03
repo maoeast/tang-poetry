@@ -7,48 +7,83 @@ import Image from "next/image";
 
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
-import { PosterStatusBadge } from "@/components/poster/poster-status-badge";
 import { PosterTitleBlock } from "@/components/poster/poster-title-block";
+import { ScriptVariantToggle } from "@/components/poetry/script-variant-toggle";
 import { getLineStartMs } from "@/lib/audio/timings";
 import type { PoetryDetail } from "@/lib/poetry/repository";
+import type { ScriptVariant } from "@/lib/poetry/script-variant";
 
 type ImmersivePoetryStageProps = {
   poetry: PoetryDetail;
+  initialScriptVariant: ScriptVariant;
 };
 
 type PlaybackRate = 0.75 | 1 | 1.25 | 1.5;
 
-function getAudioBadgeLabel(audioStatus: PoetryDetail["audio"]["audioStatus"]) {
-  if (audioStatus === "ready") {
-    return "朗读就绪";
+const CJK_SPLIT_REGEX = /[一-鿿㐀-䶿]/;
+
+/**
+ * Split couplet lines into individual hemistiches for classic four-line display.
+ * Each comma-separated segment becomes its own line, with pinyin syllables
+ * distributed proportionally based on CJK character count per segment.
+ * Lines that don't contain a comma-like separator are kept as-is.
+ */
+function splitCoupletLines(
+  lines: string[],
+  pinyin: string[],
+): { text: string; pinyin?: string; originalIndex: number }[] {
+  const result: { text: string; pinyin?: string; originalIndex: number }[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const text = lines[i];
+    const syllables = pinyin[i]?.trim().split(/\s+/) ?? [];
+
+    // Split at each comma-like punctuation, keeping punctuation with the preceding text
+    const parts: string[] = [];
+    let start = 0;
+    for (let j = 0; j < text.length; j++) {
+      if ("，？！；".includes(text[j])) {
+        parts.push(text.substring(start, j + 1));
+        start = j + 1;
+      }
+    }
+    if (start < text.length) {
+      parts.push(text.substring(start));
+    }
+
+    if (parts.length <= 1) {
+      result.push({ text, pinyin: pinyin[i] || undefined, originalIndex: i });
+      continue;
+    }
+
+    let syllableOffset = 0;
+    for (const segment of parts) {
+      if (!segment) continue;
+      const segCjkCount = [...segment].filter((c) => CJK_SPLIT_REGEX.test(c)).length;
+      const segPinyin =
+        syllables.length >= syllableOffset + segCjkCount
+          ? syllables.slice(syllableOffset, syllableOffset + segCjkCount).join(" ")
+          : undefined;
+      result.push({ text: segment, pinyin: segPinyin, originalIndex: i });
+      syllableOffset += segCjkCount;
+    }
   }
 
-  if (audioStatus === "tts") {
-    return "TTS 朗读";
-  }
-
-  return "手动阅览";
+  return result;
 }
 
-function getAudioBadgeTone(audioStatus: PoetryDetail["audio"]["audioStatus"]) {
-  if (audioStatus === "ready") {
-    return "ready" as const;
-  }
-
-  if (audioStatus === "none") {
-    return "placeholder" as const;
-  }
-
-  return "neutral" as const;
+function formatTime(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) ms = 0;
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
+export function ImmersivePoetryStage({ poetry, initialScriptVariant }: ImmersivePoetryStageProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAudio = poetry.audio.audioStatus !== "none" && poetry.audio.url !== null;
-  const lyrics = poetry.lines.map((line, index) => ({
-    text: line,
-    pinyin: poetry.pinyin[index],
-  }));
+  const lyrics = splitCoupletLines(poetry.lines, poetry.pinyin);
   const [showPinyin, setShowPinyin] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTimeMs, setCurrentTimeMs] = useState(0);
@@ -100,8 +135,6 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
 
     audioRef.current = nextAudio;
 
-    // Fetch audio as blob to avoid download-manager extensions (e.g. IDM)
-    // intercepting the .mp3 request and triggering a file-save dialog.
     let cancelled = false;
     let objectUrl: string | null = null;
 
@@ -113,7 +146,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
         nextAudio.src = objectUrl;
       })
       .catch(() => {
-        // Failed to load audio — silently recover; play button will be no-op.
+        // Failed to load audio — silently recover
       });
 
     return () => {
@@ -159,7 +192,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
       try {
         await audio.play();
       } catch {
-        // AbortError / NotAllowedError — silently recover.
+        // AbortError / NotAllowedError — silently recover
       }
 
       return;
@@ -219,29 +252,34 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
           imageAlt={`${poetry.title} 配图`}
           isPlaceholder={poetry.image.isPlaceholder}
           priority
-          badge={
-            <PosterStatusBadge
-              label={getAudioBadgeLabel(poetry.audio.audioStatus)}
-              tone={getAudioBadgeTone(poetry.audio.audioStatus)}
-            />
-          }
         >
           <PosterTitleBlock
             title={poetry.title}
             author={poetry.author}
             dynasty={poetry.dynasty}
           />
+          {poetry.themes.length > 0 && (
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 via-black/15 to-transparent px-4 pb-4 pt-10">
+              <p className="text-xs leading-relaxed text-white/75">
+                {poetry.themes.slice(0, 4).join(' · ')}
+              </p>
+            </div>
+          )}
         </PoetryPoster>
 
         <div className="space-y-5">
-          {/* Poetry title — prominent serif */}
-          <div>
-            <h1 className="font-serif text-3xl font-bold tracking-wide leading-tight">
+          {/* Poetry title — prominent serif, centered */}
+          <div className="text-center">
+            <h1 className={`font-serif tracking-wide ${
+              poetry.title.length > 15
+                ? "text-2xl font-semibold leading-relaxed"
+                : "text-3xl font-bold leading-tight"
+            }`}>
               {poetry.title}
             </h1>
             <Link
               href={`/author/${poetry.author}` as Route}
-              className="mt-2.5 inline-flex items-center gap-2 rounded-full px-2 py-1 transition hover:bg-primary/5"
+              className="mt-2.5 inline-flex justify-center items-center gap-2 rounded-full px-2 py-1 transition hover:bg-primary/5"
             >
               {poetry.authorAvatarUrl ? (
                 <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-ink-200/60">
@@ -264,37 +302,8 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
             </Link>
           </div>
 
-          {/* Tags (ghost) + Pinyin toggle (top-right) */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
-              {poetry.themes.map((theme) => (
-                <span
-                  key={theme}
-                  className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400"
-                >
-                  {theme}
-                </span>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowPinyin((current) => !current)}
-              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition ${
-                showPinyin
-                  ? "bg-primary/10 text-primary"
-                  : "text-ink-400 hover:text-ink-600"
-              }`}
-            >
-              <span className={`inline-block h-4 w-7 rounded-full transition-colors ${showPinyin ? "bg-primary" : "bg-ink-200"}`}>
-                <span className={`block h-4 w-4 rounded-full bg-surface shadow-sm transition-transform ${showPinyin ? "translate-x-3" : "translate-x-0"}`} />
-              </span>
-              拼音
-            </button>
-          </div>
-
           {/* Lyrics: flow layout with ruby pinyin */}
-          <div className="max-h-[38rem] overflow-y-auto">
+          <div className="max-h-[38rem] overflow-y-auto pt-4">
             {hasAudio ? (
               <LyricsWindow
                 layout="flow"
@@ -304,6 +313,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
                 durationMs={durationMs}
                 audioCurrentTimeMs={currentTimeMs}
                 lineTimings={poetry.audio.lineTimings}
+                originalLineCount={poetry.lines.length}
                 onActiveLineChange={(lineIndex) => {
                   setCurrentLineIndex(lineIndex);
                   setCurrentLineStartMs(
@@ -323,6 +333,7 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
                 lines={lyrics}
                 showPinyin={showPinyin}
                 activeLineIndex={currentLineIndex}
+                originalLineCount={poetry.lines.length}
                 onActiveLineChange={(lineIndex) => {
                   setCurrentLineIndex(lineIndex);
                   setCurrentLineStartMs(0);
@@ -331,85 +342,119 @@ export function ImmersivePoetryStage({ poetry }: ImmersivePoetryStageProps) {
             )}
           </div>
 
-          {/* Lightweight audio controls */}
+          {/* ── Compact reading bar ── */}
           {hasAudio ? (
-            <div className="space-y-3 rounded-[1.25rem] border border-ink-200 bg-surface/60 px-4 py-3">
-              {/* Progress bar */}
-              <div className="group relative h-1 w-full cursor-pointer rounded-full bg-ink-200/50" onClick={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-                seekTo(Math.floor(ratio * durationMs));
-              }}>
+            <div className="flex items-center gap-2.5 rounded-[1.25rem] border border-ink-200 bg-surface/60 px-3 py-2">
+              {/* Play / Pause */}
+              <button
+                type="button"
+                onClick={() => void togglePlayPause()}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:brightness-105"
+                aria-label={isPlaying ? "暂停" : "播放"}
+              >
+                {isPlaying ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                    <path fillRule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Zm10.5 0a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 ml-0.5">
+                    <path fillRule="evenodd" d="M5.636 4.575a.75.75 0 0 1 .764-.04l12.5 7.5a.75.75 0 0 1 0 1.29l-12.5 7.5A.75.75 0 0 1 5 20.25V5.543a.75.75 0 0 1 .636-.968Z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Replay line */}
+              <button
+                type="button"
+                onClick={replayCurrentLine}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-ink-200 text-ink-600 transition hover:bg-surface/50"
+                aria-label="单句重播"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-3 w-3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+                </svg>
+              </button>
+
+              {/* Progress bar with draggable thumb */}
+              <div
+                className="group relative flex h-5 flex-1 cursor-pointer items-center"
+                role="slider"
+                aria-label="播放进度"
+                aria-valuenow={Math.round(progress * 100)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                onClick={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+                  seekTo(Math.floor(ratio * durationMs));
+                }}
+              >
+                {/* Track */}
+                <div className="h-1 w-full rounded-full bg-ink-200/60">
+                  <div
+                    className="h-full rounded-full bg-primary/50 transition-[width] duration-150 group-hover:bg-primary/70"
+                    style={{ width: `${progress * 100}%` }}
+                  />
+                </div>
+                {/* Thumb */}
                 <div
-                  className="absolute inset-y-0 left-0 rounded-full bg-primary/40 transition-all group-hover:bg-primary/60"
-                  style={{ width: `${progress * 100}%` }}
+                  className="absolute h-3 w-3 rounded-full bg-primary shadow-sm transition-[left] duration-150 group-hover:scale-125"
+                  style={{ left: `calc(${progress * 100}% - 6px)` }}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void togglePlayPause()}
-                    className="rounded-full bg-primary p-2 text-white transition hover:brightness-105"
-                    aria-label={isPlaying ? "暂停" : "播放"}
-                  >
-                    {isPlaying ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                        <path fillRule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Zm10.5 0a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                        <path fillRule="evenodd" d="M5.636 4.575a.75.75 0 0 1 .764-.04l12.5 7.5a.75.75 0 0 1 0 1.29l-12.5 7.5A.75.75 0 0 1 5 20.25V5.543a.75.75 0 0 1 .636-.968Z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={replayCurrentLine}
-                    className="rounded-full border border-ink-200 p-1.5 text-ink-600 transition hover:bg-surface/50"
-                    aria-label="单句重播"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-3.5 w-3.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
-                    </svg>
-                  </button>
-                </div>
+              {/* Time */}
+              <span className="shrink-0 text-[11px] tabular-nums text-ink-400">
+                {formatTime(currentTimeMs)}/{formatTime(durationMs)}
+              </span>
 
-                <label className="flex items-center gap-2 text-xs text-ink-400">
-                  <span>倍速</span>
-                  <select
-                    aria-label="播放倍速"
-                    value={String(playbackRate)}
-                    onChange={(event) => setPlaybackRate(Number(event.currentTarget.value) as PlaybackRate)}
-                    className="rounded-full border border-ink-200 bg-surface px-2 py-1 text-xs text-ink-600"
-                  >
-                    <option value="0.75">0.75x</option>
-                    <option value="1">1.0x</option>
-                    <option value="1.25">1.25x</option>
-                    <option value="1.5">1.5x</option>
-                  </select>
-                </label>
+              {/* Display mode toggles */}
+              <div className="flex shrink-0 items-center gap-1.5">
+                <ScriptVariantToggle initialVariant={initialScriptVariant} compact />
+                <button
+                  type="button"
+                  onClick={() => setShowPinyin((current) => !current)}
+                  className={`rounded-full border px-2.5 py-0.5 text-xs transition ${
+                    showPinyin
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-ink-200 text-ink-400 hover:text-ink-600"
+                  }`}
+                >
+                  拼
+                </button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-dashed border-ink-200 bg-surface/60 px-4 py-3 text-sm text-ink-600">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-dashed border-ink-200 bg-surface/60 px-4 py-2 text-sm text-ink-600">
               <p>暂无音频，可以逐句阅读。</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => jumpManualLine(-1)}
-                  className="rounded-full border border-ink-200 px-3 py-1.5 text-xs text-ink-600 transition hover:bg-surface/50"
+                  className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-600 transition hover:bg-surface/50"
                 >
                   上一句
                 </button>
                 <button
                   type="button"
                   onClick={() => jumpManualLine(1)}
-                  className="rounded-full border border-ink-200 px-3 py-1.5 text-xs text-ink-600 transition hover:bg-surface/50"
+                  className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-600 transition hover:bg-surface/50"
                 >
                   下一句
+                </button>
+                <span className="mx-0.5 h-4 w-px bg-ink-200" />
+                <ScriptVariantToggle initialVariant={initialScriptVariant} compact />
+                <button
+                  type="button"
+                  onClick={() => setShowPinyin((current) => !current)}
+                  className={`rounded-full border px-2.5 py-0.5 text-xs transition ${
+                    showPinyin
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-ink-200 text-ink-400 hover:text-ink-600"
+                  }`}
+                >
+                  拼
                 </button>
               </div>
             </div>

@@ -78,3 +78,51 @@ textarea,
 select {
   font: inherit;
 }
+
+/* ── CJK character grid: compact spacing for classic poetry layout ── */
+.cjk-grid-char {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 1.35em;
+  text-align: center;
+  position: relative;
+}
+
+/* Slightly wider when there's room */
+@media (min-width: 1200px) {
+  .cjk-grid-char {
+    width: 1.5em;
+  }
+}
+
+/* Narrower slots on compact viewports */
+@media (max-width: 640px) {
+  .cjk-grid-char {
+    width: 1.2em;
+  }
+}
+
+/* Pinyin annotation: absolute-positioned so it never pushes sibling characters */
+ruby.cjk-grid-char > rt {
+  display: block;
+  width: max-content;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+  letter-spacing: 0.04em;
+  /* Reset UA default rt styling */
+  padding: 0;
+  margin: 0;
+}
+
+/* Punctuation: tighten visual gap so it doesn't look like a missing character slot */
+.poetry-punct {
+  display: inline;
+  margin-inline: -0.15em;
+  vertical-align: baseline;
+}

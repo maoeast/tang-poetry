@@ -2,29 +2,40 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+const CJK_REGEX = /[一-鿿㐀-䶿]/;
+
 /**
- * Render a line of Chinese text with HTML5 ruby pinyin annotations.
- * Pairs each CJK character with its corresponding pinyin syllable,
- * skipping punctuation and non-CJK characters.
+ * Render a line of Chinese text with proportional character spacing.
+ * CJK characters occupy a compact slot; punctuation flows naturally.
+ * Pinyin annotation is absolutely positioned so it never pushes characters apart.
  */
-function renderRubyText(text: string, pinyin: string) {
+function renderGridText(text: string, pinyin: string | undefined, showPinyin: boolean) {
   const chars = [...text];
-  const syllables = pinyin.trim().split(/\s+/);
+  const syllables = pinyin?.trim().split(/\s+/) ?? [];
   let syllableIndex = 0;
 
   return chars.map((char, i) => {
-    const isCJK = /[一-鿿㐀-䶿]/.test(char);
-    if (!isCJK || syllableIndex >= syllables.length) {
-      return <span key={i}>{char}</span>;
+    const isCJK = CJK_REGEX.test(char);
+    if (!isCJK) {
+      return <span key={i} className="poetry-punct">{char}</span>;
     }
-    const syllable = syllables[syllableIndex++];
+
+    const syllable = syllableIndex < syllables.length ? syllables[syllableIndex] : undefined;
+    syllableIndex++;
+
+    if (showPinyin && syllable) {
+      return (
+        <ruby key={i} className="cjk-grid-char">
+          {char}
+          <rt className="font-sans text-xs leading-none font-normal text-ink-400">
+            {syllable}
+          </rt>
+        </ruby>
+      );
+    }
+
     return (
-      <ruby key={i} className="ruby-inline">
-        {char}
-        <rt className="font-sans text-[10px] leading-none font-normal text-ink-400">
-          {syllable}
-        </rt>
-      </ruby>
+      <span key={i} className="cjk-grid-char">{char}</span>
     );
   });
 }
@@ -37,6 +48,8 @@ type LineTiming = {
 type LyricsLine = {
   text: string;
   pinyin?: string;
+  /** Maps this split line back to its original couplet index (for audio timing) */
+  originalIndex?: number;
 };
 
 type LyricsWindowBaseProps = {
@@ -44,6 +57,8 @@ type LyricsWindowBaseProps = {
   showPinyin: boolean;
   layout?: "bubble" | "flow";
   className?: string;
+  /** Number of original (unsplit) lines — used for audio timing when lines have been split */
+  originalLineCount?: number;
 };
 
 type LyricsWindowAutoProps = LyricsWindowBaseProps & {
@@ -77,22 +92,26 @@ function getActiveLineIndex({
   durationMs,
   audioCurrentTimeMs,
   lineTimings,
+  originalLineCount,
 }: {
   lines: LyricsLine[];
   durationMs: number;
   audioCurrentTimeMs: number;
   lineTimings?: LineTiming[];
+  originalLineCount?: number;
 }) {
   if (lines.length === 0) {
     return -1;
   }
+
+  const effectiveCount = originalLineCount ?? lines.length;
 
   if (lineTimings && lineTimings.length > 0) {
     const sorted = [...lineTimings].sort((left, right) => left.startMs - right.startMs);
 
     for (let index = sorted.length - 1; index >= 0; index -= 1) {
       if (audioCurrentTimeMs >= sorted[index].startMs) {
-        return Math.min(Math.max(sorted[index].lineIndex, 0), lines.length - 1);
+        return Math.min(Math.max(sorted[index].lineIndex, 0), effectiveCount - 1);
       }
     }
 
@@ -103,10 +122,10 @@ function getActiveLineIndex({
     return 0;
   }
 
-  const segmentLength = durationMs / lines.length;
+  const segmentLength = durationMs / effectiveCount;
   const resolvedIndex = Math.floor(audioCurrentTimeMs / segmentLength);
 
-  return Math.min(Math.max(resolvedIndex, 0), lines.length - 1);
+  return Math.min(Math.max(resolvedIndex, 0), effectiveCount - 1);
 }
 
 function getPinyinVisibility({
@@ -135,6 +154,7 @@ export function LyricsWindow(props: LyricsWindowProps) {
         durationMs: props.durationMs,
         audioCurrentTimeMs: props.audioCurrentTimeMs,
         lineTimings: props.lineTimings,
+        originalLineCount: props.originalLineCount,
       });
     }
 
@@ -183,28 +203,27 @@ export function LyricsWindow(props: LyricsWindowProps) {
       onScroll={props.mode === "auto" ? () => setIsUserScrolling(true) : undefined}
     >
       {layout === "flow" ? (
-        <div className="space-y-3">
+        <div className="space-y-2 text-center">
           {props.lines.map((line, lineIndex) => {
-            const isActive = lineIndex === activeLineIndex;
+            const resolvedIndex = line.originalIndex ?? lineIndex;
+            const isActive = resolvedIndex === activeLineIndex;
             const shouldShowPinyin = getPinyinVisibility({
               showPinyin: props.showPinyin,
-              lineIndex,
+              lineIndex: resolvedIndex,
               activeLineIndex,
             });
 
             return (
               <p
-                key={`${lineIndex}-${line}`}
-                className={`font-serif text-lg tracking-widest leading-[2.8] transition-all duration-300 ease-in-out ${
+                key={`${lineIndex}-${line.text}`}
+                className={`font-serif text-xl leading-[2.6] transition-all duration-300 ease-in-out ${
                   isActive
                     ? "text-ink-900 font-bold"
-                    : "text-ink-400 opacity-70"
+                    : "text-ink-600"
                 }`}
                 data-line-index={lineIndex}
               >
-                {shouldShowPinyin && line.pinyin
-                  ? renderRubyText(line.text, line.pinyin)
-                  : line.text}
+                {renderGridText(line.text, line.pinyin, shouldShowPinyin)}
               </p>
             );
           })}

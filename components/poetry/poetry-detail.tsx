@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { AiExplanationCard } from "@/components/poetry/ai-explanation-card";
+import { BackButton } from "@/components/poetry/back-button";
 import { ImmersivePoetryStage } from "@/components/poetry/immersive-poetry-stage";
-import { ScriptVariantToggle } from "@/components/poetry/script-variant-toggle";
 import type { PoetryDetail as PoetryDetailModel, RelatedPoetry } from "@/lib/poetry/repository";
 import type { ScriptVariant } from "@/lib/poetry/script-variant";
 
@@ -21,17 +21,9 @@ export function PoetryDetail({
   return (
     <main className="min-h-screen bg-paper px-5 py-8 text-ink-900 sm:px-8 lg:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        {/* Top bar */}
+        {/* Top bar — navigation only */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href={"/" as Route}
-              className="inline-flex w-fit items-center rounded-full border border-ink-200 bg-surface/72 px-4 py-2 text-sm text-ink-600 transition hover:bg-surface/50"
-            >
-              返回首页
-            </Link>
-            <ScriptVariantToggle initialVariant={initialScriptVariant} />
-          </div>
+          <BackButton />
 
           <Link
             href={"/challenge" as Route}
@@ -42,7 +34,7 @@ export function PoetryDetail({
         </div>
 
         {/* Immersive stage: poster + poetry + audio */}
-        <ImmersivePoetryStage key={poetry.id} poetry={poetry} />
+        <ImmersivePoetryStage key={poetry.id} poetry={poetry} initialScriptVariant={initialScriptVariant} />
 
         {/* Secondary content */}
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
