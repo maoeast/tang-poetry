@@ -102,6 +102,36 @@ const DEDUP_MAPPINGS: [string, string, string][] = [
 
   // F14: 颂古三十二首 其二三 (释明辩, 宋, TTS) → 春怨 (金昌绪, Artist)
   ["228c87f2-092b-411b-9029-c5454cc2cb1c", "b41e25f5-5a57-497f-a3a2-84bdfb9331f5", "颂古三十二首 其二三(释明辩) → 春怨(金昌绪)"],
+
+  // ─── Fuzzy dedup (Phase 3): 9 groups from full scan ───
+
+  // F15: 子夜吴歌 秋歌 (both TTS, keep short title)
+  ["49194c4b-b775-4d21-a506-fc0a2ff308f1", "baccf46a-41c4-4a0f-b90f-37cc35b04a64", "相和歌辞…秋歌 → 子夜吴歌 秋歌"],
+
+  // F16: 度南涧 (蔡襄, 宋, TTS) → 桃花溪 (张旭, Artist)
+  ["e72db286-3b6a-425b-ad02-75248ea5a790", "1f28ab03-8388-4a2f-8c4f-3ce47789e221", "度南涧(蔡襄) → 桃花溪(张旭)"],
+
+  // F17: 相和歌辞 江南曲 (Artist) → 江南词 (TTS) — keep 江南词 per short-title rule, but Artist is on prefix ver
+  // Actually: 江南词(TTS) vs 相和歌辞 江南曲(Artist). Keep Artist audio version.
+  ["9bd49546-5289-4351-97f4-d69296720dfc", "bb111748-d8f1-4a5e-b618-b70272a7a642", "江南词(李益,TTS) → 相和歌辞 江南曲(李益,Artist)"],
+
+  // F18: 杂曲歌辞 婆罗门 (杨敬述进, TTS) → 夜上受降城闻笛 (李益, Artist)
+  ["f1320c1f-949a-4cbe-ad23-4806878632c5", "992df222-c445-4925-a656-0caa4447d5bb", "杂曲歌辞 婆罗门(杨敬述进) → 夜上受降城闻笛(李益)"],
+
+  // F19: 新年作 (宋之问, TTS) → 新年作 (刘长卿, Artist)
+  ["368fc6bb-1636-419e-8ddb-cdc1dd07a1ca", "6556f501-f5b9-4353-bde2-75ec0e1bb616", "新年作(宋之问) → 新年作(刘长卿)"],
+
+  // F20: 赋得 (刘长卿, TTS) → 春思 (皇甫冉, Artist)
+  ["41d292d2-b752-4c30-8b6b-7b7380f2f9bd", "d35f583a-c20c-453c-a886-e13f98b2e4b4", "赋得(刘长卿) → 春思(皇甫冉)"],
+
+  // F21: 渡汉江 (宋之问, TTS) → 渡汉江 (李频, Artist)
+  ["eb9530d2-e4c7-4c34-9214-06c28ca586bf", "a6144ae0-3bcf-4503-b58d-9abf24d6608c", "渡汉江(宋之问) → 渡汉江(李频)"],
+
+  // F22: 和晋陵… (韦应物, TTS) → 和晋陵… (杜审言, Artist)
+  ["b67ddf05-43fb-4859-a1a9-34f95d45aabf", "b881b056-6d92-45e8-9620-4710a375776f", "和晋陵…(韦应物) → 和晋陵…(杜审言)"],
+
+  // F23: 相和歌辞 子夜四时歌四首 夏歌 (TTS) → 子夜吴歌 夏歌 (TTS)
+  ["4bd5be2b-5788-42c0-a300-9d106a73d46e", "abb3e465-f10e-43dd-b564-a5de08010478", "相和歌辞…夏歌 → 子夜吴歌 夏歌"],
 ];
 
 const DELETED_UUIDS = new Set(DEDUP_MAPPINGS.map(([deleted]) => deleted));
