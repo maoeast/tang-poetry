@@ -99,6 +99,9 @@ const DEDUP_MAPPINGS: [string, string, string][] = [
 
   // F13: 列女操 (TTS → Artist)
   ["7ccd9915-51a1-4748-9989-af243036455b", "a9d3bfca-8402-4946-ad02-53db1964a3b2", "琴曲歌辞 列女操 → 列女操"],
+
+  // F14: 颂古三十二首 其二三 (释明辩, 宋, TTS) → 春怨 (金昌绪, Artist)
+  ["228c87f2-092b-411b-9029-c5454cc2cb1c", "b41e25f5-5a57-497f-a3a2-84bdfb9331f5", "颂古三十二首 其二三(释明辩) → 春怨(金昌绪)"],
 ];
 
 const DELETED_UUIDS = new Set(DEDUP_MAPPINGS.map(([deleted]) => deleted));
