@@ -24,6 +24,18 @@ test("getAudioUrl prefers sourceUid when provided for legacy uuid audio files", 
   process.env.AUDIO_BASE_URL = previousAudioBaseUrl;
 });
 
+test("getAudioUrl supports poem-specific audio source overrides", () => {
+  const previousAudioBaseUrl = process.env.AUDIO_BASE_URL;
+  delete process.env.AUDIO_BASE_URL;
+
+  assert.equal(
+    getAudioUrl("ts300-0145", "c8a4faa6-8666-44f9-b4c9-df78d7af844d"),
+    "/audio/poetry/31cc87f3-da0f-421d-8674-8753530077e2.mp3",
+  );
+
+  process.env.AUDIO_BASE_URL = previousAudioBaseUrl;
+});
+
 test("getAudioUrl uses AUDIO_BASE_URL when configured", () => {
   const previousAudioBaseUrl = process.env.AUDIO_BASE_URL;
   process.env.AUDIO_BASE_URL = "https://cdn.example.com/poetry-audio";
@@ -62,6 +74,17 @@ test("hasMappedAudioFile prefers sourceUid-based UUID files", () => {
       "ts300-0001",
       "c65539db-4e2b-4ce4-a22b-563b6ef3f4f1",
       (path) => path === "public/audio/poetry/c65539db-4e2b-4ce4-a22b-563b6ef3f4f1.mp3",
+    ),
+    true,
+  );
+});
+
+test("hasMappedAudioFile supports poem-specific audio source overrides", () => {
+  assert.equal(
+    hasMappedAudioFile(
+      "ts300-0145",
+      "c8a4faa6-8666-44f9-b4c9-df78d7af844d",
+      (path) => path === "public/audio/poetry/31cc87f3-da0f-421d-8674-8753530077e2.mp3",
     ),
     true,
   );

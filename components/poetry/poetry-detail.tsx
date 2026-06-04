@@ -84,6 +84,9 @@ export function PoetryDetail({
 /* ── Tabbed Content Panel (Translation + AI Explanation) ── */
 
 function TabbedContentPanel({ poetry }: { poetry: PoetryDetailModel }) {
+  const hasTranslation = Boolean(poetry.translation?.trim());
+  const hasAnnotation = Boolean(poetry.annotation?.trim());
+
   return (
     <article className="rounded-[2rem] border border-ink-200 bg-surface/80 p-6 shadow-[var(--shadow-panel)]">
       {/* Translation section */}
@@ -94,9 +97,29 @@ function TabbedContentPanel({ poetry }: { poetry: PoetryDetailModel }) {
             阅读辅助
           </span>
         </div>
-        <p className="mt-4 text-sm leading-8 text-ink-600">
-          {poetry.translation ?? "当前还没有录入译文，可先结合原文与 AI 讲解理解诗意。"}
-        </p>
+        {hasTranslation ? (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-ink-900">译文</h3>
+            <p className="mt-2 whitespace-pre-line text-sm leading-8 text-ink-600">
+              {poetry.translation}
+            </p>
+          </div>
+        ) : null}
+
+        {hasAnnotation ? (
+          <div className={hasTranslation ? "mt-5" : "mt-4"}>
+            <h3 className="text-sm font-medium text-ink-900">注释</h3>
+            <p className="mt-2 whitespace-pre-line text-sm leading-8 text-ink-600">
+              {poetry.annotation}
+            </p>
+          </div>
+        ) : null}
+
+        {!hasTranslation && !hasAnnotation ? (
+          <p className="mt-4 text-sm leading-8 text-ink-600">
+            当前还没有录入译文或注释，可先结合原文与 AI 讲解理解诗意。
+          </p>
+        ) : null}
       </div>
 
       {/* Divider */}

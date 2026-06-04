@@ -198,6 +198,12 @@ def parse_args():
         default=1.0,
         help="Delay between requests to avoid throttling.",
     )
+    parser.add_argument(
+        "--poem-id",
+        action="append",
+        default=[],
+        help="Generate audio only for the specified source poem UUID. Repeatable.",
+    )
     return parser.parse_args()
 
 
@@ -220,6 +226,10 @@ def build_input_text(poem: dict) -> str:
     return f"{header}\n{content}"
 
 
+def normalize_poem_title(title: str) -> str:
+    return title.strip()
+
+
 def main():
     args = parse_args()
     output_dir = Path(args.output_dir).expanduser().resolve()
@@ -230,7 +240,11 @@ def main():
     with open(JSON_PATH, "r", encoding="utf-8") as f:
         all_poems = json.load(f)
 
-    poems_need_audio = [p for p in all_poems if p["id"] in NEED_AUDIO_IDS]
+    target_ids = set(NEED_AUDIO_IDS)
+    if args.poem_id:
+        target_ids.update(p.strip() for p in args.poem_id if p.strip())
+
+    poems_need_audio = [p for p in all_poems if p["id"] in target_ids]
     poems_need_audio = [
         p for p in poems_need_audio if not (output_dir / f"{p['id']}.mp3").exists()
     ]

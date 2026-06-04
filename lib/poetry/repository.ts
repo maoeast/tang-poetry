@@ -46,6 +46,7 @@ type PoetryRepository = {
       themes: unknown;
       pinyin: unknown;
       translation: string | null;
+      annotation: string | null;
       imageKey: string | null;
       imageStatus: string;
       audioMeta: {
@@ -117,6 +118,7 @@ type PoetryRecordWithSourceUid = {
   themes: unknown;
   pinyin: unknown;
   translation: string | null;
+  annotation: string | null;
   imageKey: string | null;
   imageStatus: string;
   audioMeta: {
@@ -137,6 +139,7 @@ export type PoetryDetail = {
   themes: string[];
   pinyin: string[];
   translation: string | null;
+  annotation: string | null;
   imageKey: string | null;
   imageStatus: string;
   image: PoetryImage;
@@ -275,6 +278,7 @@ export async function getPoetryById(
       themes: true,
       pinyin: true,
       translation: true,
+      annotation: true,
       imageKey: true,
       imageStatus: true,
       audioMeta: true,
@@ -304,6 +308,7 @@ export async function getPoetryById(
     author: content.author,
     dynasty: poetry.dynasty,
     translation: poetry.translation,
+    annotation: poetry.annotation,
     imageKey: poetry.imageKey,
     imageStatus: poetry.imageStatus,
     lines: content.lines,

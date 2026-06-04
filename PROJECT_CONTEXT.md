@@ -17,3 +17,8 @@
 - 新增全局开发约束：开发阶段 Prisma schema 变更后禁止在业务代码中增加旧 runtime client 兼容分支，标准处理是重新生成 Prisma client 并重启 dev server。
 - 新增全局图片 Prompt 约束：批量诗图生成必须保留 `诗名 + 作者 + 朝代 + 精简诗句摘录`，并用 `诗意场景 + 情绪氛围 + 画面主体 + 边框意象` 驱动环境，不允许使用固定花月窗景或强制中心留白模板覆盖所有诗作。
 - 新增全局图片资产：366 首唐诗配图已通过 apimart (gpt-image-2) 全部生成并导入数据库。图片位于 `public/images/generated/`，`ImageAsset` 表 366 条记录全部为 `ready` 状态（style=`storybook-watercolor`，promptVersion=`v1`）。首页、详情页、复习卡片运行时图片不再回退占位图。
+
+## 2026-06-04
+
+- ����ȫ�ֲ�¼Լ�����˹��޶���������ע��ͳһά���� data/manual-poetry-supplements.json������������¼���طŽű�ʱ���ȱ������ļ��е��˹��汾��
+- ����ȫ����ƵԼ����ts300-0145��ɽ���ͱ𡷵�ǰͨ�� lib/audio.ts ��ʱ���� ts300-0054 ��������Ƶ UUID���� public/audio/poetry/c8a4faa6-8666-44f9-b4c9-df78d7af844d.mp3 ���ɳɹ���Ӧɾ������ʱӳ�䲢�л����� sourceUid��

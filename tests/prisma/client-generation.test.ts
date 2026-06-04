@@ -12,6 +12,7 @@ test("generated Prisma client includes Poetry dual-script fields", () => {
 
   const expectedFields = [
     "audioMeta",
+    "annotation",
     "sourceUid",
     "titleZhHans",
     "titleZhHant",

@@ -29,6 +29,7 @@ model Poetry {
   imageKey       String?
   imageStatus    String             @default("placeholder")
   translation    String?
+  annotation     String?
   pinyin         Json?
   aiExplanation  Json?
   createdAt      DateTime           @default(now())

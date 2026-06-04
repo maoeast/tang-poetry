@@ -10,6 +10,7 @@
     "test:smoke": "playwright test tests/e2e/smoke.spec.ts",
     "lint": "eslint .",
     "import:ts300": "tsx scripts/import-ts300.ts",
+    "import:guwendao-annotations": "tsx scripts/import-guwendao-annotations.ts",
     "import:image-assets": "tsx scripts/import-image-assets.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
