@@ -301,7 +301,7 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
         </PoetryPoster>
         </div>
 
-        <div ref={rightColRef} className="flex min-h-0 flex-col overflow-hidden">
+        <div ref={rightColRef} className="flex min-h-0 w-full flex-col overflow-hidden lg:max-w-xl lg:mx-auto">
           {/* Poetry title — prominent serif, centered */}
           <div className="shrink-0 text-center">
             <h1 className={`font-serif tracking-wide ${
