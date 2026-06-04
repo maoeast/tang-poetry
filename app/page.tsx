@@ -17,25 +17,21 @@ const featureCards = [
     title: "诗歌分类",
     description: "按体裁、题材浏览唐诗",
     href: "/browse" as Route,
-    action: "浏览诗歌",
   },
   {
     title: "顺序全集",
     description: "按编号 001–366 系统学习",
     href: "/browse?sort=sequential" as Route,
-    action: "开始浏览",
   },
   {
     title: "挑战闯关",
     description: "诗词知识趣味问答",
     href: "/challenge" as Route,
-    action: "进入挑战",
   },
   {
     title: "复习成长",
     description: "间隔复习巩固记忆",
     href: "/review" as Route,
-    action: "开始复习",
   },
 ];
 
@@ -50,6 +46,11 @@ export default async function HomePage() {
     getWeeklyCheckIn(process.env.SYSTEM_USER_ID ?? "family-001"),
   ]);
 
+  // Derive today's check-in status from weekly data (last non-future day = today)
+  const todayCheckedIn =
+    [...weeklyCheckIn.days].reverse().find((d) => !d.isFuture)?.isChecked ??
+    false;
+
   return (
     <main className="min-h-screen bg-paper text-ink-900">
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-16 sm:px-10">
@@ -57,32 +58,39 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.35),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.28),transparent_28%)]" />
 
           <div className="relative space-y-8">
-            {/* Header: Title + Profile link */}
+            {/* Header: Title + Profile avatar */}
             <div className="flex max-w-3xl items-start justify-between">
               <h1 className="text-4xl leading-tight font-semibold sm:text-5xl">
                 唐诗画境
               </h1>
               <Link
                 href={"/me" as Route}
-                className="flex items-center gap-2 rounded-full border border-ink-200 bg-surface/80 px-4 py-2 text-sm text-ink-600 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:text-ink-900 hover:shadow-[var(--shadow-panel)]"
+                className="relative flex items-center justify-center transition-opacity duration-300 hover:opacity-70"
+                aria-label="我的"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-ink-400"
-                >
-                  <circle cx="8" cy="6" r="3" stroke="currentColor" strokeWidth="1.2" />
-                  <path
-                    d="M2.5 14.5C2.5 11.5 5 10 8 10C11 10 13.5 11.5 13.5 14.5"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                我的
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-900/5 text-ink-500">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="8" cy="6" r="3" stroke="currentColor" strokeWidth="1.2" />
+                    <path
+                      d="M2.5 14.5C2.5 11.5 5 10 8 10C11 10 13.5 11.5 13.5 14.5"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>
+                {/* Check-in status dot: green = today checked in, grey = not yet */}
+                <span
+                  className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface ${
+                    todayCheckedIn ? "bg-emerald-500" : "bg-ink-200"
+                  }`}
+                />
               </Link>
             </div>
 
@@ -116,9 +124,9 @@ export default async function HomePage() {
                   href={card.href}
                   className="group rounded-[1.5rem] border border-ink-200 bg-surface/70 p-5 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-panel)]"
                 >
-                  <article>
-                    {/* Ink-stroke icon per card — classical Chinese aesthetic */}
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-900/5 text-ink-400" aria-hidden="true">
+                  <article className="flex items-start gap-3.5">
+                    {/* Ink-stroke icon — classical Chinese aesthetic */}
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/5 text-ink-400" aria-hidden="true">
                       {card.title === "诗歌分类" && (
                         /* 竹简 — bamboo slips */
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -161,11 +169,10 @@ export default async function HomePage() {
                         </svg>
                       )}
                     </span>
-                    <h2 className="mt-3 text-xl font-medium">{card.title}</h2>
-                    <p className="mt-1 text-sm text-ink-400">{card.description}</p>
-                    <span className="mt-4 inline-flex rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary transition-colors group-hover:bg-primary/10">
-                      {card.action}
-                    </span>
+                    <div>
+                      <h2 className="text-xl font-medium">{card.title}</h2>
+                      <p className="mt-1 text-sm text-ink-400">{card.description}</p>
+                    </div>
                   </article>
                 </Link>
               ))}

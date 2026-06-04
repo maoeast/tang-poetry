@@ -2,6 +2,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { pinyin as pinyinFn } from "pinyin-pro";
+
 import { db } from "@/lib/db";
 import { buildDailyPoetrySeeds } from "@/lib/poetry/daily-seed";
 import {
@@ -9,6 +11,27 @@ import {
   type NormalizedPoem,
   type RawTs300Poem,
 } from "@/lib/poetry/normalize";
+
+const CJK_REGEX = /[一-鿿㐀-䶿]/u;
+
+/**
+ * Generate a space-separated pinyin string for the CJK characters in a line.
+ * Non-CJK characters (punctuation) are skipped so renderRubyText() pairs
+ * syllables 1:1 with CJK chars.
+ */
+function lineToPinyin(line: string): string {
+  const chars = [...line];
+  const cjkChars = chars.filter((ch) => CJK_REGEX.test(ch));
+
+  if (cjkChars.length === 0) return "";
+
+  const syllables = pinyinFn(cjkChars.join(""), {
+    toneType: "symbol",
+    type: "array",
+  });
+
+  return syllables.join(" ");
+}
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const SIMPLE_FILE_PATH = path.join(DATA_DIR, "ts300.simple.json");
@@ -143,6 +166,8 @@ async function writeNormalizedJson(data: unknown) {
 }
 
 function buildPoetryUpsert(poetry: NormalizedPoem) {
+  const pinyinLines = poetry.linesZhHans.map((line) => lineToPinyin(line));
+
   return {
     where: { id: poetry.id },
     create: {
@@ -161,6 +186,7 @@ function buildPoetryUpsert(poetry: NormalizedPoem) {
       lines: poetry.lines,
       linesZhHans: poetry.linesZhHans,
       linesZhHant: poetry.linesZhHant,
+      pinyin: pinyinLines,
       tags: poetry.tags,
       themes: poetry.themes,
       difficulty: poetry.difficulty,
@@ -182,6 +208,7 @@ function buildPoetryUpsert(poetry: NormalizedPoem) {
       lines: poetry.lines,
       linesZhHans: poetry.linesZhHans,
       linesZhHant: poetry.linesZhHant,
+      pinyin: pinyinLines,
       tags: poetry.tags,
       themes: poetry.themes,
       difficulty: poetry.difficulty,

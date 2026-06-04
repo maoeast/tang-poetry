@@ -5,31 +5,39 @@ type WeeklyStreakMatrixProps = {
 };
 
 export function WeeklyStreakMatrix({ data }: WeeklyStreakMatrixProps) {
+  const todayKey = data.days.find(
+    (d) => !d.isFuture && d.dateKey <= Date.now(),
+  )?.dateKey;
+
   return (
     <div className="flex items-center gap-3">
       <span className="text-xs tracking-[0.18em] text-ink-400">本周打卡</span>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         {data.days.map((day) => {
-          const isToday = !day.isFuture && day.isChecked;
+          const isToday = day.dateKey === todayKey && !day.isFuture;
 
           return (
             <span
               key={day.label}
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium transition-all ${
+              className={`flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-medium transition-all ${
                 isToday
-                  ? "bg-primary text-white"
+                  ? // 今天 — 实心主色 + 高亮边框
+                    "bg-primary text-white ring-2 ring-primary/50 ring-offset-2 ring-offset-surface"
                   : day.isFuture
-                    ? "bg-ink-100 text-ink-400"
+                    ? // 未来 — 淡空心圆
+                      "border border-ink-100 text-ink-300"
                     : day.isChecked
-                      ? "bg-primary text-white"
-                      : "bg-ink-100 text-ink-400"
+                      ? // 已打卡（非今天）— 淡色实心圆
+                        "bg-primary/40 text-white"
+                      : // 过去未打卡 — 空心灰圆
+                        "border border-ink-200 text-ink-400"
               }`}
               title={`周${day.label}${day.isChecked ? " ✓" : ""}`}
             >
               {day.isChecked ? (
                 <svg
-                  width="10"
-                  height="10"
+                  width="12"
+                  height="12"
                   viewBox="0 0 12 12"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"

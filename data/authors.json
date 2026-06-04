@@ -28,7 +28,7 @@
   {
     "name": "唐玄宗",
     "nameZhHant": "唐玄宗",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/tangxuanzong.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -145,7 +145,7 @@
   {
     "name": "郑畋",
     "nameZhHant": "鄭畋",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhengtian.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -197,7 +197,7 @@
   {
     "name": "西鄙人",
     "nameZhHant": "西鄙人",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xibiren.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -210,7 +210,7 @@
   {
     "name": "无名氏",
     "nameZhHant": "無名氏",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wuming-shi.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -327,7 +327,7 @@
   {
     "name": "朱庆余",
     "nameZhHant": "朱慶餘",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhuqingyu.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -392,7 +392,7 @@
   {
     "name": "释明辩",
     "nameZhHant": "釋明辯",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/shimingbian.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -470,7 +470,7 @@
   {
     "name": "崔曙",
     "nameZhHant": "崔曙",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/cuishu.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -665,7 +665,7 @@
   {
     "name": "李频",
     "nameZhHant": "李頻",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/lipin.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -834,7 +834,7 @@
   {
     "name": "朱斌",
     "nameZhHant": "朱斌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhubin.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -860,7 +860,7 @@
   {
     "name": "张佖",
     "nameZhHant": "張佖",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhangbi.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -873,7 +873,7 @@
   {
     "name": "不详",
     "nameZhHant": "不詳",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/buxiang.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -884,9 +884,9 @@
     "sourceUrl": null
   },
   {
-    "name": "杨敬述进",
-    "nameZhHant": "楊敬述進",
-    "avatarUrl": null,
+    "name": "杨敬述",
+    "nameZhHant": "楊敬述",
+    "avatarUrl": "/images/authors/yangjingshu.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -925,7 +925,7 @@
   {
     "name": "蔡襄",
     "nameZhHant": "蔡襄",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/caixiang.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -1016,7 +1016,7 @@
   {
     "name": "孙革",
     "nameZhHant": "孫革",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/sunge.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -1068,7 +1068,7 @@
   {
     "name": "刘眘虚",
     "nameZhHant": "劉眘虛",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liushenxu.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,
@@ -1094,7 +1094,7 @@
   {
     "name": "严维",
     "nameZhHant": "嚴維",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yanwei.jpg",
     "dynasty": "唐",
     "courtesyName": null,
     "literaryName": null,

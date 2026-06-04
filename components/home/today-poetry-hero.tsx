@@ -7,10 +7,12 @@ import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import type { DailyPoetryResult } from "@/lib/poetry/daily";
 import type { WeeklyCheckIn } from "@/lib/stats/weekly-checkin";
 
+/** @deprecated No longer used by homepage — kept for test compatibility */
 export function getHomeCtaLabel(isReadToday: boolean) {
   return isReadToday ? "去挑战这首诗" : "阅读全文";
 }
 
+/** @deprecated No longer used by homepage — kept for test compatibility */
 export function getHomeCtaHref(poetryId: string, isReadToday: boolean): Route {
   if (isReadToday) {
     return `/challenge?poetryId=${poetryId}` as Route;
@@ -57,7 +59,11 @@ export function TodayPoetryHero({
           <p className="text-sm tracking-[0.24em] text-ink-400">
             今日一诗
           </p>
-          <h1 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
+          <h1 className={`mt-3 font-serif ${
+            todayPoetry.poetry.title.length > 15
+              ? "text-2xl font-medium leading-relaxed sm:text-3xl"
+              : "text-3xl font-semibold sm:text-4xl"
+          }`}>
             {todayPoetry.poetry.title}
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-ink-400">
@@ -86,7 +92,7 @@ export function TodayPoetryHero({
           </div>
 
           {/* Poem body — pure serif, generous breathing room */}
-          <div className="mt-10 space-y-3">
+          <div className="mt-10 space-y-6">
             {todayPoetry.poetry.lines.slice(0, 4).map((line, index) => (
               <p
                 key={`${index}-${line}`}
@@ -97,13 +103,19 @@ export function TodayPoetryHero({
             ))}
           </div>
 
-          {/* Primary CTA — after the poem, natural reading flow */}
-          <div className="mt-8">
+          {/* Dual CTAs — challenge (primary) + appreciation (secondary) */}
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href={getHomeCtaHref(todayPoetry.poetry.id, todayPoetry.isReadToday)}
+              href={`/challenge?poetryId=${todayPoetry.poetry.id}` as Route}
               className="inline-flex rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-[var(--shadow-card)]"
             >
-              {getHomeCtaLabel(todayPoetry.isReadToday)}
+              去挑战
+            </Link>
+            <Link
+              href={`/poetry/${todayPoetry.poetry.id}` as Route}
+              className="inline-flex rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary transition-all duration-300 hover:bg-primary/5 hover:shadow-[var(--shadow-card)]"
+            >
+              赏析
             </Link>
           </div>
         </div>
