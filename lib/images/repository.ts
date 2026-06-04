@@ -171,3 +171,39 @@ export async function getPoetryImage(
     isPlaceholder: false,
   };
 }
+
+/**
+ * Fetch ALL ready images for a poem (primary + dedup-reassigned).
+ * Returns an empty array only if no images exist at all (caller should fall back to placeholder).
+ */
+export async function getPoetryImages(poetryId: string): Promise<PoetryImage[]> {
+  const assets = await db.imageAsset.findMany({
+    where: {
+      poetryId,
+      status: "ready",
+    },
+    select: {
+      poetryId: true,
+      style: true,
+      status: true,
+      promptVersion: true,
+      imagePath: true,
+      thumbPath: true,
+      width: true,
+      height: true,
+    },
+    orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+  });
+
+  return assets.map((a) => ({
+    poetryId: a.poetryId,
+    imagePath: a.imagePath,
+    thumbPath: a.thumbPath,
+    status: a.status,
+    style: a.style,
+    promptVersion: a.promptVersion,
+    width: a.width,
+    height: a.height,
+    isPlaceholder: false,
+  }));
+}

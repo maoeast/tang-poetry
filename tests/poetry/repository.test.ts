@@ -57,6 +57,17 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
         height: 960,
         isPlaceholder: false,
       }),
+      getPoetryImages: async () => [{
+        poetryId: "ts300-0001",
+        imagePath: "/images/generated/ts300-0001.jpg",
+        thumbPath: "/images/generated/ts300-0001-thumb.jpg",
+        status: "ready",
+        style: "storybook-watercolor",
+        promptVersion: "v1",
+        width: 1440,
+        height: 960,
+        isPlaceholder: false,
+      }],
       hasAudioFile: () => true,
     },
   );
@@ -89,6 +100,17 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
       height: 960,
       isPlaceholder: false,
     },
+    images: [{
+      poetryId: "ts300-0001",
+      imagePath: "/images/generated/ts300-0001.jpg",
+      thumbPath: "/images/generated/ts300-0001-thumb.jpg",
+      status: "ready",
+      style: "storybook-watercolor",
+      promptVersion: "v1",
+      width: 1440,
+      height: 960,
+      isPlaceholder: false,
+    }],
   });
 });
 
@@ -133,6 +155,7 @@ test("getPoetryById returns traditional content when scriptVariant is zh-Hant", 
         height: 960,
         isPlaceholder: false,
       }),
+      getPoetryImages: async () => [],
       hasAudioFile: () => true,
     },
     "zh-Hant",
@@ -184,6 +207,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
         height: null,
         isPlaceholder: true,
       }),
+      getPoetryImages: async () => [],
       hasAudioFile: () => false,
     },
   );
@@ -216,6 +240,17 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
       height: null,
       isPlaceholder: true,
     },
+    images: [{
+      poetryId: "ts300-0002",
+      imagePath: "/images/placeholders/default-poetry-card.jpg",
+      thumbPath: "/images/placeholders/default-poetry-card.jpg",
+      status: "placeholder",
+      style: "storybook-watercolor",
+      promptVersion: "v1",
+      width: null,
+      height: null,
+      isPlaceholder: true,
+    }],
   });
 });
 
@@ -265,6 +300,7 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
         height: 1800,
         isPlaceholder: false,
       }),
+      getPoetryImages: async () => [],
       hasAudioFile: () => true,
     },
   );
@@ -322,6 +358,7 @@ test("getPoetryById falls back to none when audio metadata status is unsupported
         height: 1800,
         isPlaceholder: false,
       }),
+      getPoetryImages: async () => [],
       hasAudioFile: () => false,
     },
   );
@@ -344,6 +381,9 @@ test("getPoetryById returns null when poetry does not exist", async () => {
     {
       getPoetryImage: async () => {
         throw new Error("should not query image when poetry is missing");
+      },
+      getPoetryImages: async () => {
+        throw new Error("should not query images when poetry is missing");
       },
       hasAudioFile: () => false,
     },
@@ -399,6 +439,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
         height: null,
         isPlaceholder: true,
       }),
+      getPoetryImages: async () => [],
       hasAudioFile: () => false,
     },
   );
@@ -479,6 +520,7 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
           isPlaceholder: false,
         };
       },
+      getPoetryImages: async () => [],
       hasAudioFile: () => false,
     },
   );

@@ -6,6 +6,7 @@ import type { Route } from "next";
 import Image from "next/image";
 
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
+import { ImageCarousel } from "@/components/poetry/image-carousel";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
 import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import { ScriptVariantToggle } from "@/components/poetry/script-variant-toggle";
@@ -281,26 +282,54 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
     <section className="relative">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-6">
         <div ref={posterRef} className="shrink-0 w-full lg:max-w-[28rem]">
-        <PoetryPoster
-          variant="immersive"
-          imageSrc={poetry.image.thumbPath ?? poetry.image.imagePath}
-          imageAlt={`${poetry.title} 配图`}
-          isPlaceholder={poetry.image.isPlaceholder}
-          priority
-        >
-          <PosterTitleBlock
-            title={poetry.title}
-            author={poetry.author}
-            dynasty={poetry.dynasty}
-          />
-          {poetry.themes.length > 0 && (
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 via-black/15 to-transparent px-4 pb-4 pt-10">
-              <p className="text-xs leading-relaxed text-white/75">
-                {poetry.themes.slice(0, 4).join(' · ')}
-              </p>
+          {poetry.images.length > 1 ? (
+            <div className="relative w-full max-w-[480px] overflow-hidden rounded-[2rem]">
+              <ImageCarousel
+                images={poetry.images.map((img) => ({
+                  imagePath: img.imagePath,
+                  thumbPath: img.thumbPath,
+                  isPlaceholder: img.isPlaceholder,
+                  alt: `${poetry.title} 配图`,
+                }))}
+                priority
+              />
+              <div className="absolute inset-0 z-10 pointer-events-none">
+                <PosterTitleBlock
+                  title={poetry.title}
+                  author={poetry.author}
+                  dynasty={poetry.dynasty}
+                />
+                {poetry.themes.length > 0 && (
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 via-black/15 to-transparent px-4 pb-4 pt-10">
+                    <p className="text-xs leading-relaxed text-white/75">
+                      {poetry.themes.slice(0, 4).join(' · ')}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+          ) : (
+            <PoetryPoster
+              variant="immersive"
+              imageSrc={poetry.image.thumbPath ?? poetry.image.imagePath}
+              imageAlt={`${poetry.title} 配图`}
+              isPlaceholder={poetry.image.isPlaceholder}
+              priority
+            >
+              <PosterTitleBlock
+                title={poetry.title}
+                author={poetry.author}
+                dynasty={poetry.dynasty}
+              />
+              {poetry.themes.length > 0 && (
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 via-black/15 to-transparent px-4 pb-4 pt-10">
+                  <p className="text-xs leading-relaxed text-white/75">
+                    {poetry.themes.slice(0, 4).join(' · ')}
+                  </p>
+                </div>
+              )}
+            </PoetryPoster>
           )}
-        </PoetryPoster>
         </div>
 
         <div ref={rightColRef} className="flex min-h-0 w-full flex-col overflow-hidden lg:max-w-xl lg:mx-auto">

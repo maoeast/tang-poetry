@@ -7,7 +7,7 @@ import {
   type ScriptVariant,
 } from "@/lib/poetry/script-variant";
 import { shouldCreateViewRecord, toUtcDayKey } from "@/lib/poetry/view-record";
-import { getPoetryImage, type PoetryImage } from "@/lib/images/repository";
+import { getPoetryImage, getPoetryImages, type PoetryImage } from "@/lib/images/repository";
 import { syncReviewStateFromLearningEvent } from "@/lib/review/scheduler";
 import authorsData from "../../data/authors.json";
 
@@ -140,12 +140,14 @@ export type PoetryDetail = {
   imageKey: string | null;
   imageStatus: string;
   image: PoetryImage;
+  images: PoetryImage[];
   audio: PoetryAudio;
   authorAvatarUrl: string | null;
 };
 
 type PoetryRepositoryDependencies = {
   getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
+  getPoetryImages: (poetryId: string) => Promise<PoetryImage[]>;
   hasAudioFile: (poetryId: string, sourceUid?: string | null) => boolean;
 };
 
@@ -242,6 +244,7 @@ export async function getPoetryById(
   repository?: PoetryRepository,
   dependencies: PoetryRepositoryDependencies = {
     getPoetryImage,
+    getPoetryImages,
     hasAudioFile: (poetryId, sourceUid) =>
       hasMappedAudioFile(poetryId, sourceUid, existsSync),
   },
@@ -283,6 +286,9 @@ export async function getPoetryById(
   }
 
   const image = await dependencies.getPoetryImage(poetry.id);
+  const images = await dependencies.getPoetryImages(poetry.id);
+  // If no real images, fall back to single placeholder
+  const allImages = images.length > 0 ? images : [image];
   const sourceUid = poetry.sourceUid;
   const audio = toPoetryAudio(poetry.id, sourceUid, poetry.audioMeta, dependencies.hasAudioFile);
   const content = pickPoetryContentVariant(poetry, scriptVariant);
@@ -304,6 +310,7 @@ export async function getPoetryById(
     themes: toStringArray(poetry.themes),
     pinyin: toStringArray(poetry.pinyin),
     image,
+    images: allImages,
     audio,
     authorAvatarUrl,
   };
