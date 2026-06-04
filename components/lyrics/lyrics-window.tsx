@@ -59,6 +59,8 @@ type LyricsWindowBaseProps = {
   className?: string;
   /** Number of original (unsplit) lines — used for audio timing when lines have been split */
   originalLineCount?: number;
+  /** Estimated intro narration offset (title + author). Applied to even-distribution fallback only. */
+  introOffsetMs?: number;
 };
 
 type LyricsWindowAutoProps = LyricsWindowBaseProps & {
@@ -93,12 +95,14 @@ function getActiveLineIndex({
   audioCurrentTimeMs,
   lineTimings,
   originalLineCount,
+  introOffsetMs = 0,
 }: {
   lines: LyricsLine[];
   durationMs: number;
   audioCurrentTimeMs: number;
   lineTimings?: LineTiming[];
   originalLineCount?: number;
+  introOffsetMs?: number;
 }) {
   if (lines.length === 0) {
     return -1;
@@ -122,8 +126,15 @@ function getActiveLineIndex({
     return 0;
   }
 
-  const segmentLength = durationMs / effectiveCount;
-  const resolvedIndex = Math.floor(audioCurrentTimeMs / segmentLength);
+  // Subtract intro offset for even-distribution fallback
+  const bodyDuration = durationMs - introOffsetMs;
+  const bodyTime = audioCurrentTimeMs - introOffsetMs;
+  if (bodyTime < 0 || bodyDuration <= 0) {
+    return 0;
+  }
+
+  const segmentLength = bodyDuration / effectiveCount;
+  const resolvedIndex = Math.floor(bodyTime / segmentLength);
 
   return Math.min(Math.max(resolvedIndex, 0), effectiveCount - 1);
 }
@@ -155,6 +166,7 @@ export function LyricsWindow(props: LyricsWindowProps) {
         audioCurrentTimeMs: props.audioCurrentTimeMs,
         lineTimings: props.lineTimings,
         originalLineCount: props.originalLineCount,
+        introOffsetMs: props.introOffsetMs,
       });
     }
 
@@ -163,6 +175,8 @@ export function LyricsWindow(props: LyricsWindowProps) {
 
   const [isAutoFollowEnabled, setIsAutoFollowEnabled] = useState(props.mode !== "auto");
   const previousActiveLineIndexRef = useRef(activeLineIndex);
+  const lineRefs = useRef<Map<number, HTMLElement>>(new Map());
+  const isProgrammaticScrollRef = useRef(false);
 
   useEffect(() => {
     props.onActiveLineChange?.(activeLineIndex);
@@ -193,6 +207,20 @@ export function LyricsWindow(props: LyricsWindowProps) {
     previousActiveLineIndexRef.current = activeLineIndex;
   }, [activeLineIndex, isUserScrolling, props]);
 
+  // Auto-scroll active line into view (music-player karaoke effect)
+  useEffect(() => {
+    if (activeLineIndex < 0) return;
+    if (props.mode === "auto" && !isAutoFollowEnabled) return;
+    if (props.mode === "static") return;
+
+    const lineEl = lineRefs.current.get(activeLineIndex);
+    if (!lineEl) return;
+
+    isProgrammaticScrollRef.current = true;
+    lineEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => { isProgrammaticScrollRef.current = false; }, 500);
+  }, [activeLineIndex, isAutoFollowEnabled, props.mode]);
+
   return (
     <section
       className={props.className ?? ""}
@@ -200,7 +228,11 @@ export function LyricsWindow(props: LyricsWindowProps) {
       data-auto-follow={props.mode === "auto" ? String(isAutoFollowEnabled) : undefined}
       data-layout={layout}
       data-mode={props.mode}
-      onScroll={props.mode === "auto" ? () => setIsUserScrolling(true) : undefined}
+      onScroll={props.mode === "auto" ? () => {
+        if (!isProgrammaticScrollRef.current) {
+          setIsUserScrolling(true);
+        }
+      } : undefined}
     >
       {layout === "flow" ? (
         <div className="space-y-2 text-center">
@@ -216,6 +248,7 @@ export function LyricsWindow(props: LyricsWindowProps) {
             return (
               <p
                 key={`${lineIndex}-${line.text}`}
+                ref={(el) => { if (el) lineRefs.current.set(resolvedIndex, el); }}
                 className={`font-serif text-xl leading-[2.6] transition-all duration-300 ease-in-out ${
                   isActive
                     ? "text-ink-900 font-bold"
@@ -241,6 +274,7 @@ export function LyricsWindow(props: LyricsWindowProps) {
             return (
               <article
                 key={`${lineIndex}-${line}`}
+                ref={(el) => { if (el) lineRefs.current.set(lineIndex, el); }}
                 className={`rounded-[1.25rem] px-4 py-3 transition ${
                   isActive
                     ? "bg-primary/10 text-ink-900"

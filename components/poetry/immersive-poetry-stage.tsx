@@ -10,6 +10,7 @@ import { PoetryPoster } from "@/components/poster/poetry-poster";
 import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import { ScriptVariantToggle } from "@/components/poetry/script-variant-toggle";
 import { getLineStartMs } from "@/lib/audio/timings";
+import { estimateIntroOffsetMs } from "@/lib/audio/intro-offset";
 import type { PoetryDetail } from "@/lib/poetry/repository";
 import type { ScriptVariant } from "@/lib/poetry/script-variant";
 
@@ -86,6 +87,7 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
   const posterRef = useRef<HTMLDivElement | null>(null);
   const rightColRef = useRef<HTMLDivElement | null>(null);
   const hasAudio = poetry.audio.audioStatus !== "none" && poetry.audio.url !== null;
+  const introOffsetMs = estimateIntroOffsetMs(poetry.title, poetry.author);
   const lyrics = splitCoupletLines(poetry.lines, poetry.pinyin);
   const [showPinyin, setShowPinyin] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -351,6 +353,7 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
                 audioCurrentTimeMs={currentTimeMs}
                 lineTimings={poetry.audio.lineTimings}
                 originalLineCount={poetry.lines.length}
+                introOffsetMs={introOffsetMs}
                 onActiveLineChange={(lineIndex) => {
                   setCurrentLineIndex(lineIndex);
                   setCurrentLineStartMs(
@@ -359,6 +362,7 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
                       lineCount: poetry.lines.length,
                       lineIndex,
                       lineTimings: poetry.audio.lineTimings,
+                      introOffsetMs,
                     }),
                   );
                 }}

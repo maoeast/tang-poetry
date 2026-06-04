@@ -10,6 +10,7 @@ import { PoetryPoster } from "@/components/poster/poetry-poster";
 import { PosterStatusBadge } from "@/components/poster/poster-status-badge";
 import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import { getLineStartMs } from "@/lib/audio/timings";
+import { estimateIntroOffsetMs } from "@/lib/audio/intro-offset";
 import type { PoetryDetail } from "@/lib/poetry/repository";
 import {
   buildInitialReviewPlayerQueue,
@@ -77,6 +78,7 @@ export function ReviewPoetryStage({
   const router = useRouter();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAudio = poetry.audio.audioStatus !== "none" && poetry.audio.url !== null;
+  const introOffsetMs = estimateIntroOffsetMs(poetry.title, poetry.author);
   const lyrics = poetry.lines.map((line, index) => ({
     text: line,
     pinyin: poetry.pinyin[index],
@@ -429,6 +431,7 @@ export function ReviewPoetryStage({
                   durationMs={durationMs}
                   audioCurrentTimeMs={currentTimeMs}
                   lineTimings={poetry.audio.lineTimings}
+                  introOffsetMs={introOffsetMs}
                   onActiveLineChange={(lineIndex) => {
                     setCurrentLineIndex(lineIndex);
                     setCurrentLineStartMs(
@@ -437,6 +440,7 @@ export function ReviewPoetryStage({
                         lineCount: poetry.lines.length,
                         lineIndex,
                         lineTimings: poetry.audio.lineTimings,
+                        introOffsetMs,
                       }),
                     );
                   }}

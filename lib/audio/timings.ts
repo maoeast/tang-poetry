@@ -6,18 +6,22 @@ type GetLineStartMsArgs = {
     lineIndex: number;
     startMs: number;
   }> | null;
+  /** Estimated intro narration offset (title + author). Used only in even-distribution fallback. */
+  introOffsetMs?: number;
 };
 
 function getAverageLineStartMs(
   durationMs: number,
   lineCount: number,
   lineIndex: number,
+  introOffsetMs: number,
 ) {
   if (lineCount <= 0) {
     return 0;
   }
 
-  return Math.floor((durationMs / lineCount) * lineIndex);
+  const bodyDuration = durationMs - introOffsetMs;
+  return Math.floor(introOffsetMs + (bodyDuration / lineCount) * lineIndex);
 }
 
 export function getLineStartMs({
@@ -25,10 +29,11 @@ export function getLineStartMs({
   lineCount,
   lineIndex,
   lineTimings,
+  introOffsetMs = 0,
 }: GetLineStartMsArgs) {
   const timing = lineTimings?.find((item) => item.lineIndex === lineIndex);
 
   return typeof timing?.startMs === "number"
     ? timing.startMs
-    : getAverageLineStartMs(durationMs, lineCount, lineIndex);
+    : getAverageLineStartMs(durationMs, lineCount, lineIndex, introOffsetMs);
 }
