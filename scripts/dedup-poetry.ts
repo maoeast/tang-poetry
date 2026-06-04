@@ -64,6 +64,41 @@ const DEDUP_MAPPINGS: [string, string, string][] = [
 
   // Group 13: 塞下曲 (keep 卢纶)
   ["c8210485-a1f4-4c76-a1f6-2f5e57d39d29", "ee2a3000-9127-43fa-8618-89a1937322cb", "和张仆射塞下曲 钱起 → 卢纶版"],
+
+  // ─── Fuzzy dedup (Phase 2): 13 groups with variant characters ───
+
+  // F1: 关山月 (TTS → Artist)
+  ["0167687e-8325-48bf-8da4-3749c9ce0a74", "4be77185-992e-4614-9746-de2e73c8a3c3", "横吹曲辞 关山月 → 关山月"],
+
+  // F2: 渭城曲 (TTS → Artist)
+  ["e4a87504-f9a3-4599-b770-aba4afd3cb04", "1575c835-1241-4d7b-99dc-6d700549ac65", "杂曲歌辞 渭城曲 → 渭城曲"],
+
+  // F3: 蜀道难 (TTS → Artist)
+  ["e117d224-39ca-4eba-a047-0d36ce8b8c26", "f15c4b50-ee89-4927-8cf3-15e3a6a6ab95", "相和歌辞 蜀道难 → 蜀道难"],
+
+  // F4: 玉阶怨 (TTS → Artist)
+  ["f93545e7-747e-4d12-a6c8-e484c46b2860", "a65e5646-14b1-4f75-924b-bbf262b242d7", "相和歌辞 玉阶怨 → 玉阶怨"],
+
+  // F5: 丽人行 (TTS → Artist)
+  ["aaae5882-9b74-4b45-9bb5-9f773a721119", "370b53ae-949e-45cf-92b0-3aca072c1b86", "杂曲歌辞 丽人行 → 丽人行"],
+
+  // F6: 长相思 (TTS → Artist)
+  ["d4baf2d1-ea61-4fb3-a284-e889275bdca2", "3c1693fc-f4e6-43b7-a66f-6379c3a26eef", "杂曲歌辞 长相思三首 一 → 长相思"],
+
+  // F7-F9: 行路难三首 一/二/三 (all TTS, keep no-prefix)
+  ["527eba4b-b35c-4d29-99e7-8f40c6f3d5b7", "c348bc2e-f50d-436b-88b7-c198d63dacfc", "杂曲歌辞 行路难三首 一 → 行路难三首 一"],
+  ["e12edd83-36cd-4e8a-a630-91874631c51f", "801c3192-8001-4238-8ecf-0111f490e84c", "杂曲歌辞 行路难三首 二 → 行路难三首 二"],
+  ["b4f9c5b3-0108-4127-bf3e-73fd207176f3", "a7b8e17f-ee93-4bdc-a144-b1ba5ab32bb5", "杂曲歌辞 行路难三首 三 → 行路难三首 三"],
+
+  // F10-F11: 长干曲四首 一/二 (TTS → Artist/TTS)
+  ["4bef9a5e-f4a1-44bd-a78c-cb0fe38ccdff", "c39225f9-16b2-4713-a11c-d7030ec3b1c9", "杂曲歌辞 长干曲四首 一 → 长干曲四首 一"],
+  ["8d480633-1876-4082-aaca-a7b3a26c04d7", "4a732464-35a5-4ffc-94d0-37d653eef2a1", "杂曲歌辞 长干曲四首 二 → 长干曲四首 二"],
+
+  // F12: 从军行 (TTS → Artist)
+  ["0ed53ef4-30ca-41ac-a629-d778e5cc2bfa", "bea6f283-8f90-49b5-8842-1cb906816548", "相和歌辞 从军行 → 古从军行"],
+
+  // F13: 列女操 (TTS → Artist)
+  ["7ccd9915-51a1-4748-9989-af243036455b", "a9d3bfca-8402-4946-ad02-53db1964a3b2", "琴曲歌辞 列女操 → 列女操"],
 ];
 
 const DELETED_UUIDS = new Set(DEDUP_MAPPINGS.map(([deleted]) => deleted));
@@ -125,9 +160,14 @@ async function main() {
   console.log(`  ✅ 解析 ${resolvedMappings.length}/${DEDUP_MAPPINGS.length} 组映射\n`);
 
   if (resolvedMappings.length !== DEDUP_MAPPINGS.length) {
-    console.error("❌ 部分映射无法解析，中止。");
+    const skipped = DEDUP_MAPPINGS.length - resolvedMappings.length;
+    console.log(`  ℹ️  跳过 ${skipped} 组已处理的映射`);
+  }
+
+  if (resolvedMappings.length === 0) {
+    console.log("✅ 无新映射需要处理。");
     await db.$disconnect();
-    process.exit(1);
+    return;
   }
 
   // Step 2: Reassign images
