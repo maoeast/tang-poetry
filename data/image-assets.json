@@ -2926,5 +2926,45 @@
     "promptVersion": "v1",
     "imagePath": "/images/generated/ts300-0366.png",
     "thumbPath": "/images/generated/ts300-0366.png"
+  },
+  {
+    "poetryId": "ts300-extra-0001",
+    "style": "storybook-watercolor",
+    "status": "ready",
+    "promptVersion": "v2",
+    "imagePath": "/images/generated/ts300-extra-0001.png",
+    "thumbPath": "/images/generated/ts300-extra-0001-thumb.png"
+  },
+  {
+    "poetryId": "ts300-extra-0002",
+    "style": "storybook-watercolor",
+    "status": "ready",
+    "promptVersion": "v2",
+    "imagePath": "/images/generated/ts300-extra-0002.png",
+    "thumbPath": "/images/generated/ts300-extra-0002-thumb.png"
+  },
+  {
+    "poetryId": "ts300-extra-0003",
+    "style": "storybook-watercolor",
+    "status": "ready",
+    "promptVersion": "v2",
+    "imagePath": "/images/generated/ts300-extra-0003.png",
+    "thumbPath": "/images/generated/ts300-extra-0003-thumb.png"
+  },
+  {
+    "poetryId": "ts300-extra-0004",
+    "style": "storybook-watercolor",
+    "status": "ready",
+    "promptVersion": "v2",
+    "imagePath": "/images/generated/ts300-extra-0004.png",
+    "thumbPath": "/images/generated/ts300-extra-0004-thumb.png"
+  },
+  {
+    "poetryId": "ts300-extra-0005",
+    "style": "storybook-watercolor",
+    "status": "ready",
+    "promptVersion": "v2",
+    "imagePath": "/images/generated/ts300-extra-0005.png",
+    "thumbPath": "/images/generated/ts300-extra-0005-thumb.png"
   }
 ]
