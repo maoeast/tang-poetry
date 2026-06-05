@@ -58,7 +58,7 @@ export function PoetryDetail({
                   href={`/poetry/${item.id}` as Route}
                   className="block rounded-[1.25rem] border border-ink-200 bg-surface/72 p-4 transition hover:bg-surface/50"
                 >
-                  <p className="text-lg font-medium">{item.title}</p>
+                  <p className="truncate text-lg font-medium">{item.title}</p>
                   <p className="mt-1 text-sm text-ink-600">
                     {item.dynasty} · {item.author}
                   </p>

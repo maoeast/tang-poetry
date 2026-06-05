@@ -417,7 +417,7 @@ export async function getRelatedPoetries(
       dynasty: true,
       lines: true,
     },
-    take: 4,
+    take: 6,
   });
 
   return related.map((item) => ({
