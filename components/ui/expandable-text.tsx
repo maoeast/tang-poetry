@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 
 type ExpandableTextProps = {
   text: string;
-  /** Maximum visible lines before clamping (default 8) */
+  /** Maximum visible lines before clamping (default 4) */
   maxLines?: number;
 };
 
-export function ExpandableText({ text, maxLines = 8 }: ExpandableTextProps) {
+export function ExpandableText({ text, maxLines = 4 }: ExpandableTextProps) {
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
