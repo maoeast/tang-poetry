@@ -126,7 +126,12 @@ function TabbedContentPanel({ poetry }: { poetry: PoetryDetailModel }) {
       <div className="my-6 h-px bg-ink-200/50" />
 
       {/* AI Explanation */}
-      <AiExplanationCard poetryId={poetry.id} embedded />
+      <AiExplanationCard
+        poetryId={poetry.id}
+        explanations={poetry.explanations}
+        explainAudio={poetry.explainAudio}
+        embedded
+      />
     </article>
   );
 }

@@ -1,7 +1,9 @@
 import { db } from "@/lib/db";
 import { existsSync } from "node:fs";
 
-import { getAudioStatus, getAudioUrl, hasMappedAudioFile } from "@/lib/audio";
+import { getAudioStatus, getAudioUrl, hasMappedAudioFile, hasExplainAudioFile, getExplainAudioUrl } from "@/lib/audio";
+import { type ExplanationAudience, getExplanationCacheKey } from "@/lib/ai/prompts";
+import type { PoetryExplanation } from "@/lib/ai/deepseek";
 import {
   pickPoetryContentVariant,
   type ScriptVariant,
@@ -49,6 +51,7 @@ type PoetryRepository = {
       annotation: string | null;
       imageKey: string | null;
       imageStatus: string;
+      aiExplanation: unknown;
       audioMeta: {
         status: string;
         durationMs: number;
@@ -121,6 +124,7 @@ type PoetryRecordWithSourceUid = {
   annotation: string | null;
   imageKey: string | null;
   imageStatus: string;
+  aiExplanation: unknown;
   audioMeta: {
     status: string;
     durationMs: number;
@@ -129,6 +133,11 @@ type PoetryRecordWithSourceUid = {
 };
 
 type PoetryRecordWithoutSourceUid = Omit<PoetryRecordWithSourceUid, "sourceUid">;
+
+export type ExplanationAudioInfo = {
+  url: string;
+  exists: boolean;
+};
 
 export type PoetryDetail = {
   id: string;
@@ -146,12 +155,15 @@ export type PoetryDetail = {
   images: PoetryImage[];
   audio: PoetryAudio;
   authorAvatarUrl: string | null;
+  explanations: Partial<Record<ExplanationAudience, PoetryExplanation>>;
+  explainAudio: Record<ExplanationAudience, ExplanationAudioInfo>;
 };
 
 type PoetryRepositoryDependencies = {
   getPoetryImage: (poetryId: string) => Promise<PoetryImage>;
   getPoetryImages: (poetryId: string) => Promise<PoetryImage[]>;
   hasAudioFile: (poetryId: string, sourceUid?: string | null) => boolean;
+  hasExplainAudioFile: (poetryId: string, audience: ExplanationAudience) => boolean;
 };
 
 type SyncReviewState = typeof syncReviewStateFromLearningEvent;
@@ -202,6 +214,43 @@ function toAudioLineTimings(value: unknown): AudioLineTiming[] | undefined {
   return lineTimings.length > 0 ? lineTimings : undefined;
 }
 
+const EXPLAIN_AUDIENCES: ExplanationAudience[] = ["child", "general"];
+
+function toExplanationCache(value: unknown): Partial<Record<ExplanationAudience, PoetryExplanation>> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  const result: Partial<Record<ExplanationAudience, PoetryExplanation>> = {};
+
+  for (const audience of EXPLAIN_AUDIENCES) {
+    const cacheKey = getExplanationCacheKey(audience);
+    const entry = (value as Record<string, unknown>)[cacheKey];
+
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      continue;
+    }
+
+    const candidate = entry as Partial<PoetryExplanation>;
+
+    if (
+      typeof candidate.summary === "string" &&
+      typeof candidate.imagery === "string" &&
+      typeof candidate.emotion === "string" &&
+      typeof candidate.cachedAt === "string"
+    ) {
+      result[audience] = {
+        summary: candidate.summary,
+        imagery: candidate.imagery,
+        emotion: candidate.emotion,
+        cachedAt: candidate.cachedAt,
+      };
+    }
+  }
+
+  return result;
+}
+
 function toPoetryAudio(
   poetryId: string,
   sourceUid: string | null,
@@ -250,6 +299,8 @@ export async function getPoetryById(
     getPoetryImages,
     hasAudioFile: (poetryId, sourceUid) =>
       hasMappedAudioFile(poetryId, sourceUid, existsSync),
+    hasExplainAudioFile: (poetryId, audience) =>
+      hasExplainAudioFile(poetryId, audience, existsSync),
   },
   scriptVariant: ScriptVariant = "zh-Hans",
 ): Promise<PoetryDetail | null> {
@@ -281,6 +332,7 @@ export async function getPoetryById(
       annotation: true,
       imageKey: true,
       imageStatus: true,
+      aiExplanation: true,
       audioMeta: true,
     },
   });
@@ -302,6 +354,18 @@ export async function getPoetryById(
   );
   const authorAvatarUrl = authorEntry?.avatarUrl ?? null;
 
+  const explanations = toExplanationCache(poetry.aiExplanation);
+  const explainAudio: Record<ExplanationAudience, ExplanationAudioInfo> = {
+    child: {
+      url: getExplainAudioUrl(poetry.id, "child"),
+      exists: dependencies.hasExplainAudioFile(poetry.id, "child"),
+    },
+    general: {
+      url: getExplainAudioUrl(poetry.id, "general"),
+      exists: dependencies.hasExplainAudioFile(poetry.id, "general"),
+    },
+  };
+
   return {
     id: poetry.id,
     title: content.title,
@@ -318,6 +382,8 @@ export async function getPoetryById(
     images: allImages,
     audio,
     authorAvatarUrl,
+    explanations,
+    explainAudio,
   };
 }
 

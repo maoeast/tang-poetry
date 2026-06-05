@@ -22,3 +22,9 @@
 
 - 新增全局补录约束：人工修订的译文与注释统一维护在 data/manual-poetry-supplements.json，后续批量补录或重放脚本时优先保留该文件中的人工版本。
 - 新增全局音频约束：ts300-0145《山中送别》当前通过 lib/audio.ts 临时复用 ts300-0054 的现有音频 UUID；当 public/audio/poetry/c8a4faa6-8666-44f9-b4c9-df78d7af844d.mp3 生成成功后，应删除该临时映射并切回自身 sourceUid。
+
+## 2026-06-05
+
+- 全局数据流：诗歌细曲页讲解卡片改为缓存优先，服务端从 Poetry.aiExplanation JSONB 解析 child/general 两个 audience 的缓存，直接传给客户端组件展示。
+- 全局音频流：讲解音频 public/audio/explain/{poetryId}_{audience}.mp3，服务端通过 hasExplainAudioFile() 检测文件存在性，客户端组件在有音频+有文本时展示内联播放器。
+- PoetryDetail 类型新增 explanations（解析后的讲解缓存）和 explainAudio（音频 URL + 存在性）， PoetryRepositoryDependencies 新增 hasExplainAudioFile 依赖注入。

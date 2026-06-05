@@ -42,6 +42,14 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
           annotation: "蝉声不断，衬出囚居之苦。",
           imageKey: "ts300-0001",
           imageStatus: "placeholder",
+          aiExplanation: {
+            child_v1: {
+              summary: "这是咏蝉的诗。",
+              imagery: "蝉在秋天的树上鸣叫。",
+              emotion: "诗人借蝉表达自己的心志。",
+              cachedAt: "2026-06-01T00:00:00.000Z",
+            },
+          },
           audioMeta: null,
         }),
       },
@@ -70,6 +78,7 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
         isPlaceholder: false,
       }],
       hasAudioFile: () => true,
+      hasExplainAudioFile: () => false,
     },
   );
 
@@ -90,6 +99,24 @@ test("getPoetryById returns normalized poetry detail fields", async () => {
       audioStatus: "ready",
       url: "/audio/poetry/c65539db-4e2b-4ce4-a22b-563b6ef3f4f1.mp3",
       durationMs: 0,
+    },
+    explanations: {
+      child: {
+        summary: "这是咏蝉的诗。",
+        imagery: "蝉在秋天的树上鸣叫。",
+        emotion: "诗人借蝉表达自己的心志。",
+        cachedAt: "2026-06-01T00:00:00.000Z",
+      },
+    },
+    explainAudio: {
+      child: {
+        url: "/audio/explain/ts300-0001_child.mp3",
+        exists: false,
+      },
+      general: {
+        url: "/audio/explain/ts300-0001_general.mp3",
+        exists: false,
+      },
     },
     image: {
       poetryId: "ts300-0001",
@@ -142,6 +169,7 @@ test("getPoetryById returns traditional content when scriptVariant is zh-Hant", 
           annotation: null,
           imageKey: "ts300-0001",
           imageStatus: "placeholder",
+          aiExplanation: null,
           audioMeta: null,
         }),
       },
@@ -160,6 +188,7 @@ test("getPoetryById returns traditional content when scriptVariant is zh-Hant", 
       }),
       getPoetryImages: async () => [],
       hasAudioFile: () => true,
+      hasExplainAudioFile: () => false,
     },
     "zh-Hant",
   );
@@ -195,6 +224,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
           annotation: null,
           imageKey: null,
           imageStatus: "ready",
+          aiExplanation: null,
           audioMeta: null,
         }),
       },
@@ -213,6 +243,7 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
       }),
       getPoetryImages: async () => [],
       hasAudioFile: () => false,
+      hasExplainAudioFile: () => false,
     },
   );
 
@@ -233,6 +264,17 @@ test("getPoetryById filters invalid json arrays into safe string lists", async (
       audioStatus: "none",
       url: null,
       durationMs: 0,
+    },
+    explanations: {},
+    explainAudio: {
+      child: {
+        url: "/audio/explain/ts300-0002_child.mp3",
+        exists: false,
+      },
+      general: {
+        url: "/audio/explain/ts300-0002_general.mp3",
+        exists: false,
+      },
     },
     image: {
       poetryId: "ts300-0002",
@@ -277,6 +319,7 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
           annotation: "晓：天刚亮的时候。",
           imageKey: "ts300-0003",
           imageStatus: "ready",
+          aiExplanation: null,
           audioMeta: {
             status: "ready",
             durationMs: 18_000,
@@ -308,6 +351,7 @@ test("getPoetryById returns aggregated audio metadata for the immersive detail p
       }),
       getPoetryImages: async () => [],
       hasAudioFile: () => true,
+      hasExplainAudioFile: () => false,
     },
   );
 
@@ -340,6 +384,7 @@ test("getPoetryById falls back to none when audio metadata status is unsupported
           annotation: null,
           imageKey: "ts300-0004",
           imageStatus: "ready",
+          aiExplanation: null,
           audioMeta: {
             status: "processing",
             durationMs: 15_000,
@@ -367,6 +412,7 @@ test("getPoetryById falls back to none when audio metadata status is unsupported
       }),
       getPoetryImages: async () => [],
       hasAudioFile: () => false,
+      hasExplainAudioFile: () => false,
     },
   );
 
@@ -393,6 +439,7 @@ test("getPoetryById returns null when poetry does not exist", async () => {
         throw new Error("should not query images when poetry is missing");
       },
       hasAudioFile: () => false,
+      hasExplainAudioFile: () => false,
     },
   );
 
@@ -430,6 +477,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
             annotation: null,
             imageKey: "ts300-0001",
             imageStatus: "placeholder",
+            aiExplanation: null,
             audioMeta: null,
           };
         },
@@ -449,6 +497,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
       }),
       getPoetryImages: async () => [],
       hasAudioFile: () => false,
+      hasExplainAudioFile: () => false,
     },
   );
 
@@ -476,6 +525,7 @@ test("getPoetryById requests the detail fields needed by the page", async () => 
         annotation: true,
         imageKey: true,
         imageStatus: true,
+        aiExplanation: true,
         audioMeta: true,
       },
     },
@@ -510,6 +560,7 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
           annotation: null,
           imageKey: "legacy-key",
           imageStatus: "placeholder",
+          aiExplanation: null,
           audioMeta: null,
         }),
       },
@@ -532,6 +583,7 @@ test("getPoetryById fetches runtime image data from ImageAsset by poetry id", as
       },
       getPoetryImages: async () => [],
       hasAudioFile: () => false,
+      hasExplainAudioFile: () => false,
     },
   );
 
