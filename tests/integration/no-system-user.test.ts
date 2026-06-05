@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { recordPoetryView } from "@/lib/poetry/repository";
+import { recordPoetryView, type PoetryRepository } from "@/lib/poetry/repository";
 import { getDailyPoetry } from "@/lib/poetry/daily";
 import { submitChallengeAnswer } from "@/lib/challenge/engine";
 import {
@@ -50,6 +50,9 @@ test("recordPoetryView skips DB writes when SYSTEM_USER_ID is missing", async ()
   await recordPoetryView(
     "ts300-0001",
     {
+      poetry: {
+        findUnique: async () => null,
+      },
       learningRecord: {
         findMany: async () => [],
         create: async () => {
@@ -57,7 +60,7 @@ test("recordPoetryView skips DB writes when SYSTEM_USER_ID is missing", async ()
           return {};
         },
       },
-    },
+    } as PoetryRepository,
     { now: new Date("2026-05-29T09:00:00.000Z") },
   );
 

@@ -25,7 +25,7 @@ type PoetryAudio = {
   lineTimings?: AudioLineTiming[];
 };
 
-type PoetryRepository = {
+export type PoetryRepository = {
   poetry: {
     findUnique?: (args: {
       where: { id: string };

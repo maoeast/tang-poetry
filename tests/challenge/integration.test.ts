@@ -19,7 +19,12 @@ import {
  * separately in the degradation tests.
  */
 
-function coupletQuestion(overrides: Partial<ChallengeQuestion> = {}): ChallengeQuestion {
+function coupletQuestion(overrides: {
+  id?: string;
+  poetryId?: string;
+  promptLineIndex?: number;
+  expectedAnswer?: string;
+} = {}): ChallengeQuestion {
   return {
     id: "question-couplet-1",
     poetryId: "ts300-0002",

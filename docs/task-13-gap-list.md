@@ -1,6 +1,32 @@
 # 任务 13 缺口清单
 
-最后更新：2026-05-30
+最后更新：2026-06-05
+
+## 2026-06-05 最终验证
+
+### 测试状态
+
+- **单元测试**：211 条全部通过（7 suites，0 fail）
+- **TypeScript 类型检查**：零错误
+- **E2E Playwright 测试**：4/4 通过
+  - `smoke.spec.ts`：解锁→首页→详情→AI 讲解（缓存优先）→已读 CTA→挑战→复习→我的
+  - `challenge-flow.spec.ts`：挑战页完整答题提交流程
+  - `review-flow.spec.ts`：复习自评提交（会背了/还不熟）
+- **Build**：`npm run build` 成功
+
+### Task B 验证
+
+- 讲解卡片缓存优先：今日诗（ts300-0005 出塞）有 `child_v1` + `general_v1` 缓存，页面直接展示无需 API 调用
+- 讲解音频播放器：`hasExplainAudioFile` 已注入 `PoetryRepositoryDependencies`，播放器 UI 仅在 `audioInfo.exists && explanation` 时渲染
+- API 回退保留：`/api/ai/explain` 仍作为无缓存时的回退路径（smoke test 兼容两种路径）
+- `PoetryRepository` 类型已导出，测试可安全引用
+
+### 本次修复
+
+- `tests/challenge/integration.test.ts`：`coupletQuestion` 的 overrides 参数从 `Partial<ChallengeQuestion>` 改为明确字段（修复联合类型兼容性）
+- `tests/integration/no-system-user.test.ts`：mock 补 `poetry` 属性，使用导出的 `PoetryRepository` 类型
+- `tests/e2e/smoke.spec.ts`：AI 讲解段改为缓存优先（有缓存直接验证内容，无缓存才走 API 按钮路径）
+- `lib/poetry/repository.ts`：`PoetryRepository` 类型从私有改为 `export`（测试需要）
 
 ## 当前前提
 
