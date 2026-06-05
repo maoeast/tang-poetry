@@ -2,17 +2,22 @@
 """Generate missing poetry TTS audio files into the runtime audio directory."""
 
 import argparse
+import asyncio
 import json
 import os
+import re
 import time
 from pathlib import Path
 
+import edge_tts
 from openai import OpenAI
 
 MODEL = "stepaudio-2.5-tts"
 VOICE = "cixingnansheng"
 OUTPUT_FORMAT = "mp3"
 BASE_URL = "https://api.stepfun.com/v1"
+EDGE_VOICE = "zh-CN-YunxiNeural"
+DEFAULT_PROVIDER = "auto"
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 JSON_PATH = PROJECT_ROOT / "data" / "ts300.simple.json"
@@ -24,6 +29,17 @@ def require_api_key() -> str:
 
     if api_key:
         return api_key
+
+    for env_path in (PROJECT_ROOT / ".env.local", PROJECT_ROOT / ".env"):
+        if not env_path.exists():
+            continue
+        match = re.search(
+            r'^STEPFUN_API_KEY\s*=\s*["\']?([^"\'\r\n]+)',
+            env_path.read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+        if match:
+            return match.group(1).strip()
 
     raise RuntimeError("Missing STEPFUN_API_KEY. Export it before running TTS generation.")
 
@@ -204,6 +220,12 @@ def parse_args():
         default=[],
         help="Generate audio only for the specified source poem UUID. Repeatable.",
     )
+    parser.add_argument(
+        "--provider",
+        choices=["auto", "stepfun", "edge"],
+        default=DEFAULT_PROVIDER,
+        help="Preferred TTS provider. auto tries StepFun first and falls back to edge-tts.",
+    )
     return parser.parse_args()
 
 
@@ -226,8 +248,48 @@ def build_input_text(poem: dict) -> str:
     return f"{header}\n{content}"
 
 
-def normalize_poem_title(title: str) -> str:
-    return title.strip()
+def build_speech_request(poem: dict) -> dict:
+    input_text = build_input_text(poem)
+    if len(input_text) > 950:
+        input_text = input_text[:950]
+
+    return {
+        "model": MODEL,
+        "voice": VOICE,
+        "input": input_text,
+        "response_format": OUTPUT_FORMAT,
+        "instruction": get_instruction(poem),
+        "volume": 1.0,
+    }
+
+
+def generate_with_stepfun(client: OpenAI, poem: dict, output_path: Path) -> None:
+    payload = build_speech_request(poem)
+    response = client.audio.speech.create(
+        model=payload["model"],
+        voice=payload["voice"],
+        input=payload["input"],
+        response_format=payload["response_format"],
+        extra_body={
+            "instruction": payload["instruction"],
+            "volume": payload["volume"],
+        },
+    )
+
+    with open(output_path, "wb") as f:
+        f.write(response.content)
+
+
+async def generate_with_edge_async(poem: dict, output_path: Path) -> None:
+    communicate = edge_tts.Communicate(
+        text=build_input_text(poem),
+        voice=EDGE_VOICE,
+    )
+    await communicate.save(str(output_path))
+
+
+def generate_with_edge(poem: dict, output_path: Path) -> None:
+    asyncio.run(generate_with_edge_async(poem, output_path))
 
 
 def main():
@@ -235,14 +297,13 @@ def main():
     output_dir = Path(args.output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    api_key = require_api_key()
-
     with open(JSON_PATH, "r", encoding="utf-8") as f:
         all_poems = json.load(f)
 
-    target_ids = set(NEED_AUDIO_IDS)
     if args.poem_id:
-        target_ids.update(p.strip() for p in args.poem_id if p.strip())
+        target_ids = {p.strip() for p in args.poem_id if p.strip()}
+    else:
+        target_ids = set(NEED_AUDIO_IDS)
 
     poems_need_audio = [p for p in all_poems if p["id"] in target_ids]
     poems_need_audio = [
@@ -250,7 +311,10 @@ def main():
     ]
     print(f"Found {len(poems_need_audio)} poems needing audio generation")
 
-    client = OpenAI(api_key=api_key, base_url=BASE_URL)
+    client = None
+    if args.provider in {"auto", "stepfun"}:
+        api_key = require_api_key()
+        client = OpenAI(api_key=api_key, base_url=BASE_URL)
 
     success = 0
     failed = 0
@@ -267,28 +331,30 @@ def main():
             skipped += 1
             continue
 
-        input_text = build_input_text(poem)
-        instruction = get_instruction(poem)
-
-        if len(input_text) > 950:
-            input_text = input_text[:950]
+        payload = build_speech_request(poem)
+        if len(build_input_text(poem)) > len(payload["input"]):
             print(f"  WARNING: truncated input for {title}")
 
-        print(f"[{i}/{len(poems_need_audio)}] {author}《{title}》 — {instruction[:30]}...")
+        print(f"[{i}/{len(poems_need_audio)}] {author}《{title}》 — {payload['instruction'][:30]}...")
 
         try:
-            response = client.audio.speech.create(
-                model=MODEL,
-                voice=VOICE,
-                input=input_text,
-                response_format=OUTPUT_FORMAT,
-                extra_body={"instruction": instruction},
+            provider_used = args.provider
+            if args.provider == "edge":
+                generate_with_edge(poem, output_path)
+            elif args.provider == "stepfun":
+                generate_with_stepfun(client, poem, output_path)
+            else:
+                try:
+                    generate_with_stepfun(client, poem, output_path)
+                    provider_used = "stepfun"
+                except Exception as stepfun_error:
+                    print(f"  StepFun failed, falling back to edge-tts: {stepfun_error}")
+                    generate_with_edge(poem, output_path)
+                    provider_used = "edge"
+
+            print(
+                f"  OK — {output_path.stat().st_size:,} bytes saved to {output_path.name} via {provider_used}"
             )
-
-            with open(output_path, "wb") as f:
-                f.write(response.content)
-
-            print(f"  OK — {output_path.stat().st_size:,} bytes saved to {output_path.name}")
             success += 1
         except Exception as error:
             print(f"  FAILED: {error}")

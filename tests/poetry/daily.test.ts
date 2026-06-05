@@ -2,10 +2,33 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  buildHomePoetryPreviewLines,
   getHomeCtaHref,
   getHomeCtaLabel,
 } from "@/components/home/today-poetry-hero";
 import { getDailyPoetry } from "@/lib/poetry/daily";
+
+test("buildHomePoetryPreviewLines splits coupled lines into single-sentence rows", () => {
+  assert.deepEqual(buildHomePoetryPreviewLines([
+    "君不见黄河之水天上来，奔流到海不复回。",
+    "君不见高堂明镜悲白发，朝如青丝暮成雪。",
+  ]), [
+    "君不见黄河之水天上来，",
+    "奔流到海不复回。",
+    "君不见高堂明镜悲白发，",
+    "朝如青丝暮成雪。",
+  ]);
+});
+
+test("buildHomePoetryPreviewLines tolerates source lines without punctuation", () => {
+  assert.deepEqual(buildHomePoetryPreviewLines([
+    "山中相送罢",
+    "日暮掩柴扉",
+  ]), [
+    "山中相送罢",
+    "日暮掩柴扉",
+  ]);
+});
 
 test("getDailyPoetry returns scheduled poetry for a given date", async () => {
   const previousUserId = process.env.SYSTEM_USER_ID;

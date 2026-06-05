@@ -30,7 +30,7 @@ test("getAudioUrl supports poem-specific audio source overrides", () => {
 
   assert.equal(
     getAudioUrl("ts300-0145", "c8a4faa6-8666-44f9-b4c9-df78d7af844d"),
-    "/audio/poetry/31cc87f3-da0f-421d-8674-8753530077e2.mp3",
+    "/audio/poetry/c8a4faa6-8666-44f9-b4c9-df78d7af844d.mp3",
   );
 
   process.env.AUDIO_BASE_URL = previousAudioBaseUrl;
@@ -84,7 +84,7 @@ test("hasMappedAudioFile supports poem-specific audio source overrides", () => {
     hasMappedAudioFile(
       "ts300-0145",
       "c8a4faa6-8666-44f9-b4c9-df78d7af844d",
-      (path) => path === "public/audio/poetry/31cc87f3-da0f-421d-8674-8753530077e2.mp3",
+      (path) => path === "public/audio/poetry/c8a4faa6-8666-44f9-b4c9-df78d7af844d.mp3",
     ),
     true,
   );

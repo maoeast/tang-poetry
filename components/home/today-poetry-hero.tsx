@@ -26,12 +26,24 @@ type TodayPoetryHeroProps = {
   weeklyCheckIn: WeeklyCheckIn;
 };
 
+export function buildHomePoetryPreviewLines(lines: string[]) {
+  return lines.flatMap((line) =>
+    line
+      .split(/(?<=[，。？！；：])/u)
+      .map((segment) => segment.trim())
+      .filter(Boolean),
+  );
+}
+
 export function TodayPoetryHero({
   todayPoetry,
   weeklyCheckIn,
 }: TodayPoetryHeroProps) {
   const imageSrc =
     todayPoetry.poetry.image.thumbPath ?? todayPoetry.poetry.image.imagePath;
+  const allPreviewLines = buildHomePoetryPreviewLines(todayPoetry.poetry.lines);
+  const previewLines = allPreviewLines.slice(0, 8);
+  const hasMorePreviewLines = allPreviewLines.length > previewLines.length;
 
   return (
     <section className="relative overflow-hidden rounded-[2.4rem] bg-surface px-5 py-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:px-6 lg:px-8">
@@ -54,7 +66,7 @@ export function TodayPoetryHero({
         </PoetryPoster>
 
         {/* Right: seamless text flow — no card borders */}
-        <div className="flex flex-col py-2">
+        <div className="flex flex-col items-center py-2 text-center">
           {/* Compact header: title → author → streak */}
           <p className="text-sm tracking-[0.24em] text-ink-400">
             今日一诗
@@ -66,7 +78,7 @@ export function TodayPoetryHero({
           }`}>
             {todayPoetry.poetry.title}
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-ink-400">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-4 text-sm text-ink-400">
             <span>
               {todayPoetry.poetry.dynasty} ·{" "}
               <Link
@@ -87,24 +99,28 @@ export function TodayPoetryHero({
             )}
           </div>
 
-          <div className="mt-3">
+          <div className="mt-4 flex justify-center">
             <WeeklyStreakMatrix data={weeklyCheckIn} />
           </div>
 
           {/* Poem body — pure serif, generous breathing room */}
-          <div className="mt-10 space-y-6">
-            {todayPoetry.poetry.lines.slice(0, 4).map((line, index) => (
+          <div className={`mt-8 w-full overflow-hidden lg:max-h-[23rem]${
+            hasMorePreviewLines ? " poetry-fade-bottom-mask" : ""
+          }`}>
+            <div className="mx-auto flex max-w-[28rem] flex-col items-center space-y-2">
+            {previewLines.map((line, index) => (
               <p
                 key={`${index}-${line}`}
-                className="font-serif text-xl leading-[2.4] tracking-[0.15em] text-ink-900 sm:text-2xl"
+                className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-serif text-[1.45rem] leading-[1.9] tracking-[0.12em] text-ink-900 sm:text-[1.6rem]"
               >
                 {line}
               </p>
             ))}
+            </div>
           </div>
 
           {/* Dual CTAs — challenge (primary) + appreciation (secondary) */}
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href={`/challenge?poetryId=${todayPoetry.poetry.id}` as Route}
               className="inline-flex rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-[var(--shadow-card)]"

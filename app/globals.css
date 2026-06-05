@@ -153,3 +153,20 @@ ruby.cjk-grid-char > rt {
     transparent 100%
   );
 }
+
+.poetry-fade-bottom-mask {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 78%,
+    rgba(0, 0, 0, 0.78) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 78%,
+    rgba(0, 0, 0, 0.78) 88%,
+    transparent 100%
+  );
+}
