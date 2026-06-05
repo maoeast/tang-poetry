@@ -220,20 +220,20 @@ export function AiExplanationCard({
 
       {/* Explanation text — show immediately if cached */}
       {explanation ? (
-        <div className="mt-4 space-y-4 text-sm leading-8 text-ink-600">
+        <div className="mt-4 space-y-4 text-base leading-relaxed text-ink-600">
           <p>{explanation.summary}</p>
           <p>{explanation.imagery}</p>
           <p>{explanation.emotion}</p>
         </div>
       ) : loadState === "loading" ? (
         <div className="mt-4">
-          <p className="text-sm leading-7 text-ink-600">
+          <p className="text-base leading-relaxed text-ink-600">
             正在整理讲解，请稍等。
           </p>
         </div>
       ) : (
         <div className="mt-4 space-y-4">
-          <p className="text-sm leading-8 text-ink-600">
+          <p className="text-base leading-relaxed text-ink-600">
             点击按钮加载 AI 讲解。
           </p>
           <button
@@ -301,7 +301,7 @@ export function AiExplanationCard({
       ) : null}
 
       {loadState === "error" ? (
-        <p className="mt-3 rounded-[1rem] border border-ink-200 bg-primary/10/45 px-3 py-2 text-sm leading-7 text-ink-600">
+        <p className="mt-3 rounded-[1rem] border border-ink-200 bg-primary/10/45 px-3 py-2 text-base leading-relaxed text-ink-600">
           {errorMessage}
         </p>
       ) : null}

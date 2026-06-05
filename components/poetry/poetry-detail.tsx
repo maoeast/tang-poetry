@@ -88,8 +88,8 @@ function TranslationCard({ poetry }: { poetry: PoetryDetailModel }) {
   return (
     <article className="rounded-[2rem] border border-ink-200 bg-surface/80 p-6 shadow-[var(--shadow-panel)]">
       <div className="flex items-center gap-3">
-        <h2 className="text-2xl font-semibold">译文与注释</h2>
-        <span className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400">
+        <h2 className="text-xl font-semibold">译文与注释</h2>
+        <span className="rounded-full border border-ink-200 px-3 py-1 text-sm text-ink-500">
           阅读辅助
         </span>
       </div>

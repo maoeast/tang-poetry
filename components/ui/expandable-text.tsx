@@ -31,7 +31,7 @@ export function ExpandableText({ text, maxLines = 4 }: ExpandableTextProps) {
     <div>
       <p
         ref={textRef}
-        className="mt-2 whitespace-pre-line text-sm leading-8 text-ink-600"
+        className="mt-2 whitespace-pre-line text-base leading-relaxed text-ink-600"
         style={
           !expanded
             ? {
