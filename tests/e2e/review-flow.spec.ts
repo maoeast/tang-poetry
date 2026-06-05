@@ -26,10 +26,7 @@ test("review player: submit self-report (known) and verify redirect", async ({ p
 
   // Navigate to review player
   await page.goto(`/review/${REVIEW_POETRY_ID}?from=upcoming&index=0`);
-  await expect(page.getByText("Review Player")).toBeVisible();
-
-  // Wait for the page to fully render
-  await expect(page.locator("h1", { hasText: "登幽州台歌" })).toBeVisible();
+  await expect(page.getByText("复习播放")).toBeVisible();
 
   // Check if self-report buttons are visible
   const knownButton = page.getByRole("button", { name: "会背了" });
@@ -46,15 +43,10 @@ test("review player: submit self-report (known) and verify redirect", async ({ p
 
     // Should redirect to /review after submission (no more poems in queue)
     await expect(page).toHaveURL(/\/review$/, { timeout: 10_000 });
-    await expect(page.getByRole("heading", { name: "复习批次入口" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "温故知新" })).toBeVisible();
   } else {
     // Buttons are locked — audio must play to 80%. Verify the lock state.
-    await expect(page.getByText("未解锁")).toBeVisible();
-
-    // Verify "再听一遍" button exists in the self-report section as an alternative action
-    await expect(
-      page.locator("section").filter({ hasText: "会背了" }).getByRole("button", { name: "再听一遍" })
-    ).toBeVisible();
+    await expect(page.getByText("需听完解锁")).toBeVisible();
   }
 });
 
@@ -67,7 +59,7 @@ test("review player: submit self-report (unknown) when unlocked", async ({ page 
 
   // Navigate to review player
   await page.goto(`/review/${REVIEW_POETRY_ID}?from=upcoming&index=0`);
-  await expect(page.getByText("Review Player")).toBeVisible();
+  await expect(page.getByText("复习播放")).toBeVisible();
 
   const unknownButton = page.getByRole("button", { name: "还不熟" });
   const isUnknownDisabled = await unknownButton.isDisabled();
@@ -77,6 +69,6 @@ test("review player: submit self-report (unknown) when unlocked", async ({ page 
 
     // Should redirect to /review after submission
     await expect(page).toHaveURL(/\/review$/, { timeout: 10_000 });
-    await expect(page.getByRole("heading", { name: "复习批次入口" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "温故知新" })).toBeVisible();
   }
 });

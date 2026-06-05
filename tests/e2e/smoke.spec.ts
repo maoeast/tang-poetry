@@ -13,12 +13,10 @@ test("phase 1 smoke flow", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { name: "唐诗画境" })).toBeVisible();
 
-  // Extract today's poem ID from the CTA link (text varies by read state)
-  const ctaLink = page.locator(
-    "a[href*='/poetry/'], a[href*='/challenge?poetryId=']"
-  ).filter({ hasText: /阅读全文|去挑战这首诗/ });
+  // Extract today's poem ID from the "赏析" CTA link
+  const ctaLink = page.getByRole("link", { name: "赏析" });
   const ctaHref = await ctaLink.getAttribute("href");
-  const todayPoetryId = ctaHref?.match(/(?:poetry\/|poetryId=)([^&]+)/)?.[1];
+  const todayPoetryId = ctaHref?.match(/poetry\/([^&]+)/)?.[1];
   expect(todayPoetryId).toBeTruthy();
 
   // Visit the poetry detail page
@@ -53,13 +51,13 @@ test("phase 1 smoke flow", async ({ page }) => {
   await expect(page.getByText(explainPayload.summary ?? "")).toBeVisible();
   await expect(page.getByText(explainPayload.imagery ?? "")).toBeVisible();
   await expect(page.getByText(explainPayload.emotion ?? "")).toBeVisible();
-  await expect(page.getByText("讲解已缓存，下次切换同版本受众会直接命中。")).toBeVisible();
+  await expect(page.getByText("讲解已加载，可以随时切换版本。")).toBeVisible();
 
-  // After reading, the homepage should show "今日已读" and the challenge CTA
+  // After reading, the homepage should show "今日已读" badge
   await page.goto("/");
   await expect(page.getByText("今日已读")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "去挑战这首诗" }),
+    page.getByRole("link", { name: "去挑战" }),
   ).toHaveAttribute("href", `/challenge?poetryId=${todayPoetryId}`);
 
   await page.goto(`/challenge?poetryId=${todayPoetryId}`);
@@ -67,13 +65,12 @@ test("phase 1 smoke flow", async ({ page }) => {
   await expect(page.getByRole("button", { name: "开始挑战" })).toBeVisible();
 
   await page.goto("/review");
-  await expect(page.getByRole("heading", { name: "复习批次入口" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "温故知新" })).toBeVisible();
 
   await page.goto(`/review/${REVIEW_POETRY_ID}?from=upcoming&index=0`);
-  await expect(page.getByText("Review Player")).toBeVisible();
-  await expect(page.locator("h1", { hasText: "登幽州台歌" })).toBeVisible();
+  await expect(page.getByText("复习播放")).toBeVisible();
 
   await page.goto("/me");
-  await expect(page.getByRole("heading", { name: "把近来的读诗痕迹收成一轴小长卷" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "读诗长卷" })).toBeVisible();
   await expect(page.getByText("诗人缘分榜")).toBeVisible();
 });

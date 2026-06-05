@@ -35,8 +35,12 @@ test("challenge round: submit answers for all 5 questions", async ({ page }) => 
     await expect(questionHeader).toBeVisible({ timeout: 5_000 });
 
     // Determine question type from the badge
-    const typeBadge = page.locator("span.rounded-full.bg-\\[var\\(--color-accent-soft\\)\\]");
-    const questionType = await typeBadge.textContent();
+    const typeMap: Record<string, string> = {
+      "对句": "couplet", "选作者": "author", "选诗名": "title", "排序": "ordering",
+    };
+    const typeBadge = page.locator("span.rounded-full.bg-primary\\/10");
+    const badgeText = await typeBadge.textContent();
+    const questionType = typeMap[badgeText ?? ""] ?? badgeText;
 
     if (questionType === "couplet") {
       // Couplet: type something in the input
@@ -73,7 +77,7 @@ test("challenge round: submit answers for all 5 questions", async ({ page }) => 
 
   // Verify each question result is shown
   const resultCards = page.locator(
-    "div.rounded-\\[1\\.5rem\\].border.border-\\[var\\(--color-line\\)\\].bg-\\[var\\(--color-card\\)\\]"
+    "div.rounded-\\[1\\.5rem\\].border.border-ink-200"
   );
   await expect(resultCards).toHaveCount(5);
 
