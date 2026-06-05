@@ -22,7 +22,7 @@ test("phase 1 smoke flow", async ({ page }) => {
   // Visit the poetry detail page
   await page.goto(`/poetry/${todayPoetryId}`);
   await expect(page).toHaveURL(new RegExp(`/poetry/${todayPoetryId}$`));
-  await expect(page.getByText("译文与读法")).toBeVisible();
+  await expect(page.getByText("译文与注释")).toBeVisible();
   await expect(page.getByRole("heading", { name: "AI 讲解" })).toBeVisible();
 
   // AI explanation: cache-first (DB cached content shown immediately)

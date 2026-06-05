@@ -3,6 +3,7 @@ import type { Route } from "next";
 
 import { AiExplanationCard } from "@/components/poetry/ai-explanation-card";
 import { BackButton } from "@/components/poetry/back-button";
+import { ExpandableText } from "@/components/ui/expandable-text";
 import { ImmersivePoetryStage } from "@/components/poetry/immersive-poetry-stage";
 import type { PoetryDetail as PoetryDetailModel, RelatedPoetry } from "@/lib/poetry/repository";
 import type { ScriptVariant } from "@/lib/poetry/script-variant";
@@ -92,7 +93,7 @@ function TabbedContentPanel({ poetry }: { poetry: PoetryDetailModel }) {
       {/* Translation section */}
       <div>
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-semibold">译文与读法</h2>
+          <h2 className="text-2xl font-semibold">译文与注释</h2>
           <span className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400">
             阅读辅助
           </span>
@@ -100,18 +101,14 @@ function TabbedContentPanel({ poetry }: { poetry: PoetryDetailModel }) {
         {hasTranslation ? (
           <div className="mt-4">
             <h3 className="text-sm font-medium text-ink-900">译文</h3>
-            <p className="mt-2 whitespace-pre-line text-sm leading-8 text-ink-600">
-              {poetry.translation}
-            </p>
+            <ExpandableText text={poetry.translation!} />
           </div>
         ) : null}
 
         {hasAnnotation ? (
           <div className={hasTranslation ? "mt-5" : "mt-4"}>
             <h3 className="text-sm font-medium text-ink-900">注释</h3>
-            <p className="mt-2 whitespace-pre-line text-sm leading-8 text-ink-600">
-              {poetry.annotation}
-            </p>
+            <ExpandableText text={poetry.annotation!} />
           </div>
         ) : null}
 
