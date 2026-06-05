@@ -37,92 +37,90 @@ export function PoetryDetail({
         {/* Immersive stage: poster + poetry + audio */}
         <ImmersivePoetryStage key={poetry.id} poetry={poetry} initialScriptVariant={initialScriptVariant} />
 
-        {/* Secondary content */}
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
-          {/* Left: Tabbed panel (Translation + AI Explanation) */}
-          <TabbedContentPanel poetry={poetry} />
+        {/* Secondary content: 译文与注释 | AI讲解 (side by side) */}
+        <section className="grid gap-6 lg:grid-cols-2">
+          <TranslationCard poetry={poetry} />
+          <ExplanationCard poetry={poetry} />
+        </section>
 
-          {/* Right: Related poems */}
-          <aside>
-            {/* Related poems */}
-            <section className="rounded-[2rem] border border-ink-200 bg-surface/80 p-6 shadow-[var(--shadow-panel)]">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold">相关推荐</h2>
-                <span className="text-xs text-ink-400">同作者 / 同主题</span>
-              </div>
+        {/* Related poems — full width below */}
+        <section className="rounded-[2rem] border border-ink-200 bg-surface/80 p-6 shadow-[var(--shadow-panel)]">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold">相关推荐</h2>
+            <span className="text-xs text-ink-400">同作者 / 同主题</span>
+          </div>
 
-              {relatedPoetries.length > 0 ? (
-                <div className="mt-4 space-y-3">
-                  {relatedPoetries.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={`/poetry/${item.id}` as Route}
-                      className="block rounded-[1.25rem] border border-ink-200 bg-surface/72 p-4 transition hover:bg-surface/50"
-                    >
-                      <p className="text-lg font-medium">{item.title}</p>
-                      <p className="mt-1 text-sm text-ink-600">
-                        {item.dynasty} · {item.author}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-ink-600">
-                        {item.previewLine}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-4 text-sm leading-8 text-ink-600">
-                  暂无相关推荐。
-                </p>
-              )}
-            </section>
-          </aside>
+          {relatedPoetries.length > 0 ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedPoetries.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/poetry/${item.id}` as Route}
+                  className="block rounded-[1.25rem] border border-ink-200 bg-surface/72 p-4 transition hover:bg-surface/50"
+                >
+                  <p className="text-lg font-medium">{item.title}</p>
+                  <p className="mt-1 text-sm text-ink-600">
+                    {item.dynasty} · {item.author}
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-ink-600">
+                    {item.previewLine}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm leading-8 text-ink-600">
+              暂无相关推荐。
+            </p>
+          )}
         </section>
       </div>
     </main>
   );
 }
 
-/* ── Tabbed Content Panel (Translation + AI Explanation) ── */
+/* ── Translation Card ── */
 
-function TabbedContentPanel({ poetry }: { poetry: PoetryDetailModel }) {
+function TranslationCard({ poetry }: { poetry: PoetryDetailModel }) {
   const hasTranslation = Boolean(poetry.translation?.trim());
   const hasAnnotation = Boolean(poetry.annotation?.trim());
 
   return (
     <article className="rounded-[2rem] border border-ink-200 bg-surface/80 p-6 shadow-[var(--shadow-panel)]">
-      {/* Translation section */}
-      <div>
-        <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-semibold">译文与注释</h2>
-          <span className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400">
-            阅读辅助
-          </span>
-        </div>
-        {hasTranslation ? (
-          <div className="mt-4">
-            <h3 className="text-sm font-medium text-ink-900">译文</h3>
-            <ExpandableText text={poetry.translation!} />
-          </div>
-        ) : null}
-
-        {hasAnnotation ? (
-          <div className={hasTranslation ? "mt-5" : "mt-4"}>
-            <h3 className="text-sm font-medium text-ink-900">注释</h3>
-            <ExpandableText text={poetry.annotation!} />
-          </div>
-        ) : null}
-
-        {!hasTranslation && !hasAnnotation ? (
-          <p className="mt-4 text-sm leading-8 text-ink-600">
-            当前还没有录入译文或注释，可先结合原文与 AI 讲解理解诗意。
-          </p>
-        ) : null}
+      <div className="flex items-center gap-3">
+        <h2 className="text-2xl font-semibold">译文与注释</h2>
+        <span className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400">
+          阅读辅助
+        </span>
       </div>
+      {hasTranslation ? (
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-ink-900">译文</h3>
+          <ExpandableText text={poetry.translation!} />
+        </div>
+      ) : null}
 
-      {/* Divider */}
-      <div className="my-6 h-px bg-ink-200/50" />
+      {hasAnnotation ? (
+        <div className={hasTranslation ? "mt-5" : "mt-4"}>
+          <h3 className="text-sm font-medium text-ink-900">注释</h3>
+          <ExpandableText text={poetry.annotation!} />
+        </div>
+      ) : null}
 
-      {/* AI Explanation */}
+      {!hasTranslation && !hasAnnotation ? (
+        <p className="mt-4 text-sm leading-8 text-ink-600">
+          当前还没有录入译文或注释，可先结合原文与 AI 讲解理解诗意。
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+/* ── Explanation Card ── */
+
+function ExplanationCard({ poetry }: { poetry: PoetryDetailModel }) {
+  return (
+    <article className="rounded-[2rem] border border-ink-200 bg-surface/80 p-6 shadow-[var(--shadow-panel)]">
       <AiExplanationCard
         poetryId={poetry.id}
         explanations={poetry.explanations}
