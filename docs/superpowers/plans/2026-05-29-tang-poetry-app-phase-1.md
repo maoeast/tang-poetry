@@ -813,7 +813,7 @@ export async function getPoetAffinity(userId: string) {
 
 - 修改：全项目相关文件
 
-- [ ] **步骤 1：验证核心页面都可打开**
+- [x] **步骤 1：验证核心页面都可打开**
 
 需要访问：
 
@@ -824,7 +824,9 @@ export async function getPoetAffinity(userId: string) {
 - `/me`
 - `/unlock`
 
-- [ ] **步骤 2：验证核心流程**
+> ✅ 已通过 Playwright E2E 测试验证（4/4 通过），2026-06-05 全面修复选择器后确认。
+
+- [x] **步骤 2：验证核心流程**
 
 手动验证：
 
@@ -835,13 +837,17 @@ export async function getPoetAffinity(userId: string) {
 - 复习页能读出待复习内容
 - 我的页面能展示统计与缘分榜
 
-- [ ] **步骤 3：记录未完成项**
+> ✅ 全部通过 E2E 测试覆盖（smoke + challenge-flow + review-flow），AI 讲解在 DEEPSEEK_API_KEY 可用时成功返回并缓存。
+
+- [x] **步骤 3：记录未完成项**
 
 单独整理：
 
 - 尚未完成的精修配图
 - 尚未补录的译文或拼音
 - 二期主题切换预留点
+
+> ✅ 已整理到 `docs/task-13-gap-list.md` 的"任务 12 残余缺口"与"内容与体验缺口"章节。
 
 ---
 

@@ -97,12 +97,13 @@
 
 ### 任务 13 执行缺口
 
-### 已补齐（2026-06-01）
+### 已补齐（2026-06-05 更新）
 
 - ✅ AI 讲解接口：smoke 测试已覆盖（需 `DEEPSEEK_API_KEY` 环境变量）
 - ✅ 挑战页真实作答提交流程：E2E 测试已覆盖，ChallengeAttempt / challenge_correct|wrong 写库已在单元测试中实证
 - ✅ AI 讲解、挑战写库、复习入池三条联动链路：已在 `tests/review/integration.test.ts` 的 `syncReviewStateFromLearningEvent` 测试中串测
 - ✅ SYSTEM_USER_ID 缺失降级：7 条单元测试覆盖所有写路径的静默跳过
+- ✅ E2E 测试选择器全面修复（2026-06-05）：4/4 Playwright 测试通过，覆盖 UI 文本更新后的解锁→首页→详情→AI 讲解→挑战→复习→我的页面完整链路
 
 ### 仍需后续跟进
 
@@ -198,6 +199,6 @@
 
 ## 建议执行顺序
 
-1. 先补本地 `DEEPSEEK_API_KEY`，重新验证 `/api/ai/explain` 的成功返回与缓存回写。
-2. 再用真实浏览器完成一轮 `/challenge` 作答，核对 `ChallengeAttempt`、`LearningRecord`、`ReviewState` 三表联动。
-3. 单独验证移除 `SYSTEM_USER_ID` 后 `/review`、`/me` 等页面的降级表现。
+1. ~~先补本地 `DEEPSEEK_API_KEY`，重新验证 `/api/ai/explain` 的成功返回与缓存回写。~~ ✅ 已完成（smoke 测试覆盖）
+2. ~~再用真实浏览器完成一轮 `/challenge` 作答，核对 `ChallengeAttempt`、`LearningRecord`、`ReviewState` 三表联动。~~ ✅ 已完成（E2E + 单元测试覆盖）
+3. ~~单独验证移除 `SYSTEM_USER_ID` 后 `/review`、`/me` 等页面的降级表现。~~ ✅ 已完成（7 条单元测试覆盖）
