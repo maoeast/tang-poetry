@@ -13,9 +13,9 @@
  *   - Retry with backoff — retries up to 3 times on failure
  *
  * Usage:
- *   npx tsx scripts/generate-explain-audio.ts               # dry run
- *   npx tsx scripts/generate-explain-audio.ts --write        # generate audio
- *   npx tsx scripts/generate-explain-audio.ts --write --rate-limit 2000
+ *   npx tsx scripts/generate-explain-audio.ts                          # dry run
+ *   npx tsx scripts/generate-explain-audio.ts --write                  # generate audio
+ *   npx tsx scripts/generate-explain-audio.ts --write --concurrency 50 # 50 parallel
  *   npx tsx scripts/generate-explain-audio.ts --write --id ts300-0001
  *   npx tsx scripts/generate-explain-audio.ts --write --limit 5
  */
@@ -85,7 +85,13 @@ function parseArgs() {
       ? parseInt(args[limitIndex + 1], 10)
       : 0;
 
-  return { shouldWrite, rateLimitMs, ids, limit };
+  const concurrencyIndex = args.indexOf("--concurrency");
+  const concurrency =
+    concurrencyIndex !== -1 && args[concurrencyIndex + 1]
+      ? parseInt(args[concurrencyIndex + 1], 10)
+      : 1;
+
+  return { shouldWrite, rateLimitMs, ids, limit, concurrency };
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -181,8 +187,52 @@ async function retryTTS(
 
 // ─── Main ───────────────────────────────────────────────────────────
 
+// ─── Process single work item ────────────────────────────────────────
+
+type WorkItem = {
+  poetryId: string;
+  title: string;
+  author: string;
+  audience: ExplanationAudience;
+  explanation: PoetryExplanation;
+};
+
+type WorkResult = {
+  item: WorkItem;
+  ok: boolean;
+  sizeKB?: number;
+  error?: string;
+};
+
+async function processItem(item: WorkItem): Promise<WorkResult> {
+  const voice = VOICE_MAP[item.audience];
+  const instruction = INSTRUCTION_MAP[item.audience];
+  const outputPath = getOutputPath(item.poetryId, item.audience);
+
+  // Double-check file existence (for resume)
+  if (existsSync(outputPath)) {
+    return { item, ok: true, sizeKB: 0 }; // already exists
+  }
+
+  const text = buildExplanationText(item.explanation);
+  const truncated = text.length > MAX_CHARS;
+  const effectiveText = truncated ? text.slice(0, MAX_CHARS) : text;
+
+  const audioBuffer = await retryTTS(effectiveText, voice, instruction);
+
+  if (audioBuffer) {
+    writeFileSync(outputPath, Buffer.from(audioBuffer));
+    const sizeKB = Math.round(audioBuffer.byteLength / 1024);
+    return { item, ok: true, sizeKB };
+  }
+
+  return { item, ok: false, error: "all retries failed" };
+}
+
+// ─── Main ───────────────────────────────────────────────────────────
+
 async function main() {
-  const { shouldWrite, rateLimitMs, ids, limit } = parseArgs();
+  const { shouldWrite, rateLimitMs, ids, limit, concurrency } = parseArgs();
 
   console.log(
     shouldWrite
@@ -192,7 +242,8 @@ async function main() {
   console.log(`   Model: ${MODEL}`);
   console.log(`   Base URL: ${STEP_BASE_URL}`);
   console.log(`   Output: ${OUTPUT_DIR}`);
-  console.log(`   Rate limit: ${rateLimitMs}ms`);
+  console.log(`   Concurrency: ${concurrency}`);
+  console.log(`   Rate limit: ${rateLimitMs}ms (between batches)`);
 
   if (shouldWrite) {
     mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -212,14 +263,6 @@ async function main() {
   });
 
   // Build work list: (poem, audience) pairs that need audio
-  type WorkItem = {
-    poetryId: string;
-    title: string;
-    author: string;
-    audience: ExplanationAudience;
-    explanation: PoetryExplanation;
-  };
-
   const workList: WorkItem[] = [];
   for (const poem of poems) {
     const cache = toCacheMap(poem.aiExplanation);
@@ -253,63 +296,66 @@ async function main() {
     return;
   }
 
+  if (!shouldWrite) {
+    console.log(`\n[dry-run] Would generate ${effectiveWork.length} audio files with concurrency=${concurrency}`);
+    console.log("\n💡 Run with --write to generate audio files.");
+    await prisma.$disconnect();
+    return;
+  }
+
+  // Process in parallel batches
   let success = 0;
-  let skipped = 0;
-  const failedList: Array<{
-    index: number;
-    title: string;
-    author: string;
-    audience: string;
-  }> = [];
+  let failed = 0;
+  let totalProcessed = 0;
+  const failedList: WorkItem[] = [];
+  const batchSize = concurrency;
 
-  for (let i = 0; i < effectiveWork.length; i++) {
-    const item = effectiveWork[i];
-    const prefix = `[${i + 1}/${effectiveWork.length}]`;
-    const voice = VOICE_MAP[item.audience];
-    const instruction = INSTRUCTION_MAP[item.audience];
-    const cacheKey = getExplanationCacheKey(item.audience);
-    const outputPath = getOutputPath(item.poetryId, item.audience);
-
-    // Double-check file existence (for resume)
-    if (existsSync(outputPath)) {
-      console.log(
-        `${prefix} ${item.author}《${item.title}》 ${cacheKey} — already exists, skip`,
-      );
-      skipped++;
-      continue;
-    }
-
-    const text = buildExplanationText(item.explanation);
-    const truncated = text.length > MAX_CHARS;
-    const effectiveText = truncated ? text.slice(0, MAX_CHARS) : text;
+  for (let i = 0; i < effectiveWork.length; i += batchSize) {
+    const batch = effectiveWork.slice(i, i + batchSize);
+    const batchNum = Math.floor(i / batchSize) + 1;
+    const totalBatches = Math.ceil(effectiveWork.length / batchSize);
 
     console.log(
-      `${prefix} ${item.author}《${item.title}》 ${cacheKey} — ${effectiveText.length}字, voice: ${voice}${truncated ? " (truncated)" : ""}`,
+      `\n📦 Batch ${batchNum}/${totalBatches} — ${batch.length} items (total: ${totalProcessed + batch.length}/${effectiveWork.length})`,
     );
 
-    if (!shouldWrite) {
-      console.log(`    [dry-run] would call StepFun TTS`);
-      continue;
+    const results = await Promise.allSettled(
+      batch.map((item) => processItem(item)),
+    );
+
+    for (const result of results) {
+      totalProcessed++;
+      if (result.status === "fulfilled") {
+        const r = result.value;
+        if (r.ok) {
+          if (r.sizeKB && r.sizeKB > 0) {
+            success++;
+          }
+        } else {
+          failed++;
+          failedList.push(r.item);
+          console.error(
+            `  ❌ ${r.item.author}《${r.item.title}》 ${getExplanationCacheKey(r.item.audience)} — ${r.error}`,
+          );
+        }
+      } else {
+        failed++;
+        // result.reason contains the rejection error
+        const item = batch[results.indexOf(result)];
+        if (item) failedList.push(item);
+        console.error(`  ❌ Unexpected error: ${result.reason}`);
+      }
     }
 
-    const audioBuffer = await retryTTS(effectiveText, voice, instruction);
+    const batchSuccess = results.filter(
+      (r) => r.status === "fulfilled" && r.value.ok && (r.value.sizeKB ?? 0) > 0,
+    ).length;
+    console.log(
+      `  ✅ Batch done: ${batchSuccess} generated, ${batch.length - batchSuccess} skipped/failed`,
+    );
 
-    if (audioBuffer) {
-      writeFileSync(outputPath, Buffer.from(audioBuffer));
-      const sizeKB = Math.round(audioBuffer.byteLength / 1024);
-      console.log(`    OK — ${sizeKB}KB saved to ${path.basename(outputPath)}`);
-      success++;
-    } else {
-      failedList.push({
-        index: i + 1,
-        title: item.title,
-        author: item.author,
-        audience: cacheKey,
-      });
-    }
-
-    // Rate limit between requests
-    if (i < effectiveWork.length - 1 && shouldWrite) {
+    // Rate limit between batches
+    if (i + batchSize < effectiveWork.length) {
       await sleep(rateLimitMs);
     }
   }
@@ -317,22 +363,16 @@ async function main() {
   // Summary
   console.log("\n📊 Results:");
   console.log(`  Generated: ${success}`);
-  console.log(`  Skipped (already exist): ${skipped}`);
   console.log(`  Failed: ${failedList.length}`);
+  console.log(`  Total processed: ${totalProcessed}`);
 
   if (failedList.length > 0) {
     console.log("\n❌ Failed items:");
     for (const f of failedList) {
       console.log(
-        `  #${f.index} ${f.author}《${f.title}》— ${f.audience}`,
+        `  ${f.author}《${f.title}》— ${getExplanationCacheKey(f.audience)}`,
       );
     }
-  }
-
-  if (!shouldWrite && effectiveWork.length > 0) {
-    console.log(
-      "\n💡 Run with --write to generate audio files.",
-    );
   }
 }
 
