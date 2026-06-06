@@ -2,9 +2,11 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { WeeklyStreakMatrix } from "@/components/home/weekly-streak-matrix";
+import { LyricsWindow } from "@/components/lyrics/lyrics-window";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
-import { PosterTitleBlock } from "@/components/poster/poster-title-block";
+import { PoetryTitleAuthor } from "@/components/poetry/poetry-title-author";
 import type { DailyPoetryResult } from "@/lib/poetry/daily";
+import { splitCoupletLines } from "@/lib/poetry/lines";
 import type { WeeklyCheckIn } from "@/lib/stats/weekly-checkin";
 
 /** @deprecated No longer used by homepage — kept for test compatibility */
@@ -27,12 +29,7 @@ type TodayPoetryHeroProps = {
 };
 
 export function buildHomePoetryPreviewLines(lines: string[]) {
-  return lines.flatMap((line) =>
-    line
-      .split(/(?<=[，。？！；：])/u)
-      .map((segment) => segment.trim())
-      .filter(Boolean),
-  );
+  return splitCoupletLines(lines, []).map((l) => l.text);
 }
 
 export function TodayPoetryHero({
@@ -41,82 +38,57 @@ export function TodayPoetryHero({
 }: TodayPoetryHeroProps) {
   const imageSrc =
     todayPoetry.poetry.image.thumbPath ?? todayPoetry.poetry.image.imagePath;
-  const allPreviewLines = buildHomePoetryPreviewLines(todayPoetry.poetry.lines);
-  const previewLines = allPreviewLines.slice(0, 8);
-  const hasMorePreviewLines = allPreviewLines.length > previewLines.length;
+  const allLyrics = splitCoupletLines(todayPoetry.poetry.lines, []);
+  const previewLines = allLyrics.slice(0, 8);
+  const hasMoreLines = allLyrics.length > previewLines.length;
 
   return (
     <section className="relative overflow-hidden rounded-[2.4rem] bg-surface px-5 py-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.32),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.24),transparent_32%)]" />
 
       <div className="relative grid gap-6 lg:grid-cols-[minmax(18rem,28rem)_minmax(0,1fr)] lg:items-start">
-        {/* Left: Poetry poster image */}
+        {/* Left: Poetry poster image with overlays */}
         <PoetryPoster
           variant="hero"
           imageSrc={imageSrc}
           imageAlt={`${todayPoetry.poetry.title} 配图`}
           isPlaceholder={todayPoetry.poetry.image.isPlaceholder}
           priority
+          badge={
+            <span className={`rounded-full px-3 py-1 text-xs tracking-[0.18em] shadow-sm backdrop-blur-sm ${
+              todayPoetry.isReadToday
+                ? "bg-emerald-50/90 text-emerald-600"
+                : "bg-surface/90 text-ink-600"
+            }`}>
+              {todayPoetry.isReadToday ? "今日已读" : "今日一诗"}
+            </span>
+          }
         >
-          <PosterTitleBlock
+          <div className="absolute inset-x-0 bottom-0 pointer-events-none">
+            <div className="mx-4 mb-4 rounded-xl bg-surface/85 px-3 py-2 shadow-sm backdrop-blur-sm">
+              <WeeklyStreakMatrix data={weeklyCheckIn} />
+            </div>
+          </div>
+        </PoetryPoster>
+
+        {/* Right: title + author + body + CTAs */}
+        <div className="flex flex-col items-center py-2 text-center">
+          <PoetryTitleAuthor
             title={todayPoetry.poetry.title}
             author={todayPoetry.poetry.author}
             dynasty={todayPoetry.poetry.dynasty}
           />
-        </PoetryPoster>
 
-        {/* Right: seamless text flow — no card borders */}
-        <div className="flex flex-col items-center py-2 text-center">
-          {/* Compact header: title → author → streak */}
-          <p className="text-sm tracking-[0.24em] text-ink-400">
-            今日一诗
-          </p>
-          <h1 className={`mt-3 font-serif ${
-            todayPoetry.poetry.title.length > 15
-              ? "text-2xl font-medium leading-relaxed sm:text-3xl"
-              : "text-3xl font-semibold sm:text-4xl"
-          }`}>
-            {todayPoetry.poetry.title}
-          </h1>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-4 text-sm text-ink-400">
-            <span>
-              {todayPoetry.poetry.dynasty} ·{" "}
-              <Link
-                href={`/author/${todayPoetry.poetry.author}` as import("next").Route}
-                className="transition hover:text-ink-900"
-              >
-                {todayPoetry.poetry.author}
-              </Link>
-            </span>
-            {todayPoetry.isReadToday && (
-              <span className="inline-flex items-center gap-1 text-xs tracking-[0.15em] text-ink-400">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="0.8" className="text-emerald-500" />
-                  <path d="M4 7l2 2 4-4" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500" />
-                </svg>
-                今日已读
-              </span>
-            )}
-          </div>
-
-          <div className="mt-4 flex justify-center">
-            <WeeklyStreakMatrix data={weeklyCheckIn} />
-          </div>
-
-          {/* Poem body — pure serif, generous breathing room */}
+          {/* Poem body */}
           <div className={`mt-8 w-full overflow-hidden lg:max-h-[23rem]${
-            hasMorePreviewLines ? " poetry-fade-bottom-mask" : ""
+            hasMoreLines ? " poetry-fade-bottom-mask" : ""
           }`}>
-            <div className="mx-auto flex max-w-[28rem] flex-col items-center space-y-2">
-            {previewLines.map((line, index) => (
-              <p
-                key={`${index}-${line}`}
-                className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-serif text-[1.45rem] leading-[1.9] tracking-[0.12em] text-ink-900 sm:text-[1.6rem]"
-              >
-                {line}
-              </p>
-            ))}
-            </div>
+            <LyricsWindow
+              layout="flow"
+              mode="static"
+              lines={previewLines}
+              showPinyin={false}
+            />
           </div>
 
           {/* Dual CTAs — challenge (primary) + appreciation (secondary) */}

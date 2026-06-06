@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
+import { PoetryTitleAuthor } from "@/components/poetry/poetry-title-author";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
-import { PosterStatusBadge } from "@/components/poster/poster-status-badge";
 import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import { getLineStartMs } from "@/lib/audio/timings";
 import { estimateIntroOffsetMs } from "@/lib/audio/intro-offset";
+import { splitCoupletLines } from "@/lib/poetry/lines";
 import type { PoetryDetail } from "@/lib/poetry/repository";
 import {
   buildInitialReviewPlayerQueue,
@@ -42,30 +43,6 @@ type ReviewPoetryStageProps = {
   }>;
 };
 
-function getAudioBadgeLabel(audioStatus: PoetryDetail["audio"]["audioStatus"]) {
-  if (audioStatus === "ready") {
-    return "复习朗读";
-  }
-
-  if (audioStatus === "tts") {
-    return "TTS 复习";
-  }
-
-  return "无音频";
-}
-
-function getAudioBadgeTone(audioStatus: PoetryDetail["audio"]["audioStatus"]) {
-  if (audioStatus === "ready") {
-    return "ready" as const;
-  }
-
-  if (audioStatus === "none") {
-    return "placeholder" as const;
-  }
-
-  return "neutral" as const;
-}
-
 export function ReviewPoetryStage({
   poetry,
   initialQueuePoetryIds,
@@ -79,10 +56,7 @@ export function ReviewPoetryStage({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAudio = poetry.audio.audioStatus !== "none" && poetry.audio.url !== null;
   const introOffsetMs = estimateIntroOffsetMs(poetry.title, poetry.author);
-  const lyrics = poetry.lines.map((line, index) => ({
-    text: line,
-    pinyin: poetry.pinyin[index],
-  }));
+  const lyrics = splitCoupletLines(poetry.lines, poetry.pinyin);
   const [queuePoetryIds, setQueuePoetryIds] = useState(() =>
     buildInitialReviewPlayerQueue({
       poetryId: poetry.id,
@@ -377,57 +351,37 @@ export function ReviewPoetryStage({
               imageAlt={`${poetry.title} 配图`}
               isPlaceholder={poetry.image.isPlaceholder}
               priority
-              badge={
-                <PosterStatusBadge
-                  label={getAudioBadgeLabel(poetry.audio.audioStatus)}
-                  tone={getAudioBadgeTone(poetry.audio.audioStatus)}
-                />
-              }
             >
               <PosterTitleBlock
                 title={poetry.title}
                 author={poetry.author}
                 dynasty={poetry.dynasty}
               />
+              {poetry.themes.length > 0 && (
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 via-black/15 to-transparent px-4 pb-4 pt-10">
+                  <p className="text-xs leading-relaxed text-white/75">
+                    {poetry.themes.slice(0, 4).join(' · ')}
+                  </p>
+                </div>
+              )}
             </PoetryPoster>
 
             <div className="space-y-5">
-              {/* Metadata: tags (ghost style) + pinyin toggle (top-right) */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap gap-2">
-                  {poetry.themes.map((theme) => (
-                    <span
-                      key={theme}
-                      className="rounded-full border border-ink-200 px-3 py-1 text-xs text-ink-400"
-                    >
-                      {theme}
-                    </span>
-                  ))}
-                </div>
+              <PoetryTitleAuthor
+                title={poetry.title}
+                author={poetry.author}
+                dynasty={poetry.dynasty}
+                authorAvatarUrl={poetry.authorAvatarUrl}
+              />
 
-                <button
-                  type="button"
-                  onClick={() => setShowPinyin((current) => !current)}
-                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition ${
-                    showPinyin
-                      ? "bg-primary/10 text-primary"
-                      : "text-ink-400 hover:text-ink-600"
-                  }`}
-                >
-                  <span className={`inline-block h-4 w-7 rounded-full transition-colors ${showPinyin ? "bg-primary" : "bg-ink-200"}`}>
-                    <span className={`block h-4 w-4 rounded-full bg-surface shadow-sm transition-transform ${showPinyin ? "translate-x-3" : "translate-x-0"}`} />
-                  </span>
-                  拼音
-                </button>
-              </div>
-
-              {/* Lyrics: flow layout (no bubbles) */}
+              {/* Lyrics: flow layout */}
               {hasAudio ? (
                 <LyricsWindow
                   layout="flow"
                   mode="auto"
                   lines={lyrics}
                   showPinyin={showPinyin}
+                  originalLineCount={poetry.lines.length}
                   durationMs={durationMs}
                   audioCurrentTimeMs={currentTimeMs}
                   lineTimings={poetry.audio.lineTimings}
@@ -451,6 +405,7 @@ export function ReviewPoetryStage({
                   mode="manual"
                   lines={lyrics}
                   showPinyin={showPinyin}
+                  originalLineCount={poetry.lines.length}
                   activeLineIndex={currentLineIndex}
                   onActiveLineChange={setCurrentLineIndex}
                 />
@@ -526,6 +481,17 @@ export function ReviewPoetryStage({
             >
               {isUnlocked ? "已解锁" : "需听完解锁"}
             </span>
+            <button
+              type="button"
+              onClick={() => setShowPinyin((current) => !current)}
+              className={`rounded-full border px-2.5 py-0.5 text-xs transition ${
+                showPinyin
+                  ? "border-primary/30 bg-primary/10 text-primary"
+                  : "border-ink-200 text-ink-400 hover:text-ink-600"
+              }`}
+            >
+              拼
+            </button>
           </div>
 
           {/* Right: self-eval buttons */}

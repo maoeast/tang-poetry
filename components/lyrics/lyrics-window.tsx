@@ -250,9 +250,11 @@ export function LyricsWindow(props: LyricsWindowProps) {
                 key={`${lineIndex}-${line.text}`}
                 ref={(el) => { if (el) lineRefs.current.set(resolvedIndex, el); }}
                 className={`font-serif text-xl leading-[2.6] transition-all duration-300 ease-in-out ${
-                  isActive
-                    ? "text-ink-900 font-bold"
-                    : "text-ink-600"
+                  activeLineIndex < 0
+                    ? "text-ink-900"
+                    : isActive
+                      ? "text-ink-900 font-bold"
+                      : "text-ink-600"
                 }`}
                 data-line-index={lineIndex}
               >

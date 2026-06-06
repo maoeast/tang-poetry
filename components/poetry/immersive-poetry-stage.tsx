@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import type { Route } from "next";
-import Image from "next/image";
 
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
 import { ImageCarousel } from "@/components/poetry/image-carousel";
+import { PoetryTitleAuthor } from "@/components/poetry/poetry-title-author";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
 import { PosterTitleBlock } from "@/components/poster/poster-title-block";
 import { ScriptVariantToggle } from "@/components/poetry/script-variant-toggle";
 import { getLineStartMs } from "@/lib/audio/timings";
 import { estimateIntroOffsetMs } from "@/lib/audio/intro-offset";
+import { splitCoupletLines } from "@/lib/poetry/lines";
 import type { PoetryDetail } from "@/lib/poetry/repository";
 import type { ScriptVariant } from "@/lib/poetry/script-variant";
 
@@ -21,58 +20,6 @@ type ImmersivePoetryStageProps = {
 };
 
 type PlaybackRate = 0.75 | 1 | 1.25 | 1.5;
-
-const CJK_SPLIT_REGEX = /[一-鿿㐀-䶿]/;
-
-/**
- * Split couplet lines into individual hemistiches for classic four-line display.
- * Each comma-separated segment becomes its own line, with pinyin syllables
- * distributed proportionally based on CJK character count per segment.
- * Lines that don't contain a comma-like separator are kept as-is.
- */
-function splitCoupletLines(
-  lines: string[],
-  pinyin: string[],
-): { text: string; pinyin?: string; originalIndex: number }[] {
-  const result: { text: string; pinyin?: string; originalIndex: number }[] = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const text = lines[i];
-    const syllables = pinyin[i]?.trim().split(/\s+/) ?? [];
-
-    // Split at each comma-like punctuation, keeping punctuation with the preceding text
-    const parts: string[] = [];
-    let start = 0;
-    for (let j = 0; j < text.length; j++) {
-      if ("，？！；".includes(text[j])) {
-        parts.push(text.substring(start, j + 1));
-        start = j + 1;
-      }
-    }
-    if (start < text.length) {
-      parts.push(text.substring(start));
-    }
-
-    if (parts.length <= 1) {
-      result.push({ text, pinyin: pinyin[i] || undefined, originalIndex: i });
-      continue;
-    }
-
-    let syllableOffset = 0;
-    for (const segment of parts) {
-      if (!segment) continue;
-      const segCjkCount = [...segment].filter((c) => CJK_SPLIT_REGEX.test(c)).length;
-      const segPinyin =
-        syllables.length >= syllableOffset + segCjkCount
-          ? syllables.slice(syllableOffset, syllableOffset + segCjkCount).join(" ")
-          : undefined;
-      result.push({ text: segment, pinyin: segPinyin, originalIndex: i });
-      syllableOffset += segCjkCount;
-    }
-  }
-
-  return result;
-}
 
 function formatTime(ms: number): string {
   if (!Number.isFinite(ms) || ms < 0) ms = 0;
@@ -333,39 +280,12 @@ export function ImmersivePoetryStage({ poetry, initialScriptVariant }: Immersive
         </div>
 
         <div ref={rightColRef} className="flex min-h-0 w-full flex-col overflow-hidden lg:max-w-xl lg:mx-auto">
-          {/* Poetry title — prominent serif, centered */}
-          <div className="shrink-0 text-center">
-            <h1 className={`font-serif tracking-wide ${
-              poetry.title.length > 15
-                ? "text-2xl font-semibold leading-relaxed"
-                : "text-3xl font-bold leading-tight"
-            }`}>
-              {poetry.title}
-            </h1>
-            <Link
-              href={`/author/${poetry.author}` as Route}
-              className="mt-2.5 inline-flex justify-center items-center gap-2 rounded-full px-2 py-1 transition hover:bg-primary/5"
-            >
-              {poetry.authorAvatarUrl ? (
-                <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-ink-200/60">
-                  <Image
-                    src={poetry.authorAvatarUrl}
-                    alt={poetry.author}
-                    fill
-                    className="object-cover"
-                    sizes="28px"
-                  />
-                </span>
-              ) : (
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-ink-200 bg-primary/10 text-xs font-serif text-ink-600">
-                  {poetry.author.charAt(0)}
-                </span>
-              )}
-              <span className="font-serif text-sm text-ink-600">
-                {poetry.dynasty} · {poetry.author}
-              </span>
-            </Link>
-          </div>
+          <PoetryTitleAuthor
+            title={poetry.title}
+            author={poetry.author}
+            dynasty={poetry.dynasty}
+            authorAvatarUrl={poetry.authorAvatarUrl}
+          />
 
           {/* Poetry scroll area with fade mask */}
           <div
