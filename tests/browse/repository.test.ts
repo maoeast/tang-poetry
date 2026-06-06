@@ -58,7 +58,7 @@ describe("getPoetryByCategories", () => {
     );
 
     // Only 3 categories have poems, no 未分类
-    assert.equal(categories.length, 7);
+    assert.equal(categories.length, FORM_TAGS.length);
     const wuyanJueju = categories.find((c) => c.tag === "五言绝句")!;
     assert.equal(wuyanJueju.count, 1);
     assert.equal(wuyanJueju.poems[0].id, "1");
@@ -95,7 +95,7 @@ describe("getPoetryByCategories", () => {
       { getAllImages: async () => emptyImageMap },
     );
 
-    assert.equal(categories.length, 7);
+    assert.equal(categories.length, FORM_TAGS.length);
     assert.ok(!categories.some((c) => c.tag === "未分类"));
   });
 

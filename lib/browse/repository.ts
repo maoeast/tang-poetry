@@ -17,6 +17,9 @@ export const FORM_TAGS = [
   "五言古诗",
   "七言古诗",
   "乐府",
+  "小令",
+  "中调",
+  "长调",
 ] as const;
 
 export type FormTag = (typeof FORM_TAGS)[number];

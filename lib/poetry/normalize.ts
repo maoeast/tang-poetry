@@ -1,16 +1,19 @@
-const THEME_BLACKLIST = new Set(["唐诗三百首"]);
+const THEME_BLACKLIST = new Set(["唐诗三百首", "古诗三百", "宋词精选"]);
 const DIFFICULTY_KEYWORDS = [
-  { value: 3, keywords: ["古诗", "乐府", "歌行", "七言古诗", "五言古诗"] },
-  { value: 2, keywords: ["律诗", "绝句"] },
+  { value: 3, keywords: ["古诗", "乐府", "歌行", "七言古诗", "五言古诗", "词"] },
+  { value: 2, keywords: ["律诗", "绝句", "小令", "中调", "长调"] },
 ];
 
-export type RawTs300Poem = {
+export type RawPoem = {
   id: string;
   title: string;
   author: string;
   paragraphs: string[];
   tags?: string[];
 };
+
+/** @deprecated Use RawPoem instead */
+export type RawTs300Poem = RawPoem;
 
 export type NormalizedPoem = {
   id: string;
@@ -24,7 +27,7 @@ export type NormalizedPoem = {
   authorOriginal: string;
   authorZhHans: string;
   authorZhHant: string;
-  dynasty: "唐";
+  dynasty: string;
   lines: string[];
   linesZhHans: string[];
   linesZhHant: string[];
@@ -65,19 +68,38 @@ function inferDifficulty(tags: string[]) {
   return 1;
 }
 
-export function normalizeTs300Poem(
-  simplePoem: RawTs300Poem,
-  rawPoem: RawTs300Poem,
+export type NormalizeOptions = {
+  idPrefix: string;
+  dynasty: string;
+  convertToTraditional?: (text: string) => string;
+};
+
+export function normalizePoem(
+  simplePoem: RawPoem,
+  rawPoem: RawPoem | null,
   index: number,
+  options: NormalizeOptions,
 ): NormalizedPoem {
-  const poetryId = `ts300-${padPoetryId(index)}`;
+  const poetryId = `${options.idPrefix}-${padPoetryId(index)}`;
   const tags = normalizeTags(simplePoem.tags);
   const linesZhHans = normalizeLines(simplePoem.paragraphs);
-  const linesZhHant = normalizeLines(rawPoem.paragraphs);
   const titleZhHans = normalizeText(simplePoem.title);
-  const titleZhHant = normalizeText(rawPoem.title);
   const authorZhHans = normalizeText(simplePoem.author);
-  const authorZhHant = normalizeText(rawPoem.author);
+
+  let titleZhHant: string;
+  let authorZhHant: string;
+  let linesZhHant: string[];
+
+  if (rawPoem) {
+    titleZhHant = normalizeText(rawPoem.title);
+    authorZhHant = normalizeText(rawPoem.author);
+    linesZhHant = normalizeLines(rawPoem.paragraphs);
+  } else {
+    const convert = options.convertToTraditional ?? ((t: string) => t);
+    titleZhHant = convert(titleZhHans);
+    authorZhHant = convert(authorZhHans);
+    linesZhHant = linesZhHans.map((line) => convert(line));
+  }
 
   return {
     id: poetryId,
@@ -91,7 +113,7 @@ export function normalizeTs300Poem(
     authorOriginal: authorZhHant,
     authorZhHans,
     authorZhHant,
-    dynasty: "唐",
+    dynasty: options.dynasty,
     lines: linesZhHans,
     linesZhHans,
     linesZhHant,
@@ -103,9 +125,43 @@ export function normalizeTs300Poem(
   };
 }
 
+export type SingleSourceOptions = {
+  idPrefix: string;
+  dynastyMap?: (poem: RawPoem, index: number) => string;
+  convertToTraditional: (text: string) => string;
+};
+
+export function normalizeSingleSourcePoems(
+  poems: RawPoem[],
+  options: SingleSourceOptions,
+): NormalizedPoem[] {
+  return poems.map((poem, index) => {
+    const dynasty = options.dynastyMap
+      ? options.dynastyMap(poem, index)
+      : "未知";
+    return normalizePoem(poem, null, index, {
+      idPrefix: options.idPrefix,
+      dynasty,
+      convertToTraditional: options.convertToTraditional,
+    });
+  });
+}
+
+/** Backward-compatible wrapper for ts300 imports */
+export function normalizeTs300Poem(
+  simplePoem: RawPoem,
+  rawPoem: RawPoem,
+  index: number,
+): NormalizedPoem {
+  return normalizePoem(simplePoem, rawPoem, index, {
+    idPrefix: "ts300",
+    dynasty: "唐",
+  });
+}
+
 export function normalizeTs300Poems(
-  simplePoems: RawTs300Poem[],
-  rawPoems: RawTs300Poem[],
+  simplePoems: RawPoem[],
+  rawPoems: RawPoem[],
 ) {
   return simplePoems.map((simplePoem, index) =>
     normalizeTs300Poem(simplePoem, rawPoems[index]!, index),

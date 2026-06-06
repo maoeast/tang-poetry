@@ -165,7 +165,7 @@ async function writeNormalizedJson(data: unknown) {
   await writeFile(NORMALIZED_FILE_PATH, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
-function buildPoetryUpsert(poetry: NormalizedPoem) {
+export function buildPoetryUpsert(poetry: NormalizedPoem) {
   const pinyinLines = poetry.linesZhHans.map((line) => lineToPinyin(line));
 
   return {

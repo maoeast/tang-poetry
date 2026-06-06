@@ -10,6 +10,10 @@
     "test:smoke": "playwright test tests/e2e/smoke.spec.ts",
     "lint": "eslint .",
     "import:ts300": "tsx scripts/import-ts300.ts",
+    "import:gs300": "tsx scripts/import-gs300.ts",
+    "import:sc200": "tsx scripts/import-sc200.ts",
+    "import:all": "npm run import:ts300 && npm run import:gs300 && npm run import:sc200 && tsx scripts/rebuild-daily-seeds.ts",
+    "scrape:guwendao": "tsx scripts/scrape-guwendao-catalog.ts",
     "import:guwendao-annotations": "tsx scripts/import-guwendao-annotations.ts",
     "import:image-assets": "tsx scripts/import-image-assets.ts",
     "prisma:generate": "prisma generate",
@@ -17,6 +21,7 @@
   },
   "dependencies": {
     "@prisma/client": "6.9.0",
+    "lightningcss-linux-x64-gnu": "^1.32.0",
     "next": "16.2.6",
     "opencc-js": "^1.3.1",
     "pinyin-pro": "^3.28.1",

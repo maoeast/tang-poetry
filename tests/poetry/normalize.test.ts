@@ -3,11 +3,15 @@ import assert from "node:assert/strict";
 
 import {
   buildDailyPoetrySeeds,
+  buildInterleavedDailySeeds,
   formatSeedDate,
 } from "@/lib/poetry/daily-seed";
 import {
+  normalizePoem,
+  normalizeSingleSourcePoems,
   normalizeTs300Poem,
   normalizeTs300Poems,
+  type RawPoem,
   type RawTs300Poem,
 } from "@/lib/poetry/normalize";
 
@@ -117,4 +121,76 @@ test("formatSeedDate formats UTC dates as YYYY-MM-DD", () => {
     formatSeedDate(new Date("2026-12-03T10:20:30.000Z")),
     "2026-12-03",
   );
+});
+
+test("normalizePoem with opencc callback generates traditional text", () => {
+  const poem: RawPoem = {
+    id: "test-id",
+    title: "静夜思",
+    author: "李白",
+    paragraphs: ["床前明月光。", "疑是地上霜。"],
+    tags: ["宋词精选", "词", "小令"],
+  };
+
+  // Simple mock converter that adds a marker
+  const mockConvert = (t: string) => t + "_trad";
+
+  const normalized = normalizePoem(poem, null, 0, {
+    idPrefix: "sc200",
+    dynasty: "宋",
+    convertToTraditional: mockConvert,
+  });
+
+  assert.equal(normalized.id, "sc200-0001");
+  assert.equal(normalized.dynasty, "宋");
+  assert.equal(normalized.titleZhHans, "静夜思");
+  assert.equal(normalized.titleZhHant, "静夜思_trad");
+  assert.equal(normalized.authorZhHant, "李白_trad");
+  assert.deepEqual(normalized.linesZhHant, [
+    "床前明月光。_trad",
+    "疑是地上霜。_trad",
+  ]);
+  // Only "宋词精选" is filtered from themes (source tag), "词" and "小令" remain
+  assert.deepEqual(normalized.themes, ["词", "小令"]);
+  assert.equal(normalized.difficulty, 3); // "词" matches value 3 (checked before "小令" value 2)
+});
+
+test("normalizeSingleSourcePoems with dynastyMap", () => {
+  const poems: RawPoem[] = [
+    { id: "a", title: "关雎", author: "诗经", paragraphs: ["关关雎鸠。"], tags: ["古诗三百"] },
+    { id: "b", title: "观沧海", author: "曹操", paragraphs: ["东临碣石。"], tags: ["古诗三百"] },
+  ];
+
+  const noOpConvert = (t: string) => t;
+  const normalized = normalizeSingleSourcePoems(poems, {
+    idPrefix: "gs300",
+    dynastyMap: (_poem, index) => (index < 1 ? "先秦" : "魏晋"),
+    convertToTraditional: noOpConvert,
+  });
+
+  assert.equal(normalized[0].id, "gs300-0001");
+  assert.equal(normalized[0].dynasty, "先秦");
+  assert.equal(normalized[1].id, "gs300-0002");
+  assert.equal(normalized[1].dynasty, "魏晋");
+});
+
+test("buildInterleavedDailySeeds rotates sources round-robin", () => {
+  const seeds = buildInterleavedDailySeeds(
+    [
+      { source: "ts300", poetryIds: ["ts-1", "ts-2"] },
+      { source: "gs300", poetryIds: ["gs-1"] },
+      { source: "sc200", poetryIds: ["sc-1", "sc-2", "sc-3"] },
+    ],
+    new Date("2026-06-01T00:00:00.000Z"),
+    6,
+  );
+
+  assert.equal(seeds.length, 6);
+  // Day 0=ts, Day 1=gs, Day 2=sc, Day 3=ts, Day 4=gs(cycle), Day 5=sc
+  assert.equal(seeds[0].poetryId, "ts-1");
+  assert.equal(seeds[1].poetryId, "gs-1");
+  assert.equal(seeds[2].poetryId, "sc-1");
+  assert.equal(seeds[3].poetryId, "ts-2");
+  assert.equal(seeds[4].poetryId, "gs-1"); // gs cycles back
+  assert.equal(seeds[5].poetryId, "sc-2");
 });
