@@ -8,6 +8,7 @@ import { StickyCategoryNav } from "@/components/browse/sticky-category-nav";
 import {
   getPoetryByCategories,
   searchPoems,
+  type SourceType,
 } from "@/lib/browse/repository";
 import {
   resolveScriptVariant,
@@ -16,12 +17,20 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const SOURCE_TITLES: Record<SourceType, string> = {
+  ts300: "唐诗三百",
+  gs300: "古诗三百",
+  sc200: "宋词精选",
+};
+
+const VALID_SOURCES = new Set<string>(["ts300", "gs300", "sc200"]);
+
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; source?: string }>;
 }) {
-  const [{ q }, cookieStore] = await Promise.all([
+  const [{ q, source: rawSource }, cookieStore] = await Promise.all([
     searchParams,
     cookies(),
   ]);
@@ -31,9 +40,13 @@ export default async function BrowsePage({
 
   const query = q?.trim() ?? "";
   const isSearching = query.length > 0;
+  const source = rawSource && VALID_SOURCES.has(rawSource)
+    ? (rawSource as SourceType)
+    : undefined;
+  const sourceTitle = source ? SOURCE_TITLES[source] : null;
 
   const [categories, results] = await Promise.all([
-    getPoetryByCategories(scriptVariant),
+    getPoetryByCategories(scriptVariant, undefined, undefined, source),
     isSearching ? searchPoems(query, scriptVariant) : Promise.resolve([]),
   ]);
 
@@ -59,7 +72,7 @@ export default async function BrowsePage({
         {/* Hero — 去框化：直接渲染在宣纸底色上 */}
         <section className="antialiased">
           <h1 className="text-4xl font-serif tracking-[0.16em] sm:text-5xl">
-            {isSearching ? "搜索结果" : "诗歌分类"}
+            {isSearching ? "搜索结果" : sourceTitle ?? "诗歌分类"}
           </h1>
           {/* 淡墨分割线 */}
           <div className="mt-10 h-px w-24 bg-ink-200/60" />

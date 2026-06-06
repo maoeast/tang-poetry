@@ -4,6 +4,7 @@ import {
   getPoetryByCategories,
   searchPoems,
   FORM_TAGS,
+  type SourceType,
 } from "../../lib/browse/repository";
 import { getPlaceholderImage } from "../../lib/images/repository";
 
@@ -288,5 +289,129 @@ describe("searchPoems", () => {
     assert.equal(results.length, 1);
     assert.equal(results[0].title, "繁體標題");
     assert.equal(results[0].author, "繁體作者");
+  });
+});
+
+describe("source filtering", () => {
+  function makeSourcePoem(id: string, dynasty: string, tags: string[]) {
+    return {
+      id,
+      title: `诗题${id}`,
+      author: `作者${id}`,
+      dynasty,
+      tags,
+      lines: ["第一句", "第二句"],
+      titleZhHans: null,
+      titleZhHant: null,
+      authorZhHans: null,
+      authorZhHant: null,
+      linesZhHans: null,
+      linesZhHant: null,
+    };
+  }
+
+  it("filters poems by ts300 source prefix", async () => {
+    const poems = [
+      makeSourcePoem("ts300-001", "唐", ["五言绝句"]),
+      makeSourcePoem("gs300-001", "宋", ["五言绝句"]),
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      "ts300" as SourceType,
+    );
+
+    assert.equal(categories.length, 1);
+    assert.equal(categories[0].poems[0].id, "ts300-001");
+  });
+
+  it("filters poems by sc200 and only shows non-empty categories", async () => {
+    const poems = [
+      makeSourcePoem("sc200-001", "宋", ["小令"]),
+      makeSourcePoem("sc200-002", "宋", ["小令"]),
+      makeSourcePoem("ts300-001", "唐", ["五言绝句"]),
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      "sc200" as SourceType,
+    );
+
+    assert.equal(categories.length, 1);
+    assert.equal(categories[0].tag, "小令");
+    assert.equal(categories[0].count, 2);
+  });
+
+  it("categorizes gs300 by dynasty groups", async () => {
+    const poems = [
+      makeSourcePoem("gs300-001", "先秦", ["五言古诗"]),
+      makeSourcePoem("gs300-002", "两汉", ["五言古诗"]),
+      makeSourcePoem("gs300-003", "宋", ["七言绝句"]),
+      makeSourcePoem("gs300-004", "明", ["七言绝句"]),
+      makeSourcePoem("ts300-001", "唐", ["五言绝句"]),
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      "gs300" as SourceType,
+    );
+
+    assert.equal(categories.length, 4);
+
+    const xianqin = categories.find((c) => c.tag === "先秦")!;
+    assert.equal(xianqin.count, 1);
+
+    const han = categories.find((c) => c.tag === "两汉")!;
+    assert.equal(han.count, 1);
+
+    const song = categories.find((c) => c.tag === "宋朝")!;
+    assert.equal(song.count, 1);
+
+    const ming = categories.find((c) => c.tag === "明朝")!;
+    assert.equal(ming.count, 1);
+
+    assert.ok(!categories.some((c) => c.tag === "魏晋"));
+  });
+
+  it("skips empty dynasty groups for gs300", async () => {
+    const poems = [
+      makeSourcePoem("gs300-001", "先秦", []),
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      "gs300" as SourceType,
+    );
+
+    assert.equal(categories.length, 1);
+    assert.equal(categories[0].tag, "先秦");
+  });
+
+  it("maps Wei/Jin/Nanbeichao dynasties separately", async () => {
+    const poems = [
+      makeSourcePoem("gs300-001", "魏晋", []),
+      makeSourcePoem("gs300-002", "南北朝", []),
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      "gs300" as SourceType,
+    );
+
+    assert.equal(categories.length, 2);
+    assert.equal(categories[0].tag, "魏晋");
+    assert.equal(categories[0].count, 1);
+    assert.equal(categories[1].tag, "南北朝");
+    assert.equal(categories[1].count, 1);
   });
 });

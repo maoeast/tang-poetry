@@ -14,14 +14,24 @@ export const dynamic = "force-dynamic";
 
 const featureCards = [
   {
-    title: "诗歌分类",
-    description: "按体裁、题材浏览唐诗",
-    href: "/browse" as Route,
+    title: "古诗三百",
+    description: "先秦至清代，278首经典",
+    href: "/browse?source=gs300" as Route,
   },
   {
-    title: "顺序全集",
-    description: "按编号 001–366 系统学习",
-    href: "/browse?sort=sequential" as Route,
+    title: "唐诗三百",
+    description: "按编号系统学习唐诗",
+    href: "/browse?source=ts300" as Route,
+  },
+  {
+    title: "宋词精选",
+    description: "小令、中调、长调赏读",
+    href: "/browse?source=sc200" as Route,
+  },
+  {
+    title: "场景时令",
+    description: "按体裁、题材浏览全部",
+    href: "/browse" as Route,
   },
   {
     title: "挑战闯关",
@@ -116,8 +126,8 @@ export default async function HomePage() {
               </section>
             )}
 
-            {/* Feature cards — 2×2 grid */}
-            <div className="grid grid-cols-2 gap-4 md:gap-6">
+            {/* Feature cards — 六宫格: 2-col mobile, 3-col desktop */}
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
               {featureCards.map((card) => (
                 <Link
                   key={card.title}
@@ -127,18 +137,14 @@ export default async function HomePage() {
                   <article className="flex items-start gap-3.5">
                     {/* Ink-stroke icon — classical Chinese aesthetic */}
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/5 text-ink-400" aria-hidden="true">
-                      {card.title === "诗歌分类" && (
-                        /* 竹简 — bamboo slips */
+                      {card.title === "古诗三百" && (
+                        /* 远山 — distant mountains (ancient times) */
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="6" y1="3" x2="6" y2="21" />
-                          <line x1="12" y1="3" x2="12" y2="21" />
-                          <line x1="18" y1="3" x2="18" y2="21" />
-                          <line x1="4" y1="7" x2="20" y2="7" />
-                          <line x1="4" y1="12" x2="20" y2="12" />
-                          <line x1="4" y1="17" x2="20" y2="17" />
+                          <path d="M2 20l6-8 4 4 5-7 5 11H2z" />
+                          <path d="M14 4l2-2 2 2" />
                         </svg>
                       )}
-                      {card.title === "顺序全集" && (
+                      {card.title === "唐诗三百" && (
                         /* 卷轴 — scroll */
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M5 5h14v14H5z" />
@@ -149,6 +155,31 @@ export default async function HomePage() {
                           <line x1="8" y1="9" x2="16" y2="9" />
                           <line x1="8" y1="12" x2="14" y2="12" />
                           <line x1="8" y1="15" x2="12" y2="15" />
+                        </svg>
+                      )}
+                      {card.title === "宋词精选" && (
+                        /* 花月 — flower and moon (ci poetry aesthetics) */
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="17" cy="7" r="3" />
+                          <path d="M17 4v-1" />
+                          <path d="M17 10v1" />
+                          <path d="M14 7h-1" />
+                          <path d="M20 7h1" />
+                          <path d="M6 21c-2 0-3-1.5-3-3 0-2 2-3 4-3s4 1 4 3c0 1.5-1 3-3 3" />
+                          <path d="M7 12v-1" />
+                          <path d="M10 14l1-1" />
+                          <path d="M4 14l-1-1" />
+                        </svg>
+                      )}
+                      {card.title === "场景时令" && (
+                        /* 四季 — four seasons (sun + cloud) */
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="10" cy="8" r="3" />
+                          <path d="M10 3v1" />
+                          <path d="M10 12v1" />
+                          <path d="M5 8H4" />
+                          <path d="M15 8h1" />
+                          <path d="M18 18H7a3 3 0 01-.4-6 4 4 0 018-1.2A3.5 3.5 0 0118 18z" />
                         </svg>
                       )}
                       {card.title === "挑战闯关" && (

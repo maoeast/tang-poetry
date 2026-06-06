@@ -39,7 +39,7 @@ export type BrowsePoem = {
 };
 
 export type PoetryCategory = {
-  tag: FormTag | "未分类";
+  tag: string;
   label: string;
   count: number;
   poems: BrowsePoem[];
@@ -90,6 +90,26 @@ function classifyPoem(tags: string[]): FormTag | null {
     if (tags.includes(formTag)) return formTag;
   }
   return null;
+}
+
+export type SourceType = "ts300" | "gs300" | "sc200";
+
+const DYNASTY_GROUPS = [
+  { label: "先秦", dynasties: ["先秦"] },
+  { label: "两汉", dynasties: ["两汉", "汉", "西汉", "东汉"] },
+  { label: "魏晋", dynasties: ["魏晋", "魏", "晋"] },
+  { label: "南北朝", dynasties: ["南北朝", "南朝", "北朝"] },
+  { label: "宋朝", dynasties: ["宋"] },
+  { label: "元朝", dynasties: ["元"] },
+  { label: "明朝", dynasties: ["明"] },
+  { label: "清朝", dynasties: ["清"] },
+] as const;
+
+function classifyDynasty(dynasty: string): string {
+  for (const group of DYNASTY_GROUPS) {
+    if ((group.dynasties as readonly string[]).includes(dynasty)) return group.label;
+  }
+  return "其他";
 }
 
 /**
@@ -171,6 +191,7 @@ export async function getPoetryByCategories(
   scriptVariant: ScriptVariant,
   repository?: BrowseRepository,
   dependencies?: BrowseDependencies,
+  source?: SourceType,
 ): Promise<PoetryCategory[]> {
   const repo = repository ?? (db as unknown as BrowseRepository);
   const deps = dependencies ?? { getAllImages: () => getAllPoetryImages() };
@@ -195,11 +216,59 @@ export async function getPoetryByCategories(
     deps.getAllImages(),
   ]);
 
+  const sourcePrefix = source ? `${source}-` : null;
+
+  if (source === "gs300") {
+    // Dynasty-based categorization for 古诗三百
+    const buckets = new Map<string, BrowsePoem[]>();
+    for (const group of DYNASTY_GROUPS) buckets.set(group.label, []);
+    buckets.set("其他", []);
+
+    for (const poem of poems) {
+      if (sourcePrefix && !poem.id.startsWith(sourcePrefix)) continue;
+
+      const variant = pickPoetryContentVariant(poem, scriptVariant);
+      const image = imageMap.get(poem.id) ?? getPlaceholderImage(poem.id);
+
+      const browsePoem: BrowsePoem = {
+        id: poem.id,
+        title: variant.title,
+        author: variant.author,
+        dynasty: poem.dynasty,
+        image,
+      };
+
+      const group = classifyDynasty(poem.dynasty);
+      buckets.get(group)!.push(browsePoem);
+    }
+
+    const categories: PoetryCategory[] = [];
+    for (const group of DYNASTY_GROUPS) {
+      const groupPoems = buckets.get(group.label)!;
+      if (groupPoems.length > 0) {
+        categories.push({
+          tag: group.label,
+          label: group.label,
+          count: groupPoems.length,
+          poems: groupPoems,
+        });
+      }
+    }
+    const other = buckets.get("其他")!;
+    if (other.length > 0) {
+      categories.push({ tag: "其他", label: "其他", count: other.length, poems: other });
+    }
+    return categories;
+  }
+
+  // Default: form-based categorization (ts300, sc200, or all)
   const buckets = new Map<FormTag | "未分类", BrowsePoem[]>();
   for (const tag of FORM_TAGS) buckets.set(tag, []);
   buckets.set("未分类", []);
 
   for (const poem of poems) {
+    if (sourcePrefix && !poem.id.startsWith(sourcePrefix)) continue;
+
     const variant = pickPoetryContentVariant(poem, scriptVariant);
     const tags = toStringArray(poem.tags);
     const formTag = classifyPoem(tags);
@@ -218,8 +287,9 @@ export async function getPoetryByCategories(
 
   const categories: PoetryCategory[] = [];
   for (const tag of FORM_TAGS) {
-    const poems = buckets.get(tag)!;
-    categories.push({ tag, label: tag, count: poems.length, poems });
+    const tagPoems = buckets.get(tag)!;
+    if (source && tagPoems.length === 0) continue;
+    categories.push({ tag, label: tag, count: tagPoems.length, poems: tagPoems });
   }
   const uncategorized = buckets.get("未分类")!;
   if (uncategorized.length > 0) {
