@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 
+import { BackToTop } from "@/components/browse/back-to-top";
 import { CategorySection } from "@/components/browse/category-section";
 import { PoetryCard } from "@/components/browse/poetry-card";
 import { SearchInput } from "@/components/browse/search-input";
@@ -9,6 +10,7 @@ import {
   getPoetryByCategories,
   searchPoems,
   type SourceType,
+  type BrowseMode,
 } from "@/lib/browse/repository";
 import {
   resolveScriptVariant,
@@ -24,13 +26,14 @@ const SOURCE_TITLES: Record<SourceType, string> = {
 };
 
 const VALID_SOURCES = new Set<string>(["ts300", "gs300", "sc200"]);
+const VALID_MODES = new Set<string>(["form", "scene"]);
 
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; source?: string }>;
+  searchParams: Promise<{ q?: string; source?: string; mode?: string }>;
 }) {
-  const [{ q, source: rawSource }, cookieStore] = await Promise.all([
+  const [{ q, source: rawSource, mode: rawMode }, cookieStore] = await Promise.all([
     searchParams,
     cookies(),
   ]);
@@ -43,10 +46,13 @@ export default async function BrowsePage({
   const source = rawSource && VALID_SOURCES.has(rawSource)
     ? (rawSource as SourceType)
     : undefined;
+  const mode = rawMode && VALID_MODES.has(rawMode)
+    ? (rawMode as BrowseMode)
+    : undefined;
   const sourceTitle = source ? SOURCE_TITLES[source] : null;
 
   const [categories, results] = await Promise.all([
-    getPoetryByCategories(scriptVariant, undefined, undefined, source),
+    getPoetryByCategories(scriptVariant, undefined, undefined, source, mode),
     isSearching ? searchPoems(query, scriptVariant) : Promise.resolve([]),
   ]);
 
@@ -72,7 +78,7 @@ export default async function BrowsePage({
         {/* Hero — 去框化：直接渲染在宣纸底色上 */}
         <section className="antialiased">
           <h1 className="text-4xl font-serif tracking-[0.16em] sm:text-5xl">
-            {isSearching ? "搜索结果" : sourceTitle ?? "诗歌分类"}
+            {isSearching ? "搜索结果" : sourceTitle ?? (mode === "scene" ? "场景时令" : "诗歌分类")}
           </h1>
           {/* 淡墨分割线 */}
           <div className="mt-10 h-px w-24 bg-ink-200/60" />
@@ -121,6 +127,8 @@ export default async function BrowsePage({
           ))
         )}
       </div>
+
+      <BackToTop />
     </main>
   );
 }

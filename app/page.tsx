@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { Route } from "next";
 
 import { TodayPoetryHero } from "@/components/home/today-poetry-hero";
+import { SearchInput } from "@/components/browse/search-input";
 import { getTodayPoetry } from "@/lib/poetry/daily";
 import {
   resolveScriptVariant,
@@ -15,32 +16,32 @@ export const dynamic = "force-dynamic";
 const featureCards = [
   {
     title: "古诗三百",
-    description: "先秦至清代，278首经典",
+    description: "先秦至清，二百七十八首",
     href: "/browse?source=gs300" as Route,
   },
   {
     title: "唐诗三百",
-    description: "按编号系统学习唐诗",
+    description: "李杜王孟，三百首精粹",
     href: "/browse?source=ts300" as Route,
   },
   {
     title: "宋词精选",
-    description: "小令、中调、长调赏读",
+    description: "浅斟低唱，婉约豪放兼收",
     href: "/browse?source=sc200" as Route,
   },
   {
     title: "场景时令",
-    description: "按体裁、题材浏览全部",
-    href: "/browse" as Route,
+    description: "春花秋月，朝暮四时",
+    href: "/browse?mode=scene" as Route,
   },
   {
     title: "挑战闯关",
-    description: "诗词知识趣味问答",
+    description: "以诗会友，试锋文墨之间",
     href: "/challenge" as Route,
   },
   {
     title: "复习成长",
-    description: "间隔复习巩固记忆",
+    description: "温故知新，让诗词留在心里",
     href: "/review" as Route,
   },
 ];
@@ -68,40 +69,46 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(222,196,150,0.35),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(176,204,188,0.28),transparent_28%)]" />
 
           <div className="relative space-y-8">
-            {/* Header: Title + Profile avatar */}
-            <div className="flex max-w-3xl items-start justify-between">
+            {/* Header: Title + Search + Profile */}
+            <div className="flex items-start justify-between gap-4">
               <h1 className="text-4xl leading-tight font-semibold sm:text-5xl">
-                唐诗画境
+                诗笺阁
               </h1>
-              <Link
-                href={"/me" as Route}
-                className="relative flex items-center justify-center transition-opacity duration-300 hover:opacity-70"
-                aria-label="我的"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-900/5 text-ink-500">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="8" cy="6" r="3" stroke="currentColor" strokeWidth="1.2" />
-                    <path
-                      d="M2.5 14.5C2.5 11.5 5 10 8 10C11 10 13.5 11.5 13.5 14.5"
-                      stroke="currentColor"
-                      strokeWidth="1.2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
-                {/* Check-in status dot: green = today checked in, grey = not yet */}
-                <span
-                  className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface ${
-                    todayCheckedIn ? "bg-emerald-500" : "bg-ink-200"
-                  }`}
-                />
-              </Link>
+              <p className="mt-2 text-sm tracking-[0.24em] text-ink-500/80">
+                展一纸笺，入诗词之境
+              </p>
+              <div className="flex items-center gap-3">
+                <SearchInput />
+                <Link
+                  href={"/me" as Route}
+                  className="relative flex items-center justify-center transition-opacity duration-300 hover:opacity-70 shrink-0"
+                  aria-label="我的"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-900/5 text-ink-500">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle cx="8" cy="6" r="3" stroke="currentColor" strokeWidth="1.2" />
+                      <path
+                        d="M2.5 14.5C2.5 11.5 5 10 8 10C11 10 13.5 11.5 13.5 14.5"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </span>
+                  {/* Check-in status dot: green = today checked in, grey = not yet */}
+                  <span
+                    className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface ${
+                      todayCheckedIn ? "bg-emerald-500" : "bg-ink-200"
+                    }`}
+                  />
+                </Link>
+              </div>
             </div>
 
             {/* Today's poem hero */}

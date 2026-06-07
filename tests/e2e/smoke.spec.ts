@@ -11,7 +11,7 @@ test("phase 1 smoke flow", async ({ page }) => {
   await page.getByRole("button", { name: "进入应用" }).click();
 
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: "唐诗画境" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "诗笺阁" })).toBeVisible();
 
   // Extract today's poem ID from the "赏析" CTA link
   const ctaLink = page.getByRole("link", { name: "赏析" });

@@ -105,6 +105,17 @@ function classifyFormTag(tags: string[]): string | null {
   return null;
 }
 
+// --- Author list item ---
+
+export type AuthorListItem = {
+  name: string;
+  avatarUrl: string;
+  dynasty: string;
+  bio: string | null;
+  courtesyName: string | null;
+  literaryName: string | null;
+};
+
 // --- Implementations ---
 
 export async function getAuthorByName(
@@ -190,4 +201,43 @@ export async function getPoemsByAuthor(
       image,
     };
   });
+}
+
+export async function getAllAuthors(
+  scriptVariant: ScriptVariant = "zh-Hans",
+  data: AuthorData[] = authorsData as AuthorData[],
+): Promise<AuthorListItem[]> {
+  const DYNASTY_ORDER: Record<string, number> = {
+    先秦: 1, 秦: 1,
+    两汉: 2, 汉: 2,
+    魏晋: 3,
+    南北朝: 4,
+    隋: 5,
+    唐: 6,
+    五代: 7,
+    宋: 8, 北宋: 8, 南宋: 8,
+    辽: 9,
+    金: 10,
+    元: 11,
+    明: 12,
+    清: 13,
+  };
+
+  return data
+    .filter((a) => a.name !== "不详" && a.name !== "佚名")
+    .map((a) => ({
+      name:
+        scriptVariant === "zh-Hant" && a.nameZhHant ? a.nameZhHant : a.name,
+      avatarUrl: a.avatarUrl ?? DEFAULT_AVATAR,
+      dynasty: a.dynasty,
+      bio: a.bio ?? null,
+      courtesyName: a.courtesyName ?? null,
+      literaryName: a.literaryName ?? null,
+    }))
+    .sort((a, b) => {
+      const da = DYNASTY_ORDER[a.dynasty] ?? 99;
+      const db_ = DYNASTY_ORDER[b.dynasty] ?? 99;
+      if (da !== db_) return da - db_;
+      return a.name.localeCompare(b.name, "zh-CN");
+    });
 }

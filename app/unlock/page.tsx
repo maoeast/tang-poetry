@@ -18,7 +18,7 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
         <div className="space-y-4">
           <h1 className="text-3xl font-semibold">输入访问口令</h1>
           <p className="text-sm leading-7 text-ink-600">
-            请输入口令以进入唐诗画境。
+            请输入口令以进入诗笺阁。
           </p>
         </div>
 

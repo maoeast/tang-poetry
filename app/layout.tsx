@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "唐诗画境",
+  title: "诗笺阁",
   description: "每天一首唐诗，配以诗境插画和 AI 讲解，全家一起感受诗意之美。",
 };
 
