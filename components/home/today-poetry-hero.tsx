@@ -11,7 +11,7 @@ import type { WeeklyCheckIn } from "@/lib/stats/weekly-checkin";
 
 /** @deprecated No longer used by homepage — kept for test compatibility */
 export function getHomeCtaLabel(isReadToday: boolean) {
-  return isReadToday ? "去挑战这首诗" : "阅读全文";
+  return isReadToday ? "去闯关这首诗" : "阅读全文";
 }
 
 /** @deprecated No longer used by homepage — kept for test compatibility */
@@ -97,7 +97,7 @@ export function TodayPoetryHero({
               href={`/challenge?poetryId=${todayPoetry.poetry.id}` as Route}
               className="inline-flex rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-[var(--shadow-card)]"
             >
-              去挑战
+              去闯关
             </Link>
             <Link
               href={`/poetry/${todayPoetry.poetry.id}` as Route}

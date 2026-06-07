@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadEnvFiles } from "./lib/load-env.js";
 
 export type NormalizedPoem = {
   id: string;
@@ -440,31 +440,6 @@ export async function runPrepareImageGeneration() {
 type DeepSeekResponse = {
   choices?: Array<{ message?: { content?: string } }>;
 };
-
-function loadEnvFiles() {
-  for (const envName of [".env", ".env.local"]) {
-    try {
-      const envPath = path.join(PROJECT_ROOT, envName);
-      const envContent = readFileSync(envPath, "utf8");
-      for (const line of envContent.split("\n")) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith("#")) continue;
-        const eqIndex = trimmed.indexOf("=");
-        if (eqIndex === -1) continue;
-        const key = trimmed.slice(0, eqIndex).trim();
-        let value = trimmed.slice(eqIndex + 1).trim();
-        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-          value = value.slice(1, -1);
-        }
-        if (envName === ".env.local" || !process.env[key]) {
-          process.env[key] = value;
-        }
-      }
-    } catch {
-      // file not found, skip
-    }
-  }
-}
 
 const SCENE_SYSTEM_PROMPT = [
   "你是一位帮助儿童理解唐诗的视觉设计师。",

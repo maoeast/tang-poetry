@@ -43,7 +43,7 @@ function padPoetryId(index: number) {
 }
 
 function normalizeText(value: string) {
-  return value.trim();
+  return value.replace(/（[^）]*）/g, "").replace(/\([^)]*\)/g, "").trim();
 }
 
 function normalizeLines(lines: string[]) {

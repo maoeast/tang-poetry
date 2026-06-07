@@ -41,8 +41,6 @@ const statCards = [
 }>;
 
 export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
-  const champion = affinity[0];
-
   return (
     <main className="min-h-screen bg-paper px-6 py-10 text-ink-900 sm:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
@@ -84,11 +82,6 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
           <article className="rounded-[2rem] border border-ink-200 bg-surface/78 p-8 shadow-[var(--shadow-panel)]">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-2xl font-semibold">诗人缘分</h2>
-              {affinity.length > 0 && (
-                <span className="rounded-full border border-ink-200 px-4 py-2 text-sm text-ink-600">
-                  共 {champion!.count} 次相遇
-                </span>
-              )}
             </div>
 
             {affinity.length > 0 ? (
@@ -110,7 +103,7 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
                         style={{
                           width: `${Math.max(
                             20,
-                            Math.round((item.count / Math.max(champion?.count ?? 1, 1)) * 100),
+                            Math.round((item.count / Math.max(affinity[0]?.count ?? 1, 1)) * 100),
                           )}%`,
                         }}
                       />
@@ -121,7 +114,7 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
               </div>
             ) : (
               <p className="mt-6 text-sm text-ink-600">
-                还没有学习记录，去读几首诗就会自动统计。
+                暂无学习记录
               </p>
             )}
           </article>
@@ -131,9 +124,9 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
               <div className="flex flex-wrap gap-3">
                 <Link
                   href={"/challenge" as Route}
-                  className="rounded-full border border-ink-200 bg-primary/10 px-4 py-2 text-sm"
+                  className="rounded-full bg-primary px-4 py-2 text-sm text-white"
                 >
-                  去挑战
+                  去闯关
                 </Link>
                 <Link
                   href={"/review" as Route}

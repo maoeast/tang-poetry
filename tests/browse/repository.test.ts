@@ -415,3 +415,48 @@ describe("source filtering", () => {
     assert.equal(categories[1].count, 1);
   });
 });
+
+describe("scene mode", () => {
+  it("groups poems into 5 dimensions in scene mode", async () => {
+    const poems = [
+      // 春晓 — morning + spring → time + season
+      { ...makePoem("1", []), title: "春晓", lines: ["春眠不觉晓", "处处闻啼鸟"] },
+      // 咏鹅 — birds → nature
+      { ...makePoem("2", []), title: "咏鹅", lines: ["鹅鹅鹅", "曲项向天歌"] },
+      // 赠汪伦 — farewell → social
+      { ...makePoem("3", ["送别"]), title: "赠汪伦", lines: ["桃花潭水深千尺"] },
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      undefined,
+      "scene" as never,
+    );
+
+    assert.ok(categories.length >= 2);
+    assert.ok(categories.length <= 4);
+    assert.ok(categories.every((c) => ["time", "season", "nature", "space", "social"].includes(c.tag)));
+  });
+
+  it("deduplicates poems within each dimension", async () => {
+    // 春晓 matches both morning (time) and spring (season) subcategories
+    // but should appear only once per dimension
+    const poems = [
+      { ...makePoem("1", []), title: "春晓", lines: ["春眠不觉晓", "处处闻啼鸟"] },
+    ];
+
+    const categories = await getPoetryByCategories(
+      "zh-Hans",
+      makeMockRepo(poems) as never,
+      { getAllImages: async () => emptyImageMap },
+      undefined,
+      "scene" as never,
+    );
+
+    for (const cat of categories) {
+      assert.equal(cat.count, 1);
+    }
+  });
+});

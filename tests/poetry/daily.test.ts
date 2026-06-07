@@ -449,5 +449,5 @@ test("getHomeCtaLabel returns full-reading label for unread poetry", () => {
 });
 
 test("getHomeCtaLabel returns challenge label for read poetry", () => {
-  assert.equal(getHomeCtaLabel(true), "去挑战这首诗");
+  assert.equal(getHomeCtaLabel(true), "去闯关这首诗");
 });

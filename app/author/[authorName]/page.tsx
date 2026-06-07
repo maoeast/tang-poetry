@@ -9,11 +9,14 @@ import { AuthorPoems } from "@/components/author/author-poems";
 import {
   getAuthorByName,
   getPoemsByAuthor,
+  type AuthorInfo,
 } from "@/lib/author/repository";
 import {
   resolveScriptVariant,
   SCRIPT_VARIANT_COOKIE_NAME,
 } from "@/lib/poetry/script-variant";
+
+const DEFAULT_AVATAR = "/images/authors/default.svg";
 
 type AuthorPageProps = {
   params: Promise<{
@@ -37,7 +40,17 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
     notFound();
   }
 
-  const displayName = author?.name ?? poems[0]?.author ?? authorName;
+  // Build a minimal AuthorInfo when the JSON has no entry but DB has poems
+  const headerAuthor: AuthorInfo = author ?? {
+    name: poems[0]?.author ?? authorName,
+    avatarUrl: DEFAULT_AVATAR,
+    dynasty: poems[0]?.dynasty ?? "",
+    courtesyName: null,
+    literaryName: null,
+    bio: null,
+    lifeStory: null,
+    sourceUrl: null,
+  };
 
   const headersList = await headers();
   const referer = headersList.get("referer");
@@ -62,58 +75,21 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
               首页
             </Link>
             <span>/</span>
-            <span className="text-ink-600">{displayName}</span>
+            <span className="text-ink-600">{headerAuthor.name}</span>
           </nav>
         </div>
 
-        {/* Author header */}
-        {author ? (
-          <AuthorHeader author={author} />
-        ) : poems.length > 0 ? (
-          <FallbackHeader name={poems[0].author} dynasty={poems[0].dynasty} />
-        ) : null}
+        <AuthorHeader author={headerAuthor} />
 
-        {/* Bio section */}
         <AuthorBio
           lifeStory={author?.lifeStory ?? null}
           sourceUrl={author?.sourceUrl ?? null}
         />
 
-        {/* Poems section */}
         <div className="mt-8">
           <AuthorPoems poems={poems} authorName={authorName} />
         </div>
       </div>
     </main>
-  );
-}
-
-function FallbackHeader({ name, dynasty }: { name: string; dynasty: string }) {
-  return (
-    <section className="relative px-4 py-8 sm:px-6">
-      <div className="mx-auto flex max-w-3xl flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
-        <div className="relative shrink-0">
-          <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-ink-200/60 bg-primary/10 shadow-[0_4px_20px_rgba(53,78,107,0.12)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/authors/default.svg"
-              alt={name}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="pointer-events-none absolute -inset-2 rounded-full bg-[radial-gradient(circle,rgba(53,78,107,0.08),transparent_70%)]" />
-        </div>
-
-        <div className="min-w-0">
-          <h1 className="font-serif text-3xl font-bold tracking-wide sm:text-4xl">
-            {name}
-          </h1>
-          <p className="mt-1 text-sm text-ink-600">{dynasty}</p>
-          <p className="mt-4 max-w-[65ch] text-left text-sm leading-8 text-ink-600 italic">
-            此作者生平暂无考证，唯有佳作传世。
-          </p>
-        </div>
-      </div>
-    </section>
   );
 }

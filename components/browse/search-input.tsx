@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState, Suspense } from "react";
  *   self-triggered URL changes from browser back/forward.
  * - Renders directly inside Suspense (useSearchParams requires boundary).
  */
-function SearchInputInner() {
+function SearchInputInner({ basePath = "/browse" }: { basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
@@ -35,10 +35,10 @@ function SearchInputInner() {
       } else {
         params.delete("q");
       }
-      const url = params.toString() ? `/browse?${params.toString()}` : "/browse";
+      const url = params.toString() ? `${basePath}?${params.toString()}` : basePath;
       router.replace(url as Route, { scroll: false });
     },
-    [router, searchParams],
+    [router, searchParams, basePath],
   );
 
   // Sync local state when URL changes externally (back/forward navigation)
@@ -148,10 +148,10 @@ function SearchInputInner() {
 /**
  * Search input wrapped in Suspense (required for useSearchParams).
  */
-export function SearchInput() {
+export function SearchInput({ basePath = "/browse" }: { basePath?: string }) {
   return (
     <Suspense fallback={<SearchInputFallback />}>
-      <SearchInputInner />
+      <SearchInputInner basePath={basePath} />
     </Suspense>
   );
 }

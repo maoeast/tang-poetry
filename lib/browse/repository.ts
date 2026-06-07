@@ -8,6 +8,11 @@ import {
   pickPoetryContentVariant,
   type ScriptVariant,
 } from "@/lib/poetry/script-variant";
+import {
+  classifyByScene,
+  SCENE_CATEGORIES,
+  SCENE_DIMENSIONS,
+} from "@/lib/browse/scene-classification";
 
 export const FORM_TAGS = [
   "五言绝句",
@@ -187,11 +192,14 @@ export async function searchPoems(
   return results;
 }
 
+export type BrowseMode = "form" | "scene";
+
 export async function getPoetryByCategories(
   scriptVariant: ScriptVariant,
   repository?: BrowseRepository,
   dependencies?: BrowseDependencies,
   source?: SourceType,
+  mode?: BrowseMode,
 ): Promise<PoetryCategory[]> {
   const repo = repository ?? (db as unknown as BrowseRepository);
   const deps = dependencies ?? { getAllImages: () => getAllPoetryImages() };
@@ -217,6 +225,59 @@ export async function getPoetryByCategories(
   ]);
 
   const sourcePrefix = source ? `${source}-` : null;
+
+  if (mode === "scene") {
+    // Scene/season classification — group by 5 dimensions
+    const dimBuckets = new Map<string, Map<string, BrowsePoem>>();
+    for (const dim of SCENE_DIMENSIONS) dimBuckets.set(dim.tag, new Map());
+
+    for (const poem of poems) {
+      if (sourcePrefix && !poem.id.startsWith(sourcePrefix)) continue;
+
+      const variant = pickPoetryContentVariant(poem, scriptVariant);
+      const tags = toStringArray(poem.tags);
+      const lines = toStringArray(poem.lines);
+      const image = imageMap.get(poem.id) ?? getPlaceholderImage(poem.id);
+
+      const browsePoem: BrowsePoem = {
+        id: poem.id,
+        title: variant.title,
+        author: variant.author,
+        dynasty: poem.dynasty,
+        image,
+      };
+
+      const matched = classifyByScene(tags, poem.title, lines);
+      const seen = new Set<string>();
+      for (const subTag of matched) {
+        const cat = SCENE_CATEGORIES.find((c) => c.tag === subTag);
+        if (!cat) continue;
+        const dim = SCENE_DIMENSIONS.find((d) =>
+          d.subcategories.some((s) => s.tag === subTag),
+        );
+        if (!dim) continue;
+        const bucket = dimBuckets.get(dim.tag)!;
+        if (!seen.has(dim.tag)) {
+          bucket.set(poem.id, browsePoem);
+          seen.add(dim.tag);
+        }
+      }
+    }
+
+    const categories: PoetryCategory[] = [];
+    for (const dim of SCENE_DIMENSIONS) {
+      const poems = [...dimBuckets.get(dim.tag)!.values()];
+      if (poems.length > 0) {
+        categories.push({
+          tag: dim.tag,
+          label: dim.label,
+          count: poems.length,
+          poems,
+        });
+      }
+    }
+    return categories;
+  }
 
   if (source === "gs300") {
     // Dynasty-based categorization for 古诗三百

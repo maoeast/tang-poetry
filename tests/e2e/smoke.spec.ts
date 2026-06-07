@@ -86,7 +86,7 @@ test("phase 1 smoke flow", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("今日已读")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "去挑战" }),
+    page.getByRole("link", { name: "去闯关" }),
   ).toHaveAttribute("href", `/challenge?poetryId=${todayPoetryId}`);
 
   await page.goto(`/challenge?poetryId=${todayPoetryId}`);

@@ -30,14 +30,14 @@ const featureCards = [
     href: "/browse?source=sc200" as Route,
   },
   {
+    title: "诗人列表",
+    description: "群贤毕至，一览诗人风采",
+    href: "/authors" as Route,
+  },
+  {
     title: "场景时令",
     description: "春花秋月，朝暮四时",
     href: "/browse?mode=scene" as Route,
-  },
-  {
-    title: "挑战闯关",
-    description: "以诗会友，试锋文墨之间",
-    href: "/challenge" as Route,
   },
   {
     title: "复习成长",
@@ -178,6 +178,15 @@ export default async function HomePage() {
                           <path d="M4 14l-1-1" />
                         </svg>
                       )}
+                      {card.title === "诗人列表" && (
+                        /* 群贤 — gathering of poets */
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="9" cy="7" r="2.5" />
+                          <path d="M3 20v-1.5a3.5 3.5 0 013.5-3.5h5" />
+                          <circle cx="16" cy="7" r="2.5" />
+                          <path d="M21 20v-1.5a3.5 3.5 0 00-3.5-3.5h-1" />
+                        </svg>
+                      )}
                       {card.title === "场景时令" && (
                         /* 四季 — four seasons (sun + cloud) */
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -187,14 +196,6 @@ export default async function HomePage() {
                           <path d="M5 8H4" />
                           <path d="M15 8h1" />
                           <path d="M18 18H7a3 3 0 01-.4-6 4 4 0 018-1.2A3.5 3.5 0 0118 18z" />
-                        </svg>
-                      )}
-                      {card.title === "挑战闯关" && (
-                        /* 毛笔 — brush pen */
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M17 3L7 13l-1 5 5-1L21 7" />
-                          <path d="M14 6l4 4" />
-                          <path d="M7 13c-1 1.5-2.5 3-4 3 1.5.5 3 2 3 4" />
                         </svg>
                       )}
                       {card.title === "复习成长" && (

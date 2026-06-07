@@ -13,6 +13,7 @@
  *   npx tsx scripts/generate-poetry-audio.ts --write --id <uuid>
  *   npx tsx scripts/generate-poetry-audio.ts --write --analysis-only        # only DeepSeek
  *   npx tsx scripts/generate-poetry-audio.ts --write --skip-analysis        # use cached
+ *   npx tsx scripts/generate-poetry-audio.ts --write --source sc200 --concurrency 5
  */
 
 import {
@@ -235,7 +236,13 @@ function parseArgs() {
   const rateLimitMs =
     rateLimitIdx !== -1 && args[rateLimitIdx + 1]
       ? parseInt(args[rateLimitIdx + 1], 10)
-      : 2000;
+      : 500;
+
+  const concurrencyIdx = args.indexOf("--concurrency");
+  const concurrency =
+    concurrencyIdx !== -1 && args[concurrencyIdx + 1]
+      ? parseInt(args[concurrencyIdx + 1], 10)
+      : 5;
 
   let id: string | null = null;
   const idIdx = args.indexOf("--id");
@@ -249,7 +256,7 @@ function parseArgs() {
       ? parseInt(args[limitIdx + 1], 10)
       : 0;
 
-  return { shouldWrite, skipAnalysis, analysisOnly, source, rateLimitMs, id, limit };
+  return { shouldWrite, skipAnalysis, analysisOnly, source, rateLimitMs, concurrency, id, limit };
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -260,6 +267,27 @@ function sleep(ms: number) {
 
 function getBackoffDelay(attempt: number): number {
   return Math.min(BASE_DELAY_MS * Math.pow(2, attempt), MAX_DELAY_MS);
+}
+
+/** Run items concurrently with a pool limit. Returns results in original order. */
+async function concurrentMap<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let nextIdx = 0;
+
+  async function worker(): Promise<void> {
+    while (nextIdx < items.length) {
+      const idx = nextIdx++;
+      results[idx] = await fn(items[idx], idx);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 
 function getDynasty(source: string, author: string): string {
@@ -541,18 +569,15 @@ async function main(): Promise<void> {
   const cachedCount = workList.filter(({ poem }) => cache[poem.id]).length;
   console.log(`Cached analyses: ${cachedCount}, Need analysis: ${workList.length - cachedCount}\n`);
 
-  // ── Phase 1: DeepSeek Analysis ──
+  // ── Phase 1: DeepSeek Analysis (concurrent) ──
   if (!args.skipAnalysis) {
-    console.log("── Phase 1: DeepSeek Analysis ──\n");
+    console.log(`── Phase 1: DeepSeek Analysis (concurrency=${args.concurrency}) ──\n`);
     let analyzed = 0;
     let skipped = 0;
+    const skippedCount = workList.filter(({ poem }) => cache[poem.id]).length;
+    const toAnalyze = workList.filter(({ poem }) => !cache[poem.id]);
 
-    for (const { poem, source } of workList) {
-      if (cache[poem.id]) {
-        skipped++;
-        continue;
-      }
-
+    await concurrentMap(toAnalyze, args.concurrency, async ({ poem, source }) => {
       const dynasty = getDynasty(source, poem.author);
       console.log(`Analyzing: ${poem.title} (${poem.author}, ${dynasty})`);
 
@@ -561,40 +586,38 @@ async function main(): Promise<void> {
       cache[poem.id] = analysis;
       analyzed++;
 
-      console.log(`  voice: ${analysis.voice}, instruction: ${analysis.instruction.substring(0, 40)}...`);
+      console.log(`  [${analyzed}/${toAnalyze.length}] voice: ${analysis.voice}, instruction: ${analysis.instruction.substring(0, 40)}...`);
 
       if (args.shouldWrite) {
         saveAnalysisCache(cache);
       }
 
       await sleep(args.rateLimitMs);
-    }
+    });
 
-    console.log(`\nPhase 1 done: ${analyzed} analyzed, ${skipped} cached`);
+    console.log(`\nPhase 1 done: ${analyzed} analyzed, ${skippedCount} cached`);
   } else {
     console.log("Skipping Phase 1 (using cached analysis)\n");
   }
 
-  // ── Phase 2: StepFun TTS ──
+  // ── Phase 2: StepFun TTS (concurrent) ──
   if (!args.analysisOnly) {
-    console.log("\n── Phase 2: StepFun TTS Generation ──\n");
+    console.log(`\n── Phase 2: StepFun TTS Generation (concurrency=${args.concurrency}) ──\n`);
     let generated = 0;
     let failed = 0;
-    let skipped = 0;
 
-    for (const { poem, source } of workList) {
-      // Re-check: might have been generated in a previous run
-      if (audioFileExists(poem.id)) {
-        skipped++;
-        continue;
-      }
+    // Re-check which poems still need audio
+    const toGenerate = workList.filter(({ poem }) => {
+      if (audioFileExists(poem.id)) return false;
+      if (!cache[poem.id]) return false;
+      return true;
+    });
+    const noAnalysis = workList.filter(({ poem }) => !audioFileExists(poem.id) && !cache[poem.id]);
+    const alreadyDone = workList.filter(({ poem }) => audioFileExists(poem.id));
+    console.log(`Already have audio: ${alreadyDone.length}, No analysis: ${noAnalysis.length}, To generate: ${toGenerate.length}\n`);
 
-      const analysis = cache[poem.id];
-      if (!analysis) {
-        console.warn(`  SKIP ${poem.title}: no analysis cached`);
-        skipped++;
-        continue;
-      }
+    await concurrentMap(toGenerate, args.concurrency, async ({ poem, source }) => {
+      const analysis = cache[poem.id]!;
 
       const dynasty = getDynasty(source, poem.author);
       const ttsInput = buildTTSInput(poem, dynasty, analysis);
@@ -606,18 +629,17 @@ async function main(): Promise<void> {
           const outputPath = path.join(OUTPUT_DIR, `${poem.id}.mp3`);
           writeFileSync(outputPath, Buffer.from(audioBuffer));
           generated++;
-          console.log(`  ✓ Saved: ${outputPath} (${audioBuffer.byteLength} bytes)`);
+          console.log(`  ✓ [${generated}/${toGenerate.length}] Saved: ${outputPath} (${audioBuffer.byteLength} bytes)`);
         } else {
           failed++;
         }
         await sleep(args.rateLimitMs);
       } else {
-        console.log(`  [dry-run] Would generate with voice=${analysis.voice}, instruction="${analysis.instruction.substring(0, 40)}..."`);
-        console.log(`  [dry-run] Input: ${ttsInput.substring(0, 60)}...`);
+        console.log(`  [dry-run] Would generate with voice=${analysis.voice}`);
       }
-    }
+    });
 
-    console.log(`\nPhase 2 done: ${generated} generated, ${failed} failed, ${skipped} skipped`);
+    console.log(`\nPhase 2 done: ${generated} generated, ${failed} failed, ${alreadyDone.length} skipped`);
   }
 
   // ── Summary ──

@@ -230,7 +230,7 @@ export function ReviewList({
             onClick={handleStartSuggestedReview}
             className="mt-4 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-medium text-white transition hover:brightness-105"
           >
-            {firstSuggestedPoetryId ? "从当前批次开始" : "先去挑战练习"}
+            {firstSuggestedPoetryId ? "从当前批次开始" : "先去闯关练习"}
           </button>
           <p className="mt-3 text-sm leading-7 text-ink-600">
             选择一首诗开始复习。
@@ -242,7 +242,7 @@ export function ReviewList({
         title={getBucketTitle("todayDue")}
         bucketKey="todayDue"
         items={buckets.todayDue}
-        emptyText="今日暂时没有到期复习内容，可以先去挑战页练习新诗。"
+        emptyText="今日暂时没有到期复习内容，可以先去闯关页练习新诗。"
         buckets={buckets}
       />
 

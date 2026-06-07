@@ -22,6 +22,13 @@ const SEAL_ABBR: Record<string, string> = {
   明朝: "明朝",
   清朝: "清朝",
   未分类: "其他",
+  // Scene/season dimensions
+  time: "节律",
+  season: "四季",
+  nature: "万物",
+  space: "行走",
+  social: "人情",
+  其他: "其他",
 };
 
 /* ── Chinese numeral conversion (大写数字) ── */
