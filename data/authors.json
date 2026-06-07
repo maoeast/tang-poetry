@@ -1068,7 +1068,7 @@
   {
     "name": "夏商民歌",
     "nameZhHant": "夏商民歌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xiashangxx.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1081,7 +1081,7 @@
   {
     "name": "诗经",
     "nameZhHant": "詩經",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/shix.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1120,7 +1120,7 @@
   {
     "name": "刘邦",
     "nameZhHant": "劉邦",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liux_0.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1133,7 +1133,7 @@
   {
     "name": "刘彻",
     "nameZhHant": "劉徹",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liux_1.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1146,7 +1146,7 @@
   {
     "name": "李延年",
     "nameZhHant": "李延年",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/lixx.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1159,7 +1159,7 @@
   {
     "name": "汉乐府民歌",
     "nameZhHant": "漢樂府民歌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/hanxxxx.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1172,7 +1172,7 @@
   {
     "name": "古诗十九首",
     "nameZhHant": "古詩十九首",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/gushixxx.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1185,7 +1185,7 @@
   {
     "name": "佚名",
     "nameZhHant": "佚名",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xx.jpg",
     "dynasty": "先秦",
     "courtesyName": null,
     "literaryName": null,
@@ -1198,7 +1198,7 @@
   {
     "name": "曹操",
     "nameZhHant": "曹操",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/caox_6.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1211,7 +1211,7 @@
   {
     "name": "刘桢",
     "nameZhHant": "劉楨",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liux_2.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1263,7 +1263,7 @@
   {
     "name": "王粲",
     "nameZhHant": "王粲",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wangx_8.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1354,7 +1354,7 @@
   {
     "name": "谢灵运",
     "nameZhHant": "謝靈運",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xiexx_12.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1367,7 +1367,7 @@
   {
     "name": "鲍照",
     "nameZhHant": "鮑照",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/baox.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1380,7 +1380,7 @@
   {
     "name": "陆凯",
     "nameZhHant": "陸凱",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/lux.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1393,7 +1393,7 @@
   {
     "name": "谢朓",
     "nameZhHant": "謝朓",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xiex.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1406,7 +1406,7 @@
   {
     "name": "范云",
     "nameZhHant": "範雲",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/fanx.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1419,7 +1419,7 @@
   {
     "name": "释宝月",
     "nameZhHant": "釋寶月",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/shixx.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1432,7 +1432,7 @@
   {
     "name": "沈约",
     "nameZhHant": "沈約",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/shenx.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1445,7 +1445,7 @@
   {
     "name": "何逊",
     "nameZhHant": "何遜",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/hex.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1458,7 +1458,7 @@
   {
     "name": "吴均",
     "nameZhHant": "吳均",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wux_14.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1471,7 +1471,7 @@
   {
     "name": "陶宏景",
     "nameZhHant": "陶宏景",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/taoxx.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1484,7 +1484,7 @@
   {
     "name": "王籍",
     "nameZhHant": "王籍",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wangx_9.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1497,7 +1497,7 @@
   {
     "name": "萧纲",
     "nameZhHant": "蕭綱",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xiaox.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1510,7 +1510,7 @@
   {
     "name": "阴铿",
     "nameZhHant": "陰鏗",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yinx.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1523,7 +1523,7 @@
   {
     "name": "徐陵",
     "nameZhHant": "徐陵",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xux_16.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1536,7 +1536,7 @@
   {
     "name": "刘昶",
     "nameZhHant": "劉昶",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liux_3.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1549,7 +1549,7 @@
   {
     "name": "庾信",
     "nameZhHant": "庾信",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yux.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1562,7 +1562,7 @@
   {
     "name": "南朝民歌",
     "nameZhHant": "南朝民歌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xxxx_18.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1575,7 +1575,7 @@
   {
     "name": "北朝民歌",
     "nameZhHant": "北朝民歌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xxxx_19.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1588,7 +1588,7 @@
   {
     "name": "江总",
     "nameZhHant": "江總",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/jiangx_21.jpg",
     "dynasty": "南北朝",
     "courtesyName": null,
     "literaryName": null,
@@ -1601,7 +1601,7 @@
   {
     "name": "薛道衡",
     "nameZhHant": "薛道衡",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xuexx_23.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1614,7 +1614,7 @@
   {
     "name": "孔绍安",
     "nameZhHant": "孔紹安",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/kongxx_25.jpg",
     "dynasty": "魏晋",
     "courtesyName": null,
     "literaryName": null,
@@ -1627,7 +1627,7 @@
   {
     "name": "柳开",
     "nameZhHant": "柳開",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liux_4.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -1640,7 +1640,7 @@
   {
     "name": "郑文宝",
     "nameZhHant": "鄭文寶",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhengxx_27.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -1718,7 +1718,7 @@
   {
     "name": "曾公亮",
     "nameZhHant": "曾公亮",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zengxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -1887,7 +1887,7 @@
   {
     "name": "孔平仲",
     "nameZhHant": "孔平仲",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/kongxx_26.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -1991,7 +1991,7 @@
   {
     "name": "吴涛",
     "nameZhHant": "吳濤",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wux_15.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -2121,7 +2121,7 @@
   {
     "name": "萧德藻",
     "nameZhHant": "蕭德藻",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xiaoxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -2303,7 +2303,7 @@
   {
     "name": "戴敏",
     "nameZhHant": "戴敏",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/daix.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -2316,7 +2316,7 @@
   {
     "name": "曹豳",
     "nameZhHant": "曹豳",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/caox_7.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -2407,7 +2407,7 @@
   {
     "name": "南宋民歌",
     "nameZhHant": "南宋民歌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xxxx_20.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -2433,7 +2433,7 @@
   {
     "name": "元好问",
     "nameZhHant": "元好問",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yuanxx_29.jpg",
     "dynasty": "元",
     "courtesyName": null,
     "literaryName": null,
@@ -2524,7 +2524,7 @@
   {
     "name": "揭侯斯",
     "nameZhHant": "揭侯斯",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/jiexx.jpg",
     "dynasty": "元",
     "courtesyName": null,
     "literaryName": null,
@@ -2550,7 +2550,7 @@
   {
     "name": "徐元杰",
     "nameZhHant": "徐元傑",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xuyuanx.jpg",
     "dynasty": "元",
     "courtesyName": null,
     "literaryName": null,
@@ -2563,7 +2563,7 @@
   {
     "name": "萨都刺",
     "nameZhHant": "薩都刺",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/saxx.jpg",
     "dynasty": "元",
     "courtesyName": null,
     "literaryName": null,
@@ -2927,7 +2927,7 @@
   {
     "name": "明朝民歌",
     "nameZhHant": "明朝民歌",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/mingxxx.jpg",
     "dynasty": "明",
     "courtesyName": null,
     "literaryName": null,
@@ -2940,7 +2940,7 @@
   {
     "name": "吴伟业",
     "nameZhHant": "吳偉業",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wuxx.jpg",
     "dynasty": "清",
     "courtesyName": null,
     "literaryName": null,
@@ -3226,7 +3226,7 @@
   {
     "name": "梁启超",
     "nameZhHant": "梁啟超",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liangxx.jpg",
     "dynasty": "清",
     "courtesyName": null,
     "literaryName": null,
@@ -3239,7 +3239,7 @@
   {
     "name": "秋瑾",
     "nameZhHant": "秋瑾",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/qiux.jpg",
     "dynasty": "清",
     "courtesyName": null,
     "literaryName": null,
@@ -3252,7 +3252,7 @@
   {
     "name": "章炳麟",
     "nameZhHant": "章炳麟",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhangxx.jpg",
     "dynasty": "清",
     "courtesyName": null,
     "literaryName": null,
@@ -3343,7 +3343,7 @@
   {
     "name": "冯延巳",
     "nameZhHant": "馮延巳",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/fengxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3499,7 +3499,7 @@
   {
     "name": "汤恢",
     "nameZhHant": "湯恢",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/tangx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3590,7 +3590,7 @@
   {
     "name": "叶清臣",
     "nameZhHant": "葉清臣",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yexx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3616,7 +3616,7 @@
   {
     "name": "淮上女",
     "nameZhHant": "淮上女",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/huaixx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3655,7 +3655,7 @@
   {
     "name": "黄孝迈",
     "nameZhHant": "黃孝邁",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/huangxx_31.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3668,7 +3668,7 @@
   {
     "name": "韩缜",
     "nameZhHant": "韓縝",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/hanx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3720,7 +3720,7 @@
   {
     "name": "蜀妓",
     "nameZhHant": "蜀妓",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/shux.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3733,7 +3733,7 @@
   {
     "name": "许棐",
     "nameZhHant": "許棐",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xux_17.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3772,7 +3772,7 @@
   {
     "name": "王琪",
     "nameZhHant": "王琪",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wangx_10.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3837,7 +3837,7 @@
   {
     "name": "王清惠",
     "nameZhHant": "王清惠",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wangxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3889,7 +3889,7 @@
   {
     "name": "蒋氏女",
     "nameZhHant": "蔣氏女",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/jiangxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3902,7 +3902,7 @@
   {
     "name": "郑文妻",
     "nameZhHant": "鄭文妻",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhengxx_28.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3941,7 +3941,7 @@
   {
     "name": "薛昂夫",
     "nameZhHant": "薛昂夫",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xuexx_24.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3967,7 +3967,7 @@
   {
     "name": "李好古",
     "nameZhHant": "李好古",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/lixgu.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -3993,7 +3993,7 @@
   {
     "name": "赵汝茪",
     "nameZhHant": "趙汝茪",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhaoxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4006,7 +4006,7 @@
   {
     "name": "王澜",
     "nameZhHant": "王瀾",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/wangx_11.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4019,7 +4019,7 @@
   {
     "name": "谢克家",
     "nameZhHant": "謝克家",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/xiexx_13.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4032,7 +4032,7 @@
   {
     "name": "连静女",
     "nameZhHant": "連靜女",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/lianxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4045,7 +4045,7 @@
   {
     "name": "赵溍",
     "nameZhHant": "趙溍",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhaox_33.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4058,7 +4058,7 @@
   {
     "name": "鲁逸仲",
     "nameZhHant": "魯逸仲",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/luxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4084,7 +4084,7 @@
   {
     "name": "江开",
     "nameZhHant": "江開",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/jiangx_22.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4097,7 +4097,7 @@
   {
     "name": "周端臣",
     "nameZhHant": "周端臣",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhouxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4110,7 +4110,7 @@
   {
     "name": "刘彤",
     "nameZhHant": "劉彤",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liux_5.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4123,7 +4123,7 @@
   {
     "name": "金德淑",
     "nameZhHant": "金德淑",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/jinxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4136,7 +4136,7 @@
   {
     "name": "李元膺",
     "nameZhHant": "李元膺",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/liyuanx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4149,7 +4149,7 @@
   {
     "name": "黄大临",
     "nameZhHant": "黃大臨",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/huangxx_32.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4175,7 +4175,7 @@
   {
     "name": "岳珂",
     "nameZhHant": "岳珂",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yuex.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4188,7 +4188,7 @@
   {
     "name": "袁正真",
     "nameZhHant": "袁正真",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/yuanxx_30.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4201,7 +4201,7 @@
   {
     "name": "阮逸女",
     "nameZhHant": "阮逸女",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/ruanxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4214,7 +4214,7 @@
   {
     "name": "洪皓",
     "nameZhHant": "洪皓",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/hongx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4240,7 +4240,7 @@
   {
     "name": "陈达叟",
     "nameZhHant": "陳達叟",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/chenxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4253,7 +4253,7 @@
   {
     "name": "华清淑",
     "nameZhHant": "華清淑",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/huaxx.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
@@ -4266,7 +4266,7 @@
   {
     "name": "赵崇",
     "nameZhHant": "趙崇",
-    "avatarUrl": null,
+    "avatarUrl": "/images/authors/zhaox_34.jpg",
     "dynasty": "宋",
     "courtesyName": null,
     "literaryName": null,
