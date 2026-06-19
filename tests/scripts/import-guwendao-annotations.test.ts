@@ -7,7 +7,7 @@ import {
   findNormalizedFallbackPoetry,
   matchDetailToPoetry,
   parseTranslationAnnotation,
-} from "../../scripts/import-guwendao-annotations";
+} from "@/lib/poetry/guwendao-annotation-import";
 
 test("extractCatalogEntries reads poem links from the Tang 300 catalog page", () => {
   const html = `
