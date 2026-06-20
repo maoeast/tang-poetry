@@ -6,7 +6,7 @@ type PosterTitleBlockProps = {
 };
 
 export function PosterTitleBlock({
-  className,
+  className: _className,
 }: PosterTitleBlockProps) {
   return null;
 }

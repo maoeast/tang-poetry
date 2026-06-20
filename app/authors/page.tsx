@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import type { Route } from "next";
 
 import { AuthorCard } from "@/components/author/author-card";
 import { BackToTop } from "@/components/browse/back-to-top";

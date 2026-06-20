@@ -135,9 +135,6 @@ function isShortHeading(text: string): boolean {
 /** Matches: 唐永昌元年（689年）, 开元十五年（727年）, 天宝元年（公元742年）, 上元三年 (762年) */
 const YEAR_ERA_RE = /([\u4e00-\u9fff]*[\d一二三四五六七八九十百千万元初]+年?)[\s]*[（(](?:公元)?(\d+年?)[）)]/g;
 
-/** Matches standalone (689年) at start of a sentence */
-const STANDALONE_YEAR_RE = /[（(](\d+年?)[）)]/;
-
 /**
  * Extract structured events from chapter content text.
  * Splits text at year-era markers into individual events.
@@ -160,7 +157,6 @@ function extractEvents(content: string): TimelineEvent[] {
     }
 
     // Split paragraph at each year marker
-    let lastIndex = 0;
     for (let i = 0; i < matches.length; i++) {
       const m = matches[i];
       const matchStart = m.index!;
@@ -192,8 +188,6 @@ function extractEvents(content: string): TimelineEvent[] {
         // Just use the year marker info as the event
         events.push({ year, era, text: trimmed.slice(matchStart, matchEnd) });
       }
-
-      lastIndex = matchEnd;
     }
   }
 

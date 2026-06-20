@@ -15,7 +15,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.log
+*.pid
 *.tsbuildinfo
+*.bak
 
 # Local workflow state
 .codex/
@@ -27,8 +29,10 @@ CLAUDE.md
 AIimage/
 AIimages/
 _meta.json
+tang_poetry_backup.sql
 public/audio/
 scripts/generate_tts_audio.py
+.local-postgres/
 
 # Local planning / review artifacts
 docs/audio-and-page-design-guide.md
@@ -46,6 +50,7 @@ docs/superpowers/specs/2026-05-30-tang-poetry-phase-1-visual-audio-design.md
 # Editor / OS noise
 .DS_Store
 Thumbs.db
+__pycache__/
 
 # Scratch files
 新建文本文档.txt

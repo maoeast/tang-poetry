@@ -168,12 +168,6 @@ type SubmitAnswerInput = {
   userAnswer: string | string[];
 };
 
-function toStringArray(value: unknown) {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string")
-    : [];
-}
-
 function randomIndex(length: number, random: RandomSource) {
   if (length <= 1) {
     return 0;
