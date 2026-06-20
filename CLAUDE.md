@@ -30,7 +30,7 @@ npm run test:smoke
 # Database
 docker compose up -d                              # Start PostgreSQL 16
 ./node_modules/.bin/prisma migrate dev            # Run migrations
-npm run import:ts300                               # Import 366 poems + 365-day schedule
+npm run import:ts300                               # Import 361 poems + 365-day schedule
 
 # Asset pipelines
 ./node_modules/.bin/tsx scripts/prepare-image-generation.ts   # Generate image prompts
@@ -65,7 +65,7 @@ npm run import:image-assets                                    # Import images i
 - **AI explanation**: `Poetry.aiExplanation[audience_promptVersion]` cache → fallback to DeepSeek API
 - **Script variants**: Simplified from `data/ts300.simple.json`, traditional from `data/ts300.raw.json`. Cookie is the SSR truth source; `localStorage` is client-side mirror only. Runtime OpenCC is **not** used for display text.
 - **Audio**: `public/audio/poetry/` — filename mapped via `Poetry.sourceUid` or `poetryId` (`lib/audio.ts`). Directory is gitignored.
-- **Images**: `ImageAsset` table is the sole runtime source. 366 poems all have `ready` images (`storybook-watercolor`, `v1`). Fallback: `/images/placeholders/default-poetry-card.jpg`.
+- **Images**: `ImageAsset` table is the sole runtime source. 860 poems all have `ready` images (`storybook-watercolor`, `v1`). Fallback: `/images/placeholders/default-poetry-card.jpg`.
 
 ### Key Directories
 
@@ -85,7 +85,7 @@ npm run import:image-assets                                    # Import images i
 
 ### Prisma Models
 
-7 models: `Poetry`, `AudioMeta`, `ImageAsset`, `DailyPoetry`, `LearningRecord`, `ChallengeAttempt`, `ReviewState`, `Favorite`. No `User` model — Phase 1 uses `SYSTEM_USER_ID` env var (default: `family-001`).
+8 models: `Poetry`, `AudioMeta`, `ImageAsset`, `DailyPoetry`, `LearningRecord`, `ChallengeAttempt`, `ReviewState`, `Favorite`. No `User` model — Phase 1 uses `SYSTEM_USER_ID` env var (default: `family-001`).
 
 ## Constraints & Rules
 
@@ -133,8 +133,8 @@ Three poetry sources share the same `Poetry` table, differentiated by ID prefix:
 
 | Source | ID prefix | Dynasty | Count |
 |---|---|---|---|
-| 唐诗三百首 | `ts300-` | 唐 | 321 |
-| 古诗三百 | `gs300-` | 先秦/魏晋/宋/元/明/清 | 278 |
+| 唐诗三百首 | `ts300-` | 唐 | 361 |
+| 古诗三百 | `gs300-` | 先秦/魏晋/宋/元/明/清 | 277 |
 | 宋词精选 | `sc200-` | 宋 | 222 |
 
 **切系统后导入新数据不丢失旧数据**：`import:gs300` / `import:sc200` 使用 upsert，只写入基础字段（dynasty/lines/tags），不碰 `translation`/`annotation`/`aiExplanation`。已在系统 A 完成的译文/AI讲解/音频在系统 B 导入新诗后仍完整保留。
@@ -148,4 +148,14 @@ Three poetry sources share the same `Poetry` table, differentiated by ID prefix:
 
 ## Current Status
 
-Tasks 1–12 complete. Task 13 (E2E testing) nearly done. 新增古诗三百(278首) + 宋词精选(222首) 数据集和导入管线。下一步：首页改版，将功能卡片升级为六宫格（古诗三百/唐诗三百/宋词精选/场景时令/挑战闯关/复习成长）。
+Phase 1 全部完成。已落地的关键工作：
+
+- **数据集**：860 首诗入库（ts300 唐诗 361 + gs300 古诗 277 + sc200 宋词 222），每首均含译文/注释/AI 讲解（`child_v1` + `general_v1` 两套 audience）。
+- **配图**：860 首全部 `ready`，style `storybook-watercolor` / promptVersion `v1`；329 位诗人头像补齐。
+- **UI**：全站更名为「诗笺阁」；首页六宫格（古诗三百 / 唐诗三百 / 宋词精选 / 诗人列表 / 场景时令 / 复习成长）；诗人列表页、浏览页交互、繁简切换、hydration 修复均落地。
+- **测试**：Task 13 E2E（Playwright）已通过；单元测试随 `lib/` 结构组织。
+- **运维**：`docs/deployment.md` 生产部署文档 + `scripts/start-local-postgres.sh` 本地 PG 启动脚本；DeepSeek 批处理脚本支持 `--concurrency` worker pool。
+
+**未推送**：本地领先 `origin/main` 52 个 commit（截至 2026-06-20）。
+
+**可能的下一步方向**（未启动，待用户确认）：推送 backlog、新增功能、或针对现有 UI/数据做迭代。
