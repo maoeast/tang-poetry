@@ -36,6 +36,7 @@ type ProgressRecord = {
 function loadEnvFiles() {
   for (const file of [".env.local", ".env"]) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const content = require("node:fs").readFileSync(path.join(PROJECT_ROOT, file), "utf8");
       for (const line of content.split("\n")) {
         const [key, ...rest] = line.split("=");
@@ -69,6 +70,7 @@ async function saveProgress(progress: Record<string, ProgressRecord>) {
 
 function fileExists(targetPath: string): boolean {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("node:fs").accessSync(targetPath);
     return true;
   } catch {
@@ -204,7 +206,7 @@ async function main() {
     return;
   }
 
-  let progress = await loadProgress();
+  const progress = await loadProgress();
 
   if (!batchOnly) {
     // Generate personalized prompts via DeepSeek

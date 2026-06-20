@@ -573,7 +573,7 @@ async function main(): Promise<void> {
   if (!args.skipAnalysis) {
     console.log(`── Phase 1: DeepSeek Analysis (concurrency=${args.concurrency}) ──\n`);
     let analyzed = 0;
-    let skipped = 0;
+    const skipped = 0;
     const skippedCount = workList.filter(({ poem }) => cache[poem.id]).length;
     const toAnalyze = workList.filter(({ poem }) => !cache[poem.id]);
 
@@ -645,6 +645,7 @@ async function main(): Promise<void> {
   // ── Summary ──
   console.log("\n=== generate-poetry-audio: 完成 ===");
   const totalAudio = existsSync(OUTPUT_DIR)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     ? require("node:fs").readdirSync(OUTPUT_DIR).filter((f: string) => f.endsWith(".mp3")).length
     : 0;
   console.log(`Total audio files on disk: ${totalAudio}`);

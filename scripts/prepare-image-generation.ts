@@ -52,7 +52,7 @@ const PROMPT_GUIDE_PATH = path.join(DOCS_DIR, "poetry-image-prompt-guide.md");
 const PROGRESS_PATH = path.join(BATCHES_DIR, ".personalized-progress.json");
 
 const STYLE = "storybook-watercolor";
-const PROMPT_VERSION = "v2";
+const PROMPT_VERSION = "v1";
 const DEFAULT_IMAGE_PATH = "/images/placeholders/default-poetry-card.jpg";
 const DEFAULT_BATCH_SIZE = 40;
 const PREVIEW_POETRY_IDS = ["ts300-0001", "ts300-0002", "ts300-0004"] as const;
@@ -549,7 +549,7 @@ export async function generatePersonalizedScenes(
   const { concurrency = 5, delayMs = 300, poetryIds } = options;
 
   await mkdir(BATCHES_DIR, { recursive: true });
-  let progress = await loadPersonalizedProgress();
+  const progress = await loadPersonalizedProgress();
 
   const targetPoems = poetryIds
     ? poems.filter((p) => poetryIds.includes(p.id) && !progress[p.id])

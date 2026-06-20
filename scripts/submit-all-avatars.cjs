@@ -3,8 +3,11 @@
  * save task IDs for later polling.
  * Usage: node scripts/submit-all-avatars.cjs
  */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require('path');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const https = require('https');
 
 const API_KEY = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'AIimages', 'config.json'), 'utf-8')).api_key;

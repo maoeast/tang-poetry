@@ -482,7 +482,7 @@ async function main(): Promise<void> {
   }
 
   // 6. Handle authors not found on guwendao (ensure nameZhHant is set)
-  let addedCount = 0;
+  const addedCount = 0;
   for (const a of authors) {
     if (!a.nameZhHant) {
       a.nameZhHant = converter(a.name);

@@ -278,7 +278,7 @@ async function main() {
 
     const { api_key: apiKey } = await loadConfig();
     await mkdir(TASKS_DIR, { recursive: true });
-    let bulkState = await loadBulkState();
+    const bulkState = await loadBulkState();
 
     const existingNames = new Set(bulkState.tasks.map((t) => t.name));
     const pendingJobs = newJobs.filter((j) => !existingNames.has(j.name));

@@ -120,7 +120,7 @@ function parseGs300Catalog(html: string): CatalogEntry[] {
       const rest = $span.text().replace($a.text(), "").trim();
 
       // Author in parentheses: (Author) or 《Author》
-      let author = rest.replace(/^[《]|[》]$/g, "").replace(/[()（）]/g, "").trim();
+      const author = rest.replace(/^[《]|[》]$/g, "").replace(/[()（）]/g, "").trim();
 
       const hashMatch = href.match(/shiwenv_([a-f0-9]+)\.aspx/);
       const hash = hashMatch ? hashMatch[1]! : "";

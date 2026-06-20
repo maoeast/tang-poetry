@@ -91,7 +91,7 @@ async function main() {
 
   const { api_key: apiKey } = await loadConfig();
   await mkdir(TASKS_DIR, { recursive: true });
-  let bulkState = await loadBulkState();
+  const bulkState = await loadBulkState();
 
   // Exclude already submitted names
   const existingNames = new Set(bulkState.tasks.map((t) => t.name));

@@ -23,6 +23,6 @@
 ## 默认参数
 
 - style: `storybook-watercolor`
-- promptVersion: `v2`
+- promptVersion: `v1`
 - size: `2:3`
 - resolution: `2k`

@@ -2,7 +2,9 @@
  * Generate batch JSON for apimart-imagegen to regenerate author avatars.
  * Usage: node scripts/generate-avatar-batch.cjs
  */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require('path');
 
 const authorsPath = path.join(__dirname, '..', 'data', 'authors.json');
