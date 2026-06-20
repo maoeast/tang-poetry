@@ -27,6 +27,8 @@
     "fill:gs300-manual-annotations": "tsx scripts/fill-gs300-manual-annotations.ts",
     "fill:ts300-direct-page-annotations": "tsx scripts/fill-ts300-direct-page-annotations.ts",
     "audit:annotation-gaps": "tsx scripts/audit-poetry-annotation-gaps.ts",
+    "dump:annotations": "tsx scripts/dump-annotations.ts",
+    "restore:annotations": "tsx scripts/restore-annotations.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
