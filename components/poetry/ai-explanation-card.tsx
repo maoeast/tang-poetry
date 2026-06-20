@@ -69,9 +69,11 @@ export function AiExplanationCard({
       audioRef.current = null;
     }
 
-    setIsPlaying(false);
-    setCurrentTimeMs(0);
-    setDurationMs(0);
+    startTransition(() => {
+      setIsPlaying(false);
+      setCurrentTimeMs(0);
+      setDurationMs(0);
+    });
 
     if (!hasAudio || !audioInfo?.url) {
       return;

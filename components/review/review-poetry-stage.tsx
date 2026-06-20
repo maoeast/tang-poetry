@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
 import { PoetryTitleAuthor } from "@/components/poetry/poetry-title-author";
@@ -76,12 +76,14 @@ export function ReviewPoetryStage({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setQueuePoetryIds(
-      buildInitialReviewPlayerQueue({
-        poetryId: poetry.id,
-        initialQueuePoetryIds,
-      }),
-    );
+    startTransition(() => {
+      setQueuePoetryIds(
+        buildInitialReviewPlayerQueue({
+          poetryId: poetry.id,
+          initialQueuePoetryIds,
+        }),
+      );
+    });
   }, [initialQueuePoetryIds, poetry.id]);
 
   useEffect(() => {
@@ -91,21 +93,23 @@ export function ReviewPoetryStage({
       return;
     }
 
-    setQueuePoetryIds((currentQueuePoetryIds) => {
-      const nextQueuePoetryIds = mergePersistedReviewPlayerQueue({
-        poetryId: poetry.id,
-        initialQueuePoetryIds: currentQueuePoetryIds,
-        persistedQueuePoetryIds: persistedQueue.poetryIds,
+    startTransition(() => {
+      setQueuePoetryIds((currentQueuePoetryIds) => {
+        const nextQueuePoetryIds = mergePersistedReviewPlayerQueue({
+          poetryId: poetry.id,
+          initialQueuePoetryIds: currentQueuePoetryIds,
+          persistedQueuePoetryIds: persistedQueue.poetryIds,
+        });
+
+        if (
+          nextQueuePoetryIds.length === currentQueuePoetryIds.length &&
+          nextQueuePoetryIds.every((poetryId, index) => poetryId === currentQueuePoetryIds[index])
+        ) {
+          return currentQueuePoetryIds;
+        }
+
+        return nextQueuePoetryIds;
       });
-
-      if (
-        nextQueuePoetryIds.length === currentQueuePoetryIds.length &&
-        nextQueuePoetryIds.every((poetryId, index) => poetryId === currentQueuePoetryIds[index])
-      ) {
-        return currentQueuePoetryIds;
-      }
-
-      return nextQueuePoetryIds;
     });
   }, [poetry.id]);
 

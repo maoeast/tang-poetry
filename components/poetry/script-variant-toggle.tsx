@@ -3,7 +3,6 @@
 import { useEffect, useState, useTransition } from "react";
 
 import {
-  DEFAULT_SCRIPT_VARIANT,
   getScriptVariantLabel,
   resolveScriptVariant,
   SCRIPT_VARIANT_COOKIE_NAME,
@@ -38,7 +37,9 @@ export function ScriptVariantToggle({
       ?.split("=")[1];
     const nextVariant = resolveScriptVariant(cookieValue);
 
-    setVariant(nextVariant);
+    startTransition(() => {
+      setVariant(nextVariant);
+    });
     localStorage.setItem(SCRIPT_VARIANT_LOCAL_STORAGE_KEY, nextVariant);
   }, []);
 

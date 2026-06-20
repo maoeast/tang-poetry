@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type NavItem = {
   tag: string;
@@ -14,7 +14,9 @@ type StickyCategoryNavProps = {
 export function StickyCategoryNav({ items }: StickyCategoryNavProps) {
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const itemsRef = useRef(items);
-  itemsRef.current = items;
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const scrollTo = (tag: string) => {
     document

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import type { WeeklyCheckIn } from "@/lib/stats/weekly-checkin";
 
 type WeeklyStreakMatrixProps = {
@@ -5,8 +9,9 @@ type WeeklyStreakMatrixProps = {
 };
 
 export function WeeklyStreakMatrix({ data }: WeeklyStreakMatrixProps) {
+  const [now] = useState(() => Date.now());
   const todayKey = data.days.find(
-    (d) => !d.isFuture && d.dateKey <= Date.now(),
+    (d) => !d.isFuture && d.dateKey <= now,
   )?.dateKey;
 
   return (
