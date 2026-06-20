@@ -11,10 +11,15 @@
  *   - Retry with backoff — retries up to 3 times on failure
  *
  * Usage:
- *   npx tsx scripts/generate-ai-explanations.ts               # dry run
- *   npx tsx scripts/generate-ai-explanations.ts --write        # write to DB
+ *   npx tsx scripts/generate-ai-explanations.ts                              # dry run
+ *   npx tsx scripts/generate-ai-explanations.ts --write                       # write to DB
  *   npx tsx scripts/generate-ai-explanations.ts --write --rate-limit 3000
  *   npx tsx scripts/generate-ai-explanations.ts --write --id <poetryId>
+ *   npx tsx scripts/generate-ai-explanations.ts --write --concurrency 5       # parallel workers
+ *
+ * Concurrency: with --concurrency N, N workers process poems in parallel.
+ * rate-limit is applied per worker (delay after each poem completes within
+ * that worker). Retry/backoff handles transient 429s from DeepSeek.
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -47,6 +52,12 @@ function parseArgs() {
       ? parseInt(args[rateLimitIndex + 1], 10)
       : 2000;
 
+  const concurrencyIndex = args.indexOf("--concurrency");
+  const concurrency =
+    concurrencyIndex !== -1 && args[concurrencyIndex + 1]
+      ? Math.max(1, parseInt(args[concurrencyIndex + 1], 10))
+      : 1;
+
   const ids: string[] = [];
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--id" && args[i + 1]) {
@@ -55,7 +66,7 @@ function parseArgs() {
     }
   }
 
-  return { shouldWrite, rateLimitMs, ids };
+  return { shouldWrite, rateLimitMs, concurrency, ids };
 }
 
 // ─── Retry with exponential backoff ─────────────────────────────────
@@ -124,14 +135,15 @@ function logExplanation(audience: string, explanation: PoetryExplanation) {
 // ─── Main ───────────────────────────────────────────────────────────
 
 async function main() {
-  const { shouldWrite, rateLimitMs, ids } = parseArgs();
+  const { shouldWrite, rateLimitMs, concurrency, ids } = parseArgs();
 
   console.log(
     shouldWrite
       ? "🔄 Generating AI explanations and writing to DB..."
       : "📋 Dry run — use --write to persist changes",
   );
-  console.log(`   Rate limit: ${rateLimitMs}ms between poems`);
+  console.log(`   Rate limit: ${rateLimitMs}ms per worker between poems`);
+  console.log(`   Concurrency: ${concurrency} worker(s)`);
 
   // Load poems
   const where = ids.length > 0 ? { id: { in: ids } } : {};
@@ -162,10 +174,12 @@ async function main() {
   let successCount = 0;
   let skippedCount = 0;
   const failedList: Array<{ index: number; title: string; author: string; errors: string[] }> = [];
+  let nextIndex = 0;
 
-  for (let i = 0; i < todo.length; i++) {
-    const poem = todo[i];
-    const prefix = `[${i + 1}/${todo.length}]`;
+  async function processPoem(workerId: number, index: number) {
+    const poem = todo[index];
+    if (!poem) return;
+    const prefix = `[${index + 1}/${todo.length}](w${workerId})`;
     const cache = toCacheMap(poem.aiExplanation);
     const lines = toStringArray(poem.lines);
     const errors: string[] = [];
@@ -219,18 +233,28 @@ async function main() {
 
     if (errors.length > 0) {
       failedList.push({
-        index: i + 1,
+        index: index + 1,
         title: poem.title,
         author: poem.author,
         errors,
       });
     }
+  }
 
-    // Rate limit between poems
-    if (i < todo.length - 1 && shouldWrite) {
-      await sleep(rateLimitMs);
+  async function worker(workerId: number) {
+    while (true) {
+      const index = nextIndex++;
+      if (index >= todo.length) return;
+      await processPoem(workerId, index);
+      // Per-worker rate limit between poems
+      if (shouldWrite) {
+        await sleep(rateLimitMs);
+      }
     }
   }
+
+  const workers = Array.from({ length: concurrency }, (_, idx) => worker(idx + 1));
+  await Promise.all(workers);
 
   // Summary
   console.log("\n📊 Results:");
