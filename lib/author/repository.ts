@@ -118,6 +118,12 @@ export type AuthorListItem = {
 
 // --- Implementations ---
 
+/** Synchronous avatar URL lookup — returns DEFAULT_AVATAR if not found. */
+export function getAuthorAvatarUrl(name: string): string {
+  const entry = (authorsData as AuthorData[]).find((a) => a.name === name);
+  return entry?.avatarUrl ?? DEFAULT_AVATAR;
+}
+
 export async function getAuthorByName(
   name: string,
   scriptVariant: ScriptVariant = "zh-Hans",

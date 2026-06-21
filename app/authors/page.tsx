@@ -63,9 +63,6 @@ export default async function AuthorsPage({
           >
             返回首页
           </Link>
-          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
-            诗人列表
-          </p>
         </div>
 
         {/* Hero */}

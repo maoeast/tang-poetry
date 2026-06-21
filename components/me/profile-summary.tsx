@@ -1,11 +1,15 @@
 import Link from "next/link";
 import type { Route } from "next";
 
+import { PoetryCard } from "@/components/browse/poetry-card";
+import type { BrowsePoem } from "@/lib/browse/repository";
+import { getAuthorAvatarUrl } from "@/lib/author/repository";
 import type { MyPageSummary, PoetAffinity } from "@/lib/stats/affinity";
 
 type ProfileSummaryProps = {
   summary: MyPageSummary;
   affinity: PoetAffinity[];
+  favorites: BrowsePoem[];
 };
 
 const statCards = [
@@ -40,7 +44,7 @@ const statCards = [
   tone: string;
 }>;
 
-export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
+export function ProfileSummary({ summary, affinity, favorites }: ProfileSummaryProps) {
   return (
     <main className="min-h-screen bg-paper px-6 py-10 text-ink-900 sm:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
@@ -51,9 +55,6 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
           >
             返回首页
           </Link>
-          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
-            我的
-          </p>
         </div>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -78,6 +79,33 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
           ))}
         </section>
 
+        {/* 我的收藏 — favorite poems grid */}
+        <section className="rounded-[2rem] border border-ink-200 bg-surface/78 p-8 shadow-[var(--shadow-panel)]">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-2xl font-semibold">我的收藏</h2>
+            <span className="text-sm text-ink-500">{favorites.length} 首</span>
+          </div>
+
+          {favorites.length > 0 ? (
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {favorites.map((poem) => (
+                <PoetryCard key={poem.id} poem={poem} />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-6 text-sm leading-8 text-ink-600">
+              暂无收藏，去{" "}
+              <Link
+                href={"/browse" as Route}
+                className="text-ink-900 underline underline-offset-4 hover:text-ink-700"
+              >
+                浏览诗词
+              </Link>{" "}
+              收藏喜欢的作品吧。
+            </p>
+          )}
+        </section>
+
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
           <article className="rounded-[2rem] border border-ink-200 bg-surface/78 p-8 shadow-[var(--shadow-panel)]">
             <div className="flex items-center justify-between gap-4">
@@ -86,14 +114,31 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
 
             {affinity.length > 0 ? (
               <div className="mt-6 space-y-3">
-                {affinity.map((item, index) => (
+                {affinity.map((item) => {
+                  const avatarUrl = getAuthorAvatarUrl(item.author);
+                  const hasAvatar = !avatarUrl.endsWith("/default.svg");
+
+                  return (
                   <div
                     key={item.author}
                     className="flex items-center gap-4 rounded-[1.5rem] border border-ink-200 bg-surface px-5 py-4"
                   >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-ink-600">
-                      #{index + 1}
-                    </div>
+                    <Link
+                      href={`/author/${encodeURIComponent(item.author)}` as Route}
+                      className="shrink-0"
+                    >
+                      {hasAvatar ? (
+                        <img
+                          src={avatarUrl}
+                          alt={item.author}
+                          className="h-11 w-11 rounded-full object-cover transition-opacity hover:opacity-80"
+                        />
+                      ) : (
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink-900/5 text-xs font-serif text-ink-400">
+                          {item.author.slice(0, 2)}
+                        </span>
+                      )}
+                    </Link>
                     <div className="flex-1">
                       <p className="text-lg font-medium">{item.author}</p>
                     </div>
@@ -110,7 +155,8 @@ export function ProfileSummary({ summary, affinity }: ProfileSummaryProps) {
                     </div>
                     <span className="text-sm text-ink-600">{item.count}</span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="mt-6 text-sm text-ink-600">

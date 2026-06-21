@@ -3,35 +3,51 @@ import type { Route } from "next";
 
 import { AiExplanationCard } from "@/components/poetry/ai-explanation-card";
 import { BackButton } from "@/components/poetry/back-button";
+import { FavoriteToggle } from "@/components/poetry/favorite-toggle";
 import { ExpandableText } from "@/components/ui/expandable-text";
 import { ImmersivePoetryStage } from "@/components/poetry/immersive-poetry-stage";
 import type { PoetryDetail as PoetryDetailModel, RelatedPoetry } from "@/lib/poetry/repository";
 import type { ScriptVariant } from "@/lib/poetry/script-variant";
 
+type ToggleFavoriteAction = (
+  poetryId: string,
+) => Promise<{ isFavorite: boolean }>;
+
 type PoetryDetailProps = {
   poetry: PoetryDetailModel;
   relatedPoetries: RelatedPoetry[];
   initialScriptVariant: ScriptVariant;
+  initialIsFavorite: boolean;
+  onToggleFavorite: ToggleFavoriteAction;
 };
 
 export function PoetryDetail({
   poetry,
   relatedPoetries,
   initialScriptVariant,
+  initialIsFavorite,
+  onToggleFavorite,
 }: PoetryDetailProps) {
   return (
     <main className="min-h-screen bg-paper px-5 py-8 text-ink-900 sm:px-8 lg:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        {/* Top bar — navigation only */}
+        {/* Top bar — navigation + actions */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <BackButton />
 
-          <Link
-            href={"/challenge" as Route}
-            className="rounded-full border border-ink-200 bg-primary/10 px-4 py-2 text-sm text-ink-900"
-          >
-            进入挑战
-          </Link>
+          <div className="flex items-center gap-2">
+            <FavoriteToggle
+              poetryId={poetry.id}
+              initialIsFavorite={initialIsFavorite}
+              onToggle={onToggleFavorite}
+            />
+            <Link
+              href={"/challenge" as Route}
+              className="rounded-full border border-ink-200 bg-primary/10 px-4 py-2 text-sm text-ink-900"
+            >
+              进入挑战
+            </Link>
+          </div>
         </div>
 
         {/* Immersive stage: poster + poetry + audio */}

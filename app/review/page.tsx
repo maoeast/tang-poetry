@@ -39,9 +39,6 @@ export default async function ReviewPage() {
           >
             返回首页
           </Link>
-          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
-            温故知新
-          </p>
         </div>
 
         <section className="relative overflow-hidden rounded-[2rem] border border-ink-200 bg-surface p-8 shadow-[var(--shadow-panel)]">

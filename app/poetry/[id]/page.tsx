@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { PoetryDetail } from "@/components/poetry/poetry-detail";
+import { isFavoritePoem, toggleFavoritePoem } from "@/lib/favorite/repository";
 import {
   getPoetryById,
   getRelatedPoetries,
@@ -32,7 +33,10 @@ export default async function PoetryDetailPage({
     notFound();
   }
 
-  await recordPoetryView(poetry.id);
+  const [isFav] = await Promise.all([
+    isFavoritePoem(poetry.id),
+    recordPoetryView(poetry.id),
+  ]);
   const relatedPoetries = await getRelatedPoetries(poetry);
 
   return (
@@ -40,6 +44,13 @@ export default async function PoetryDetailPage({
       poetry={poetry}
       relatedPoetries={relatedPoetries}
       initialScriptVariant={scriptVariant}
+      initialIsFavorite={isFav}
+      onToggleFavorite={toggleFavoriteAction}
     />
   );
+}
+
+async function toggleFavoriteAction(poetryId: string) {
+  "use server";
+  return toggleFavoritePoem(poetryId);
 }

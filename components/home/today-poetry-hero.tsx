@@ -5,6 +5,7 @@ import { WeeklyStreakMatrix } from "@/components/home/weekly-streak-matrix";
 import { LyricsWindow } from "@/components/lyrics/lyrics-window";
 import { PoetryPoster } from "@/components/poster/poetry-poster";
 import { PoetryTitleAuthor } from "@/components/poetry/poetry-title-author";
+import { getAuthorAvatarUrl } from "@/lib/author/repository";
 import type { DailyPoetryResult } from "@/lib/poetry/daily";
 import { splitCoupletLines } from "@/lib/poetry/lines";
 import type { WeeklyCheckIn } from "@/lib/stats/weekly-checkin";
@@ -77,6 +78,7 @@ export function TodayPoetryHero({
             title={todayPoetry.poetry.title}
             author={todayPoetry.poetry.author}
             dynasty={todayPoetry.poetry.dynasty}
+            authorAvatarUrl={getAuthorAvatarUrl(todayPoetry.poetry.author)}
           />
 
           {/* Poem body */}

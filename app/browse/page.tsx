@@ -70,9 +70,6 @@ export default async function BrowsePage({
           >
             返回首页
           </Link>
-          <p className="text-sm tracking-[0.24em] text-ink-600 uppercase">
-            诗歌浏览
-          </p>
         </div>
 
         {/* Hero — 去框化：直接渲染在宣纸底色上 */}
