@@ -68,12 +68,12 @@ export function StickyCategoryNav({ items }: StickyCategoryNavProps) {
   }, []);
 
   return (
-    <div className="flex items-center gap-5 overflow-x-auto scrollbar-none">
+    <div className="scrollbar-hide flex w-full min-w-0 items-center gap-5 overflow-x-auto pb-1">
       {items.map((item) => (
         <button
           key={item.tag}
           onClick={() => scrollTo(item.tag)}
-          className={`whitespace-nowrap text-sm transition-colors font-serif tracking-widest ${
+          className={`shrink-0 whitespace-nowrap text-sm transition-colors font-serif tracking-widest ${
             activeTag === item.tag
               ? "text-accent border-b-2 border-accent pb-px"
               : "text-ink-400 hover:text-ink-600"

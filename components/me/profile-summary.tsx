@@ -119,42 +119,46 @@ export function ProfileSummary({ summary, affinity, favorites }: ProfileSummaryP
                   const hasAvatar = !avatarUrl.endsWith("/default.svg");
 
                   return (
-                  <div
-                    key={item.author}
-                    className="flex items-center gap-4 rounded-[1.5rem] border border-ink-200 bg-surface px-5 py-4"
-                  >
-                    <Link
-                      href={`/author/${encodeURIComponent(item.author)}` as Route}
-                      className="shrink-0"
+                    <div
+                      key={item.author}
+                      className="flex flex-wrap items-center gap-3 rounded-[1.5rem] border border-ink-200 bg-surface px-5 py-4 sm:flex-nowrap sm:gap-4"
                     >
-                      {hasAvatar ? (
-                        <img
-                          src={avatarUrl}
-                          alt={item.author}
-                          className="h-11 w-11 rounded-full object-cover transition-opacity hover:opacity-80"
-                        />
-                      ) : (
-                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink-900/5 text-xs font-serif text-ink-400">
-                          {item.author.slice(0, 2)}
-                        </span>
-                      )}
-                    </Link>
-                    <div className="flex-1">
-                      <p className="text-lg font-medium">{item.author}</p>
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <Link
+                          href={`/author/${encodeURIComponent(item.author)}` as Route}
+                          className="shrink-0"
+                        >
+                          {hasAvatar ? (
+                            <img
+                              src={avatarUrl}
+                              alt={item.author}
+                              className="h-11 w-11 rounded-full object-cover transition-opacity hover:opacity-80"
+                            />
+                          ) : (
+                            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink-900/5 text-xs font-serif text-ink-400">
+                              {item.author.slice(0, 2)}
+                            </span>
+                          )}
+                        </Link>
+                        <p className="whitespace-nowrap text-lg font-medium">
+                          {item.author}
+                        </p>
+                      </div>
+                      <div className="flex w-full items-center gap-3 pl-14 sm:w-auto sm:pl-0">
+                        <div className="h-3 min-w-24 flex-1 overflow-hidden rounded-full bg-[rgba(126,103,81,0.1)] sm:w-24">
+                          <div
+                            className="h-full rounded-full bg-primary"
+                            style={{
+                              width: `${Math.max(
+                                20,
+                                Math.round((item.count / Math.max(affinity[0]?.count ?? 1, 1)) * 100),
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="shrink-0 text-sm text-ink-600">{item.count}</span>
+                      </div>
                     </div>
-                    <div className="h-3 w-24 overflow-hidden rounded-full bg-[rgba(126,103,81,0.1)]">
-                      <div
-                        className="h-full rounded-full bg-primary"
-                        style={{
-                          width: `${Math.max(
-                            20,
-                            Math.round((item.count / Math.max(affinity[0]?.count ?? 1, 1)) * 100),
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-sm text-ink-600">{item.count}</span>
-                  </div>
                   );
                 })}
               </div>

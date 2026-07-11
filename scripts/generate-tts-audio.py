@@ -9,9 +9,6 @@ import re
 import time
 from pathlib import Path
 
-import edge_tts
-from openai import OpenAI
-
 MODEL = "stepaudio-2.5-tts"
 VOICE = "cixingnansheng"
 OUTPUT_FORMAT = "mp3"
@@ -263,7 +260,19 @@ def build_speech_request(poem: dict) -> dict:
     }
 
 
-def generate_with_stepfun(client: OpenAI, poem: dict, output_path: Path) -> None:
+def create_stepfun_client(api_key: str):
+    try:
+        from openai import OpenAI
+    except ModuleNotFoundError as error:
+        raise RuntimeError(
+            "Missing Python package 'openai'. Install TTS dependencies with "
+            "`python -m pip install -r scripts/requirements-tts.txt`.",
+        ) from error
+
+    return OpenAI(api_key=api_key, base_url=BASE_URL)
+
+
+def generate_with_stepfun(client, poem: dict, output_path: Path) -> None:
     payload = build_speech_request(poem)
     response = client.audio.speech.create(
         model=payload["model"],
@@ -281,6 +290,14 @@ def generate_with_stepfun(client: OpenAI, poem: dict, output_path: Path) -> None
 
 
 async def generate_with_edge_async(poem: dict, output_path: Path) -> None:
+    try:
+        import edge_tts
+    except ModuleNotFoundError as error:
+        raise RuntimeError(
+            "Missing Python package 'edge-tts'. Install TTS dependencies with "
+            "`python -m pip install -r scripts/requirements-tts.txt`.",
+        ) from error
+
     communicate = edge_tts.Communicate(
         text=build_input_text(poem),
         voice=EDGE_VOICE,
@@ -314,7 +331,7 @@ def main():
     client = None
     if args.provider in {"auto", "stepfun"}:
         api_key = require_api_key()
-        client = OpenAI(api_key=api_key, base_url=BASE_URL)
+        client = create_stepfun_client(api_key)
 
     success = 0
     failed = 0

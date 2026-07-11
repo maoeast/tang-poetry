@@ -5,9 +5,10 @@ import type { BrowsePoem } from "@/lib/browse/repository";
 
 type PoetryCardProps = {
   poem: BrowsePoem;
+  priority?: boolean;
 };
 
-export function PoetryCard({ poem }: PoetryCardProps) {
+export function PoetryCard({ poem, priority = false }: PoetryCardProps) {
   const imageSrc = poem.image.thumbPath ?? poem.image.imagePath;
 
   return (
@@ -23,6 +24,7 @@ export function PoetryCard({ poem }: PoetryCardProps) {
             src={imageSrc}
             alt={`${poem.title} 配图`}
             fill
+            priority={priority}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
             className="object-cover transition duration-500 group-hover:scale-[1.02]"
           />

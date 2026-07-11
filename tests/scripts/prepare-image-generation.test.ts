@@ -373,7 +373,7 @@ test("buildImageAssetRecord creates placeholder import records before generation
     poetryId: "ts300-0001",
     style: "storybook-watercolor",
     status: "placeholder",
-    promptVersion: "v2",
+    promptVersion: "v1",
     imagePath: "/images/placeholders/default-poetry-card.jpg",
     thumbPath: "/images/placeholders/default-poetry-card.jpg",
   });

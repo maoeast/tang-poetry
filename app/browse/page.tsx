@@ -57,6 +57,12 @@ export default async function BrowsePage({
   ]);
 
   const navItems = categories.map((c) => ({ tag: c.tag, label: c.label }));
+  const priorityPoemIds = new Set(
+    categories
+      .flatMap((category) => category.poems)
+      .slice(0, 4)
+      .map((poem) => poem.id),
+  );
 
   return (
     <main className="min-h-screen bg-paper px-6 py-10 text-ink-900 sm:px-10">
@@ -84,9 +90,13 @@ export default async function BrowsePage({
 
       {/* ── Sticky bar: category nav (left) + search (right) ── */}
       <div className="sticky top-0 z-50 border-b border-ink-200/40 bg-paper/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3 sm:px-10">
-          {!isSearching && <StickyCategoryNav items={navItems} />}
-          <div className="ml-auto">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-10">
+          {!isSearching && (
+            <div className="min-w-0 sm:flex-1">
+              <StickyCategoryNav items={navItems} />
+            </div>
+          )}
+          <div className="w-full min-w-0 sm:ml-auto sm:w-auto">
             <SearchInput />
           </div>
         </div>
@@ -103,8 +113,8 @@ export default async function BrowsePage({
 
             {results.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {results.map((poem) => (
-                  <PoetryCard key={poem.id} poem={poem} />
+                {results.map((poem, index) => (
+                  <PoetryCard key={poem.id} poem={poem} priority={index < 4} />
                 ))}
               </div>
             ) : (
@@ -120,7 +130,11 @@ export default async function BrowsePage({
           </>
         ) : (
           categories.map((category) => (
-            <CategorySection key={category.tag} category={category} />
+            <CategorySection
+              key={category.tag}
+              category={category}
+              priorityPoemIds={priorityPoemIds}
+            />
           ))
         )}
       </div>

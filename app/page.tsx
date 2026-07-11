@@ -70,15 +70,20 @@ export default async function HomePage() {
 
           <div className="relative space-y-8">
             {/* Header: Title + Search + Profile */}
-            <div className="flex items-start justify-between gap-4">
-              <h1 className="text-4xl leading-tight font-semibold sm:text-5xl">
-                诗笺阁
-              </h1>
-              <p className="mt-2 text-sm tracking-[0.24em] text-ink-500/80">
-                展一纸笺，入诗词之境
-              </p>
-              <div className="flex items-center gap-3">
-                <SearchInput />
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h1 className="text-4xl leading-tight font-semibold sm:text-5xl">
+                  诗笺阁
+                </h1>
+                <p className="mt-2 text-sm tracking-[0.24em] text-ink-500/80">
+                  展一纸笺，入诗词之境
+                </p>
+              </div>
+              <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
+                <SearchInput
+                  className="min-w-0 flex-1 sm:w-80"
+                  placeholder="搜索诗词…"
+                />
                 <Link
                   href={"/me" as Route}
                   className="relative flex items-center justify-center transition-opacity duration-300 hover:opacity-70 shrink-0"

@@ -140,6 +140,7 @@ http://localhost:3000
 - 仓库默认 **不跟踪** `public/audio/`，避免把大体积二进制资产直接放进 Git 历史
 - 本地开发可直接把成品 mp3 放在 `public/audio/poetry/`
 - 生产环境推荐把同目录内容同步到对象存储或 CDN，并通过 `AUDIO_BASE_URL` 切换访问前缀
+- 离线补音前先安装脚本依赖：`python -m pip install -r scripts/requirements-tts.txt`
 - 离线补音可用 [`scripts/generate-tts-audio.py`](./scripts/generate-tts-audio.py)，脚本会把文件写入运行时音频目录，且必须通过环境变量注入 `STEPFUN_API_KEY`
 
 更完整的策略见 [docs/audio-asset-strategy.md](./docs/audio-asset-strategy.md)。

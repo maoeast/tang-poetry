@@ -11,7 +11,17 @@ import { useCallback, useEffect, useRef, useState, Suspense } from "react";
  *   self-triggered URL changes from browser back/forward.
  * - Renders directly inside Suspense (useSearchParams requires boundary).
  */
-function SearchInputInner({ basePath = "/browse" }: { basePath?: string }) {
+type SearchInputProps = {
+  basePath?: string;
+  className?: string;
+  placeholder?: string;
+};
+
+function SearchInputInner({
+  basePath = "/browse",
+  className = "w-full sm:w-80",
+  placeholder = "搜索标题、作者或诗句…",
+}: SearchInputProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
@@ -92,7 +102,7 @@ function SearchInputInner({ basePath = "/browse" }: { basePath?: string }) {
   };
 
   return (
-    <div className="relative w-64 sm:w-80">
+    <div className={`relative ${className}`}>
       {/* Search icon */}
       <svg
         className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400"
@@ -116,7 +126,7 @@ function SearchInputInner({ basePath = "/browse" }: { basePath?: string }) {
           isComposing.current = true;
         }}
         onCompositionEnd={handleCompositionEnd}
-        placeholder="搜索标题、作者或诗句…"
+        placeholder={placeholder}
         className="w-full rounded-lg border border-ink-200/60 bg-surface/50 py-2.5 pl-10 pr-10 text-sm text-ink-900 placeholder:text-ink-400/80 transition-colors focus:border-ink-300/80 focus:outline-none font-serif tracking-wide"
         aria-label="搜索诗歌"
       />
@@ -148,20 +158,27 @@ function SearchInputInner({ basePath = "/browse" }: { basePath?: string }) {
 /**
  * Search input wrapped in Suspense (required for useSearchParams).
  */
-export function SearchInput({ basePath = "/browse" }: { basePath?: string }) {
+export function SearchInput({
+  basePath = "/browse",
+  className = "w-full sm:w-80",
+  placeholder = "搜索标题、作者或诗句…",
+}: SearchInputProps) {
   return (
-    <Suspense fallback={<SearchInputFallback />}>
-      <SearchInputInner basePath={basePath} />
+    <Suspense fallback={<SearchInputFallback className={className} placeholder={placeholder} />}>
+      <SearchInputInner basePath={basePath} className={className} placeholder={placeholder} />
     </Suspense>
   );
 }
 
 /** Non-interactive placeholder shown while Suspense is loading */
-function SearchInputFallback() {
+function SearchInputFallback({
+  className = "w-full sm:w-80",
+  placeholder = "搜索标题、作者或诗句…",
+}: Pick<SearchInputProps, "className" | "placeholder">) {
   return (
-    <div className="relative w-64 sm:w-80">
+    <div className={`relative ${className}`}>
       <div className="w-full rounded-lg border border-ink-200/60 bg-surface/50 py-2.5 pl-10 pr-10 text-sm text-ink-400/60 font-serif tracking-wide">
-        搜索标题、作者或诗句…
+        {placeholder}
       </div>
     </div>
   );

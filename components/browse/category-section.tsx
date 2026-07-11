@@ -58,9 +58,13 @@ function toChineseNumeral(n: number): string {
 
 type CategorySectionProps = {
   category: PoetryCategory;
+  priorityPoemIds?: ReadonlySet<string>;
 };
 
-export function CategorySection({ category }: CategorySectionProps) {
+export function CategorySection({
+  category,
+  priorityPoemIds,
+}: CategorySectionProps) {
   const sealText = SEAL_ABBR[category.tag] ?? category.label;
   const chineseCount = toChineseNumeral(category.count);
 
@@ -89,7 +93,11 @@ export function CategorySection({ category }: CategorySectionProps) {
       {/* Card grid — generous gap for 留白 */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {category.poems.map((poem) => (
-          <PoetryCard key={poem.id} poem={poem} />
+          <PoetryCard
+            key={poem.id}
+            poem={poem}
+            priority={priorityPoemIds?.has(poem.id) ?? false}
+          />
         ))}
       </div>
     </section>
